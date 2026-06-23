@@ -16,6 +16,10 @@ Route::controller(DashboardController::class)->prefix('dashboard')->group(functi
     Route::get('stats', 'stats')->name('admin.dashboard.stats');
 });
 
+Route::view('segment', 'admin::segments.index')->name('admin.segment.index');
+
+Route::view('report', 'admin::reports.index')->name('admin.report.index');
+
 /**
  * DataGrid routes.
  */

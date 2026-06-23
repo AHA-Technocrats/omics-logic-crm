@@ -28,9 +28,9 @@ while IFS='|' read -r link_path expected_target; do
     if [[ "$actual_target" != "$expected_target" ]]; then
         echo "ERROR: $link_path points to $actual_target (expected $expected_target)"
         exit 1
-    fi
+    fi  
 done <<'LINKS'
-.ai/skills|../.github/skills
+.ai/skills|../.github/skills    
 .claude/skills|../.github/skills
 .codex/skills|../.github/skills
 .cursor/skills|../.github/skills
@@ -60,7 +60,7 @@ while IFS= read -r skill_file; do
         exit 1
     fi
 
-    if ! grep -qE '^description:' "$skill_file"; then
+    if ! grep -q E '^description:' "$skill_file"; then
         echo "ERROR: missing description in $skill_file"
         exit 1
     fi

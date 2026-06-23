@@ -51,7 +51,7 @@
                     
                     this.datasets.forEach((dataset) => {
                         dataset.barThickness = Math.max(4, 36 / barCount);
-                    });
+                    }); 
         
                     if (this.chart) {
                         this.chart.destroy();

@@ -43,6 +43,21 @@
 
     @stack('meta')
 
+    @php
+        $adminManifestPath = public_path('admin/build/manifest.json');
+        $adminCssEntry = 'assets/app-Cbsk-GkR.css';
+
+        if (file_exists($adminManifestPath)) {
+            $adminManifest = json_decode(file_get_contents($adminManifestPath), true);
+            $adminCssEntry = $adminManifest['src/Resources/assets/css/app.css']['file'] ?? $adminCssEntry;
+        }
+
+        $adminCssPath = public_path('admin/build/'.$adminCssEntry);
+        $adminCssVersion = file_exists($adminCssPath) ? filemtime($adminCssPath) : time();
+    @endphp
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/build/'.$adminCssEntry) }}?v={{ $adminCssVersion }}" />
+
     {{
         vite()->set(['src/Resources/assets/css/app.css', 'src/Resources/assets/js/app.js'])
     }}
@@ -74,19 +89,7 @@
         />
     @endif
 
-    @php
-        $brandColor = core()->getConfigData('general.settings.menu_color.brand_color') ?? '#0E90D9';
-    @endphp
-
     @stack('styles')
-
-    <style>
-        :root {
-            --brand-color: {{ $brandColor }};
-        }
-
-        {!! core()->getConfigData('general.content.custom_scripts.custom_css') !!}
-    </style>
 
     {!! view_render_event('admin.layout.head.after') !!}
 </head>
@@ -110,15 +113,15 @@
         <x-admin::layouts.header />
 
         <div
-            class="group/container sidebar-collapsed flex gap-4"
+            class="flex gap-0"
             ref="appLayout"
         >
             <!-- Page Sidebar Blade Component -->
             <x-admin::layouts.sidebar.desktop />
 
-            <div class="flex min-h-[calc(100vh-62px)] max-w-full flex-1 flex-col bg-gray-100 pt-3 transition-all duration-300 dark:bg-gray-950">
+            <div class="admin-main-content flex min-h-[calc(100vh-46px)] max-w-full flex-1 flex-col transition-all duration-300 dark:bg-gray-950">
                 <!-- Page Content Blade Component -->
-                <div class="px-4 pb-[72px] ltr:lg:pl-[85px] rtl:lg:pr-[85px]">
+                <div class="admin-page-content">
                     {{ $slot }}
                 </div>
 

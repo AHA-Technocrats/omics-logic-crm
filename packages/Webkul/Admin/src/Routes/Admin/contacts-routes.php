@@ -7,6 +7,8 @@ use Webkul\Admin\Http\Controllers\Contact\Persons\PersonController;
 use Webkul\Admin\Http\Controllers\Contact\Persons\TagController;
 
 Route::prefix('contacts')->group(function () {
+    Route::get('', [PersonController::class, 'index'])->name('admin.contacts.index');
+
     /**
      * Persons routes.
      */

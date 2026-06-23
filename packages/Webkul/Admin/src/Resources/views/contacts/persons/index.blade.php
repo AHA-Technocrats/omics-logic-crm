@@ -1,339 +1,312 @@
 <x-admin::layouts>
     <x-slot:title>
-        @lang('admin::app.contacts.persons.index.title')
+        Contacts
     </x-slot>
+@php
+        $metrics = [
+            ['icon' => 'ti ti-users', 'label' => 'TOTAL CONTACTS', 'value' => '34,812', 'note' => '+612 this month'],
+            ['icon' => 'ti ti-user-plus', 'label' => 'NEW LEADS (30D)', 'value' => '612', 'note' => '+18% vs last'],
+            ['icon' => 'ti ti-flame', 'label' => 'ENGAGED LEARNERS', 'value' => '5,941', 'note' => '&ge;1 lesson done'],
+            ['icon' => 'ti ti-crown', 'label' => 'CUSTOMERS', 'value' => '1,287', 'note' => '3.7% lifetime conversion'],
+            ['icon' => 'ti ti-sparkles', 'label' => 'NEEDS REVIEW', 'value' => '23', 'note' => 'possible duplicates', 'review' => true],
+        ];
 
-    <div class="flex flex-col gap-4">
-        <div class="scroll-reactive-sticky sticky top-[60px] z-[1000] flex items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
-            <div class="flex flex-col gap-2">
-                <x-admin::breadcrumbs name="contacts.persons" />
+        $segments = [
+            ['icon' => 'ti ti-star', 'label' => 'All contacts', 'active' => true],
+            ['icon' => 'ti ti-flame', 'label' => 'Engaged, not customer'],
+            ['icon' => 'ti ti-diamond', 'label' => 'India · faculty'],
+            ['icon' => 'ti ti-bolt', 'label' => 'Transcriptomics interest'],
+            ['icon' => 'ti ti-moon', 'label' => 'Dormant 90d+'],
+            ['icon' => 'ti ti-plus', 'label' => 'New segment'],
+        ];
 
-                <div class="text-xl font-bold dark:text-white">
-                    @lang('admin::app.contacts.persons.index.title')
+        $filters = [
+            ['label' => 'Country', 'value' => 'All countries'],
+            ['label' => 'Lifecycle stage', 'value' => 'Any stage'],
+            ['label' => 'Program / interest', 'value' => 'Any program'],
+            ['label' => 'Source', 'value' => 'Any source'],
+            ['label' => 'Education', 'value' => 'Any level'],
+            ['label' => 'Engagement', 'value' => 'Completed &ge;1 lesson'],
+            ['label' => 'Owner', 'value' => 'Any owner'],
+        ];
+
+        $contacts = [
+            [
+                'initials' => 'PN',
+                'avatar' => 'contacts-avatar--red',
+                'name' => 'Priya Nair',
+                'merged' => true,
+                'email' => 'priya.nair@iitj.ac.in',
+                'organization' => 'IIT Jodhpur',
+                'country' => 'India',
+                'stage' => ['label' => 'Customer', 'class' => 'contacts-stage--customer'],
+                'program' => 'Single-Cell RNA-Seq',
+                'source' => 'Portal',
+                'lessons' => '14',
+                'score' => ['value' => '92', 'class' => 'contacts-score--hot'],
+                'owner' => ['initials' => 'OD', 'name' => 'Ojasvi Dutta', 'class' => 'contacts-owner__avatar--gold'],
+                'last' => '2d ago',
+            ],
+            [
+                'initials' => 'CS',
+                'avatar' => 'contacts-avatar--gold',
+                'name' => 'Charith Sumeet',
+                'email' => 'charism@udel.edu',
+                'organization' => 'University of Delaware',
+                'country' => 'United States',
+                'stage' => ['label' => 'Engaged', 'class' => 'contacts-stage--engaged'],
+                'program' => 'From Sample to Sequencer (NGS)',
+                'source' => 'Google Form',
+                'lessons' => '6',
+                'score' => ['value' => '68', 'class' => 'contacts-score--warm'],
+                'owner' => ['initials' => 'HS', 'name' => 'Harshita Sharma', 'class' => 'contacts-owner__avatar--gold'],
+                'last' => '6d ago',
+            ],
+            [
+                'initials' => 'TA',
+                'avatar' => 'contacts-avatar--purple',
+                'name' => 'Tunde Adeyemi',
+                'merged' => true,
+                'email' => 't.adeyemi@unilag.edu.ng',
+                'organization' => 'University of Lagos',
+                'country' => 'Nigeria',
+                'stage' => ['label' => 'Engaged', 'class' => 'contacts-stage--engaged'],
+                'program' => 'Metagenomics',
+                'source' => 'Referral',
+                'lessons' => '4',
+                'score' => ['value' => '71', 'class' => 'contacts-score--warm'],
+                'owner' => ['initials' => 'MM', 'name' => 'Mohit M.', 'class' => 'contacts-owner__avatar--green'],
+                'last' => '1d ago',
+            ],
+            [
+                'initials' => 'LF',
+                'avatar' => 'contacts-avatar--green',
+                'name' => 'Lena Fischer',
+                'merged' => true,
+                'email' => 'lena.fischer@gmail.com',
+                'organization' => 'McGill University',
+                'country' => 'Canada',
+                'stage' => ['label' => 'Customer', 'class' => 'contacts-stage--customer'],
+                'program' => 'Machine Learning for Omics',
+                'source' => 'Portal',
+                'lessons' => '11',
+                'score' => ['value' => '85', 'class' => 'contacts-score--hot'],
+                'owner' => ['initials' => 'OD', 'name' => 'Ojasvi Dutta', 'class' => 'contacts-owner__avatar--gold'],
+                'last' => '1d ago',
+            ],
+            [
+                'initials' => 'RD',
+                'avatar' => 'contacts-avatar--red',
+                'name' => 'Rohan Das',
+                'merged' => true,
+                'email' => 'rohan.das@nibmg.ac.in',
+                'organization' => 'NIBMG Kalyani',
+                'country' => 'India',
+                'stage' => ['label' => 'Dormant', 'class' => 'contacts-stage--dormant'],
+                'program' => 'Clinical Genomics',
+                'source' => 'Zoho import',
+                'lessons' => '2',
+                'score' => ['value' => '41', 'class' => 'contacts-score--cold'],
+                'owner' => ['initials' => 'HS', 'name' => 'Harshita Sharma', 'class' => 'contacts-owner__avatar--gold'],
+                'last' => '5mo ago',
+            ],
+            [
+                'initials' => 'OH',
+                'avatar' => 'contacts-avatar--gold',
+                'name' => 'Omar Hassan',
+                'email' => 'omar.hassan@cu.edu.eg',
+                'organization' => 'Cairo University',
+                'country' => 'Egypt',
+                'stage' => ['label' => 'Engaged', 'class' => 'contacts-stage--engaged'],
+                'program' => 'RNA-Seq Data Analysis',
+                'source' => 'Portal',
+                'lessons' => '7',
+                'score' => ['value' => '64', 'class' => 'contacts-score--warm'],
+                'owner' => ['initials' => 'OD', 'name' => 'Ojasvi Dutta', 'class' => 'contacts-owner__avatar--gold'],
+                'last' => '4d ago',
+            ],
+            [
+                'initials' => 'SR',
+                'avatar' => 'contacts-avatar--teal',
+                'name' => 'Sneha Reddy',
+                'email' => 'sneha.reddy@gmail.com',
+                'organization' => 'Independent',
+                'country' => 'India',
+                'stage' => ['label' => 'Engaged', 'class' => 'contacts-stage--engaged'],
+                'program' => 'AI in Drug Discovery',
+                'source' => 'Google Form',
+                'lessons' => '5',
+                'score' => ['value' => '59', 'class' => 'contacts-score--warm'],
+                'owner' => ['initials' => 'MM', 'name' => 'Mohit M.', 'class' => 'contacts-owner__avatar--green'],
+                'last' => '8d ago',
+            ],
+        ];
+    @endphp
+
+    {!! view_render_event('admin.persons.index.content.before') !!}
+
+    <section class="contacts-hero">
+        <h1>Contacts</h1>
+        <p>One unified record per person — merged from Google Forms, the OmicsLogic portal, and legacy CRM imports.</p>
+    </section>
+
+    <div class="contacts-page">
+        <section class="contacts-metrics">
+            @foreach ($metrics as $metric)
+                <article class="contacts-metric {{ ! empty($metric['review']) ? 'contacts-metric--review' : '' }}">
+                    <div class="contacts-metric__label">
+                        <i class="{{ $metric['icon'] }}"></i>
+                        {{ $metric['label'] }}
+                    </div>
+
+                    <div class="contacts-metric__value">{{ $metric['value'] }}</div>
+                    <div class="contacts-metric__note">{!! $metric['note'] !!}</div>
+                </article>
+            @endforeach
+        </section>
+
+        <section class="contacts-segments">
+            <span class="contacts-segments__label">Saved segments:</span>
+
+            @foreach ($segments as $segment)
+                <button
+                    type="button"
+                    class="contacts-chip {{ ! empty($segment['active']) ? 'contacts-chip--active' : '' }}"
+                >
+                    <i class="{{ $segment['icon'] }}"></i>
+                    {{ $segment['label'] }}
+                </button>
+            @endforeach
+        </section>
+
+        <section class="contacts-filters">
+            @foreach ($filters as $filter)
+                <div class="contacts-filter">
+                    <label>{{ $filter['label'] }}</label>
+                    <div class="contacts-filter__select">
+                        <select>
+                            <option>{!! $filter['value'] !!}</option>
+                        </select>
+                    </div>
+                </div>
+            @endforeach
+
+            <button
+                type="button"
+                class="contacts-filter__clear"
+            >
+                <span>×</span>
+                Clear
+            </button>
+        </section>
+
+        <section class="contacts-table-shell">
+            <div class="contacts-table-tools">
+                <div class="contacts-table-tools__count">
+                    Showing <strong>7</strong> of <strong>34,812</strong> contacts
+                </div>
+
+                <div class="contacts-table-tools__actions">
+                    <span><i class="ti ti-columns-3"></i> Columns</span>
+                    <span><i class="ti ti-download"></i> Export CSV</span>
+                    <span><i class="ti ti-bookmark"></i> Save as segment</span>
                 </div>
             </div>
 
-            <div class="flex items-center gap-x-2.5">
-                <!-- Export Modal -->
-                <x-admin::datagrid.export :src="route('admin.contacts.persons.index')" />
+            <div class="contacts-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" class="contacts-checkbox"></th>
+                            <th>Contact</th>
+                            <th>Organization</th>
+                            <th>Country</th>
+                            <th>Stage</th>
+                            <th>Program / Interest</th>
+                            <th>Source</th>
+                            <th>Lessons</th>
+                            <th>Score</th>
+                            <th>Owner</th>
+                            <th class="text-right">Last<br>Activity</th>
+                        </tr>
+                    </thead>
 
-                <!-- Create button for person -->
-                <div class="flex items-center gap-x-2.5">
-                    {!! view_render_event('admin.persons.index.create_button.before') !!}
+                    <tbody>
+                        @foreach ($contacts as $contact)
+                            <tr>
+                                <td><input type="checkbox" class="contacts-checkbox"></td>
 
-                    @if (bouncer()->hasPermission('contacts.persons.create'))
-                        <a
-                            href="{{ route('admin.contacts.persons.create') }}"
-                            class="primary-button"
-                        >
-                            @lang('admin::app.contacts.persons.index.create-btn')
-                        </a>
-                    @endif
+                                <td>
+                                    <div class="contacts-person">
+                                        <span class="contacts-avatar {{ $contact['avatar'] }}">{{ $contact['initials'] }}</span>
 
-                    {!! view_render_event('admin.persons.index.create_button.after') !!}
-                </div>
+                                        <div>
+                                            <div class="contacts-person__name">
+                                                {{ $contact['name'] }}
+
+                                                @if (! empty($contact['merged']))
+                                                    <span class="contacts-badge contacts-badge--merged">merged</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="contacts-person__email">{{ $contact['email'] }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>{{ $contact['organization'] }}</td>
+                                <td>{{ $contact['country'] }}</td>
+
+                                <td>
+                                    <span class="contacts-stage {{ $contact['stage']['class'] }}">
+                                        {{ $contact['stage']['label'] }}
+                                    </span>
+                                </td>
+
+                                <td>{{ $contact['program'] }}</td>
+
+                                <td>
+                                    <span class="contacts-source">
+                                        <i class="ti ti-link"></i>
+                                        {{ $contact['source'] }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="contacts-lessons">
+                                        <i class="ti ti-book"></i>
+                                        {{ $contact['lessons'] }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="{{ $contact['score']['class'] }}">
+                                        {{ $contact['score']['value'] }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="contacts-owner">
+                                        <span class="contacts-owner__avatar {{ $contact['owner']['class'] }}">
+                                            {{ $contact['owner']['initials'] }}
+                                        </span>
+                                        {{ $contact['owner']['name'] }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="contacts-activity">
+                                        {{ $contact['last'] }}
+                                        <i class="ti ti-trash"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-        </div>
-
-        {!! view_render_event('admin.persons.index.datagrid.before') !!}
-
-        <v-persons>
-            <!-- Datagrid shimmer -->
-            <x-admin::shimmer.datagrid :is-multi-row="true"/>
-        </v-persons>
-
-        {!! view_render_event('admin.persons.index.datagrid.after') !!}
+        </section>
     </div>
 
-    @pushOnce('scripts')
-        <script
-            type="text/x-template"
-            id="v-persons-template"
-        >
-            <x-admin::datagrid
-                src="{{ route('admin.contacts.persons.index') }}"
-                :isMultiRow="true"
-                ref="datagrid"
-            >
-                <template #header="{
-                    isLoading,
-                    available,
-                    applied,
-                    selectAll,
-                    sort,
-                    performAction
-                }">
-                    <template v-if="isLoading">
-                        <x-admin::shimmer.datagrid.table.head :isMultiRow="true" />
-                    </template>
-
-                    <template v-else>
-                        <div class="row grid grid-cols-[.1fr_.2fr_.2fr_.2fr_.2fr_.2fr] grid-rows-1 items-center border-b px-4 py-2.5 dark:border-gray-800 max-lg:hidden">
-                            <div
-                                class="flex select-none items-center gap-2.5"
-                                v-for="(columnGroup, index) in [['id'], ['person_name'], ['emails'], ['contact_numbers'], ['organization']]"
-                            >
-                                <label
-                                    class="flex w-max cursor-pointer select-none items-center gap-1"
-                                    for="mass_action_select_all_records"
-                                    v-if="! index"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        name="mass_action_select_all_records"
-                                        id="mass_action_select_all_records"
-                                        class="peer hidden"
-                                        :checked="['all', 'partial'].includes(applied.massActions.meta.mode)"
-                                        @change="selectAll"
-                                    >
-
-                                    <span
-                                        class="icon-checkbox-outline cursor-pointer rounded-md text-2xl text-gray-600 dark:text-gray-300"
-                                        :class="[
-                                            applied.massActions.meta.mode === 'all' ? 'peer-checked:icon-checkbox-select peer-checked:text-brandColor' : (
-                                                applied.massActions.meta.mode === 'partial' ? 'peer-checked:icon-checkbox-multiple peer-checked:text-brandColor' : ''
-                                            ),
-                                        ]"
-                                    >
-                                    </span>
-                                </label>
-
-                                <p class="text-gray-600 dark:text-gray-300">
-                                    <span class="[&>*]:after:content-['_/_']">
-                                        <template v-for="column in columnGroup">
-                                            <span
-                                                class="after:content-['/'] last:after:content-['']"
-                                                :class="{
-                                                    'font-medium text-gray-800 dark:text-white': applied.sort.column == column,
-                                                    'cursor-pointer hover:text-gray-800 dark:hover:text-white': available.columns.find(columnTemp => columnTemp.index === column)?.sortable,
-                                                }"
-                                                @click="
-                                                    available.columns.find(columnTemp => columnTemp.index === column)?.sortable ? sort(available.columns.find(columnTemp => columnTemp.index === column)): {}
-                                                "
-                                            >
-                                                @{{ available.columns.find(columnTemp => columnTemp.index === column)?.label }}
-                                            </span>
-                                        </template>
-                                    </span>
-
-                                    <i
-                                        class="align-text-bottom text-base text-gray-800 dark:text-white ltr:ml-1.5 rtl:mr-1.5"
-                                        :class="[applied.sort.order === 'asc' ? 'icon-stats-down': 'icon-stats-up']"
-                                        v-if="columnGroup.includes(applied.sort.column)"
-                                    ></i>
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Mobile Sort/Filter Header -->
-                        <div class="hidden border-b bg-gray-50 px-4 py-3 text-black dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 max-lg:block">
-                            <div class="flex items-center justify-between">
-                                <!-- Mass Actions for Mobile -->
-                                <div v-if="available.massActions.length">
-                                    <label
-                                        class="flex w-max cursor-pointer select-none items-center gap-1"
-                                        for="mass_action_select_all_records"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            name="mass_action_select_all_records"
-                                            id="mass_action_select_all_records"
-                                            class="peer hidden"
-                                            :checked="['all', 'partial'].includes(applied.massActions.meta.mode)"
-                                            @change="selectAll"
-                                        >
-
-                                        <span
-                                            class="icon-checkbox-outline cursor-pointer rounded-md text-2xl text-gray-600 dark:text-gray-300"
-                                            :class="[
-                                                applied.massActions.meta.mode === 'all' ? 'peer-checked:icon-checkbox-select peer-checked:text-brandColor' : (
-                                                    applied.massActions.meta.mode === 'partial' ? 'peer-checked:icon-checkbox-multiple peer-checked:text-brandColor' : ''
-                                                ),
-                                            ]"
-                                        >
-                                        </span>
-                                    </label>
-                                </div>
-                                
-                                <!-- Mobile Sort Dropdown -->
-                                <div v-if="available.columns.some(column => column.sortable)">
-                                    <x-admin::dropdown position="bottom-{{ in_array(app()->getLocale(), ['fa', 'ar']) ? 'left' : 'right' }}">
-                                        <x-slot:toggle>
-                                            <div class="flex items-center gap-1">
-                                                <button
-                                                    type="button"
-                                                    class="inline-flex w-full max-w-max cursor-pointer appearance-none items-center justify-between gap-x-2 rounded-md border bg-white px-2.5 py-1.5 text-center leading-6 text-gray-600 transition-all marker:shadow hover:border-gray-400 focus:border-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-gray-400 dark:focus:border-gray-400"
-                                                >
-                                                    <span>
-                                                        Sort
-                                                    </span>
-                    
-                                                    <span class="icon-down-arrow text-2xl"></span>
-                                                </button>
-                                            </div>
-                                        </x-slot>
-                
-                                        <x-slot:menu>
-                                            <x-admin::dropdown.menu.item
-                                                v-for="column in available.columns.filter(column => column.sortable && column.visibility)"
-                                                @click="sort(column)"
-                                            >
-                                                <div class="flex items-center gap-2">
-                                                    <span v-html="column.label"></span>
-                                                    <i
-                                                        class="align-text-bottom text-base text-gray-600 dark:text-gray-300"
-                                                        :class="[applied.sort.order === 'asc' ? 'icon-stats-down': 'icon-stats-up']"
-                                                        v-if="column.index == applied.sort.column"
-                                                    ></i>
-                                                </div>
-                                            </x-admin::dropdown.menu.item>
-                                        </x-slot>
-                                    </x-admin::dropdown>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </template>
-
-                <template #body="{
-                    isLoading,
-                    available,
-                    applied,
-                    selectAll,
-                    sort,
-                    performAction
-                }">
-                    <template v-if="isLoading">
-                        <x-admin::shimmer.datagrid.table.body :isMultiRow="true" />
-                    </template>
-
-                    <template v-else>
-                        <div
-                            class="row grid grid-cols-[.1fr_.2fr_.2fr_.2fr_.2fr_.2fr] grid-rows-1 border-b px-4 py-2.5 transition-all hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-950 max-lg:hidden"
-                            v-for="record in available.records"
-                        >
-                            <!-- Mass Action and Person ID. -->
-                            <div class="flex items-center gap-2.5">
-                                <input
-                                    type="checkbox"
-                                    :name="`mass_action_select_record_${record.id}`"
-                                    :id="`mass_action_select_record_${record.id}`"
-                                    :value="record.id"
-                                    class="peer hidden"
-                                    v-model="applied.massActions.indices"
-                                >
-
-                                <label
-                                    class="icon-checkbox-outline peer-checked:icon-checkbox-select cursor-pointer rounded-md text-2xl text-gray-600 peer-checked:text-brandColor dark:text-gray-300"
-                                    :for="`mass_action_select_record_${record.id}`"
-                                ></label>
-
-                                <div class="flex flex-col gap-1.5 dark:text-gray-300">
-                                    @{{ record.id }}
-                                </div>
-                            </div>
-
-                            <!-- Name -->
-                            <div class="flex items-center gap-1.5 dark:text-gray-300">
-                                <x-admin::avatar ::name="record.person_name" />
-
-                                @{{ record.person_name }}
-                            </div>
-
-                            <!-- Emails -->
-                            <p class="flex items-center dark:text-gray-300">
-                                @{{ record.emails }}
-                            </p>
-
-                            <!-- Contact Numbers -->
-                            <p class="flex items-center dark:text-gray-300">
-                                @{{ record.contact_numbers }}
-                            </p>
-
-                            <!-- Organization -->
-                            <p class="flex items-center dark:text-gray-300">
-                                @{{ record.organization }}
-                            </p>
-
-                            <!-- Actions -->
-                            <div class="flex items-center justify-end gap-x-4">
-                                <div class="flex items-center gap-1.5">
-                                    <p
-                                        class="place-self-end"
-                                        v-if="available.actions.length"
-                                    >
-                                        <span
-                                            class="cursor-pointer rounded-md p-1.5 text-2xl transition-all hover:bg-gray-200 dark:hover:bg-gray-800 max-sm:place-self-center"
-                                            :class="action.icon"
-                                            v-text="! action.icon ? action.title : ''"
-                                            v-for="action in record.actions"
-                                            @click="performAction(action)"
-                                        ></span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Mobile Card View -->
-                        <div
-                            class="hidden border-b px-4 py-4 text-black dark:border-gray-800 dark:text-gray-300 max-lg:block"
-                            v-for="record in available.records"
-                        >
-                            <div class="mb-2 flex items-center justify-between">
-                                <!-- Mass Actions for Mobile Cards -->
-                                <div class="flex w-full items-center justify-between gap-2">
-                                    <p v-if="available.massActions.length">
-                                        <label :for="`mass_action_select_record_${record[available.meta.primary_column]}`">
-                                            <input
-                                                type="checkbox"
-                                                :name="`mass_action_select_record_${record[available.meta.primary_column]}`"
-                                                :value="record[available.meta.primary_column]"
-                                                :id="`mass_action_select_record_${record[available.meta.primary_column]}`"
-                                                class="peer hidden"
-                                                v-model="applied.massActions.indices"
-                                            >
-    
-                                            <span class="icon-checkbox-outline peer-checked:icon-checkbox-select cursor-pointer rounded-md text-2xl text-gray-500 peer-checked:text-brandColor">
-                                            </span>
-                                        </label>
-                                    </p>
-
-                                    <!-- Actions for Mobile -->
-                                    <div
-                                        class="flex w-full items-center justify-end"
-                                        v-if="available.actions.length"
-                                    >
-                                        <span
-                                            class="dark:hover:bg-gray-80 cursor-pointer rounded-md p-1.5 text-2xl transition-all hover:bg-gray-200"
-                                            :class="action.icon"
-                                            v-text="! action.icon ? action.title : ''"
-                                            v-for="action in record.actions"
-                                            @click="performAction(action)"
-                                        >
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Card Content -->
-                            <div class="grid gap-2">
-                                <template v-for="column in available.columns">
-                                    <div class="flex flex-wrap items-baseline gap-x-2">
-                                        <span class="text-slate-600 dark:text-gray-300" v-html="column.label + ':'"></span>
-                                        <span class="break-words font-medium text-slate-900 dark:text-white" v-html="record[column.index]"></span>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-                </template>
-            </x-admin::datagrid>
-        </script>
-
-        <script type="module">
-            app.component('v-persons', {
-                template: '#v-persons-template',
-            });
-        </script>
-    @endPushOnce
+    {!! view_render_event('admin.persons.index.content.after') !!}
 </x-admin::layouts>

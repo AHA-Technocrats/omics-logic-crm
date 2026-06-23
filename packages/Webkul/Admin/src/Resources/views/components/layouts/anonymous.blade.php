@@ -34,6 +34,21 @@
 
     @stack('meta')
 
+    @php
+        $adminManifestPath = public_path('admin/build/manifest.json');
+        $adminCssEntry = 'assets/app-Cbsk-GkR.css';
+
+        if (file_exists($adminManifestPath)) {
+            $adminManifest = json_decode(file_get_contents($adminManifestPath), true);
+            $adminCssEntry = $adminManifest['src/Resources/assets/css/app.css']['file'] ?? $adminCssEntry;
+        }
+
+        $adminCssPath = public_path('admin/build/'.$adminCssEntry);
+        $adminCssVersion = file_exists($adminCssPath) ? filemtime($adminCssPath) : time();
+    @endphp
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/build/'.$adminCssEntry) }}?v={{ $adminCssVersion }}" />
+
     {{
         vite()->set(['src/Resources/assets/css/app.css', 'src/Resources/assets/js/app.js'])
     }}
