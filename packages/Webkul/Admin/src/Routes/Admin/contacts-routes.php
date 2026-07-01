@@ -7,17 +7,22 @@ use Webkul\Admin\Http\Controllers\Contact\Persons\PersonController;
 use Webkul\Admin\Http\Controllers\Contact\Persons\TagController;
 
 Route::prefix('contacts')->group(function () {
-    Route::get('', [PersonController::class, 'index'])->name('admin.contacts.index');
-
     /**
      * Persons routes.
      */
-    Route::controller(PersonController::class)->prefix('persons')->group(function () {
+    Route::controller(PersonController::class)->group(function () {
         Route::get('', 'index')->name('admin.contacts.persons.index');
+    });
+
+    Route::controller(PersonController::class)->prefix('persons')->group(function () {
 
         Route::get('create', 'create')->name('admin.contacts.persons.create');
 
         Route::post('create', 'store')->name('admin.contacts.persons.store');
+
+        Route::view('profile/{id}', 'admin::contacts.persons.detail')->name('admin.contacts.persons.detail');
+
+        Route::view('profile/{id}/edit', 'admin::contacts.persons.edit-profile')->name('admin.contacts.persons.edit_profile');
 
         Route::get('view/{id}', 'show')->name('admin.contacts.persons.view');
 
@@ -48,22 +53,23 @@ Route::prefix('contacts')->group(function () {
         });
     });
 
-    /**
-     * Organization routes.
-     */
-    Route::controller(OrganizationController::class)->prefix('organizations')->group(function () {
-        Route::get('', 'index')->name('admin.contacts.organizations.index');
+});
 
-        Route::get('create', 'create')->name('admin.contacts.organizations.create');
+/**
+ * Organization routes.
+ */
+Route::controller(OrganizationController::class)->prefix('Organization')->group(function () {
+    Route::get('', 'index')->name('admin.contacts.organizations.index');
 
-        Route::post('create', 'store')->name('admin.contacts.organizations.store');
+    Route::get('create', 'create')->name('admin.contacts.organizations.create');
 
-        Route::get('edit/{id?}', 'edit')->name('admin.contacts.organizations.edit');
+    Route::post('create', 'store')->name('admin.contacts.organizations.store');
 
-        Route::put('edit/{id}', 'update')->name('admin.contacts.organizations.update');
+    Route::get('edit/{id?}', 'edit')->name('admin.contacts.organizations.edit');
 
-        Route::delete('{id}', 'destroy')->name('admin.contacts.organizations.delete');
+    Route::put('edit/{id}', 'update')->name('admin.contacts.organizations.update');
 
-        Route::put('mass-destroy', 'massDestroy')->name('admin.contacts.organizations.mass_delete');
-    });
+    Route::delete('{id}', 'destroy')->name('admin.contacts.organizations.delete');
+
+    Route::put('mass-destroy', 'massDestroy')->name('admin.contacts.organizations.mass_delete');
 });

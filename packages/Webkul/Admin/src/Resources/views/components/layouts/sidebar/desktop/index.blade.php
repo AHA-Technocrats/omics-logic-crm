@@ -6,8 +6,8 @@
             'label' => 'START HERE',
             'items' => [
                 [
-                    'label' => 'Guide & roadmap',
-                    'icon' => null,
+                    'label' => 'Dashboard',
+                    'icon' => 'fa-regular fa-map',
                     'route' => 'admin.dashboard.index',
                     'active' => request()->routeIs('admin.dashboard.*'),
                     'badge' => ['text' => 'New', 'class' => 'crm-sidebar__badge--green'],
@@ -19,25 +19,25 @@
             'items' => [
                 [
                     'label' => 'Contacts',
-                    'icon' => 'ti ti-users',
+                    'icon' => 'fa-solid fa-users',
                     'route' => 'admin.contacts.persons.index',
                     'active' => request()->routeIs('admin.contacts.persons.*'),
                 ],
                 [
                     'label' => 'Organizations',
-                    'icon' => 'ti ti-building',
+                    'icon' => 'fa-regular fa-building',
                     'route' => 'admin.contacts.organizations.index',
                     'active' => request()->routeIs('admin.contacts.organizations.*'),
                 ],
                 [
                     'label' => 'Campaigns',
-                    'icon' => 'ti ti-flag',
+                    'icon' => 'fa-regular fa-flag',
                     'route' => 'admin.leads.index',
                     'active' => request()->routeIs('admin.leads.*'),
                 ],
                 [
                     'label' => 'Merge review',
-                    'icon' => null,
+                    'icon' => 'fa-solid fa-code-merge',
                     'route' => 'admin.leads.index',
                     'active' => false,
                     'badge' => ['text' => '23', 'class' => 'crm-sidebar__badge--orange'],
@@ -49,19 +49,19 @@
             'items' => [
                 [
                     'label' => 'Segments',
-                    'icon' => 'ti ti-bookmark',
+                    'icon' => 'fa-regular fa-bookmark',
                     'route' => 'admin.segment.index',
                     'active' => request()->routeIs('admin.segment.*'),
                 ],
                 [
                     'label' => 'Reports',
-                    'icon' => 'ti ti-chart-bar',
-                    'route' => 'admin.dashboard.index',
+                    'icon' => 'fa-solid fa-chart-simple',
+                    'route' => 'admin.report.index',
                     'active' => false,
                 ],
                 [
                     'label' => 'Imports',
-                    'icon' => 'ti ti-database-import',
+                    'icon' => 'fa-solid fa-database',
                     'route' => 'admin.settings.data_transfer.imports.index',
                     'active' => request()->routeIs('admin.settings.data_transfer.imports.*'),
                 ],
@@ -72,19 +72,19 @@
             'items' => [
                 [
                     'label' => 'Connectors',
-                    'icon' => 'ti ti-plug-connected',
+                    'icon' => 'fa-solid fa-plug',
                     'route' => 'admin.configuration.index',
                     'active' => request()->routeIs('admin.configuration.*'),
                 ],
                 [
                     'label' => 'Audit log',
-                    'icon' => 'ti ti-history',
-                    'route' => 'admin.settings.index',
-                    'active' => false,
+                    'icon' => 'fa-solid fa-clock-rotate-left',
+                    'route' => 'admin.audit-log.index',
+                    'active' => request()->routeIs('admin.audit-log.*'),
                 ],
                 [
                     'label' => 'Settings',
-                    'icon' => 'ti ti-settings',
+                    'icon' => 'fa-solid fa-gear',
                     'route' => 'admin.settings.index',
                     'active' => request()->routeIs('admin.settings.*') && ! request()->routeIs('admin.settings.data_transfer.imports.*'),
                 ],

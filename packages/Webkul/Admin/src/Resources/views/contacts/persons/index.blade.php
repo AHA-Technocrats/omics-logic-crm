@@ -4,20 +4,20 @@
     </x-slot>
 @php
         $metrics = [
-            ['icon' => 'ti ti-users', 'label' => 'TOTAL CONTACTS', 'value' => '34,812', 'note' => '+612 this month'],
-            ['icon' => 'ti ti-user-plus', 'label' => 'NEW LEADS (30D)', 'value' => '612', 'note' => '+18% vs last'],
-            ['icon' => 'ti ti-flame', 'label' => 'ENGAGED LEARNERS', 'value' => '5,941', 'note' => '&ge;1 lesson done'],
-            ['icon' => 'ti ti-crown', 'label' => 'CUSTOMERS', 'value' => '1,287', 'note' => '3.7% lifetime conversion'],
-            ['icon' => 'ti ti-sparkles', 'label' => 'NEEDS REVIEW', 'value' => '23', 'note' => 'possible duplicates', 'review' => true],
+            ['icon' => 'fa-solid fa-users', 'label' => 'TOTAL CONTACTS', 'value' => '34,812', 'note' => '+612 this month'],
+            ['icon' => 'fa-solid fa-user-plus', 'label' => 'NEW LEADS (30D)', 'value' => '612', 'note' => '+18% vs last'],
+            ['icon' => 'fa-solid fa-fire-flame-curved', 'label' => 'ENGAGED LEARNERS', 'value' => '5,941', 'note' => '&ge;1 lesson done'],
+            ['icon' => 'fa-solid fa-crown', 'label' => 'CUSTOMERS', 'value' => '1,287', 'note' => '3.7% lifetime conversion'],
+            ['icon' => 'fa-solid fa-wand-magic-sparkles', 'label' => 'NEEDS REVIEW', 'value' => '23', 'note' => 'possible duplicates', 'review' => true],
         ];
 
         $segments = [
-            ['icon' => 'ti ti-star', 'label' => 'All contacts', 'active' => true],
-            ['icon' => 'ti ti-flame', 'label' => 'Engaged, not customer'],
-            ['icon' => 'ti ti-diamond', 'label' => 'India · faculty'],
-            ['icon' => 'ti ti-bolt', 'label' => 'Transcriptomics interest'],
-            ['icon' => 'ti ti-moon', 'label' => 'Dormant 90d+'],
-            ['icon' => 'ti ti-plus', 'label' => 'New segment'],
+            ['icon' => 'fa-regular fa-star', 'label' => 'All contacts', 'active' => true],
+            ['icon' => 'fa-solid fa-fire-flame-curved', 'label' => 'Engaged, not customer'],
+            ['icon' => 'fa-regular fa-gem', 'label' => 'India · faculty'],
+            ['icon' => 'fa-solid fa-wand-magic-sparkles', 'label' => 'Transcriptomics interest'],
+            ['icon' => 'fa-regular fa-moon', 'label' => 'Dormant 90d+'],
+            ['icon' => 'fa-solid fa-plus', 'label' => 'New segment'],
         ];
 
         $filters = [
@@ -28,6 +28,20 @@
             ['label' => 'Education', 'value' => 'Any level'],
             ['label' => 'Engagement', 'value' => 'Completed &ge;1 lesson'],
             ['label' => 'Owner', 'value' => 'Any owner'],
+        ];
+
+        $sourceIcons = [
+            'Portal' => 'fa-solid fa-graduation-cap',
+            'Google Form' => 'fa-regular fa-clipboard',
+            'Referral' => 'fa-solid fa-share-nodes',
+            'Zoho import' => 'fa-solid fa-database',
+        ];
+
+        $sourceClasses = [
+            'Portal' => 'contacts-source--portal',
+            'Google Form' => 'contacts-source--google-form',
+            'Referral' => 'contacts-source--referral',
+            'Zoho import' => 'contacts-source--zoho',
         ];
 
         $contacts = [
@@ -207,9 +221,9 @@
                 </div>
 
                 <div class="contacts-table-tools__actions">
-                    <span><i class="ti ti-columns-3"></i> Columns</span>
-                    <span><i class="ti ti-download"></i> Export CSV</span>
-                    <span><i class="ti ti-bookmark"></i> Save as segment</span>
+                    <span><i class="fa-solid fa-list"></i> Columns</span>
+                    <span><i class="fa-solid fa-download"></i> Export CSV</span>
+                    <span><i class="fa-regular fa-bookmark"></i> Save as segment</span>
                 </div>
             </div>
 
@@ -233,8 +247,12 @@
 
                     <tbody>
                         @foreach ($contacts as $contact)
-                            <tr>
-                                <td><input type="checkbox" class="contacts-checkbox"></td>
+                            <tr
+                                data-contact-id="{{ $loop->iteration }}"
+                                class="contacts-clickable-row"
+                                onclick="window.location.href='{{ route('admin.contacts.persons.detail', $loop->iteration) }}'"
+                            >
+                                <td onclick="event.stopPropagation()"><input type="checkbox" class="contacts-checkbox"></td>
 
                                 <td>
                                     <div class="contacts-person">
@@ -266,8 +284,8 @@
                                 <td>{{ $contact['program'] }}</td>
 
                                 <td>
-                                    <span class="contacts-source">
-                                        <i class="ti ti-link"></i>
+                                    <span class="contacts-source {{ $sourceClasses[$contact['source']] ?? '' }}">
+                                        <i class="{{ $sourceIcons[$contact['source']] ?? 'fa-solid fa-link' }}"></i>
                                         {{ $contact['source'] }}
                                     </span>
                                 </td>
@@ -296,8 +314,17 @@
 
                                 <td>
                                     <div class="contacts-activity">
-                                        {{ $contact['last'] }}
-                                        <i class="ti ti-trash"></i>
+                                        <span>{{ $contact['last'] }}</span>
+
+                                        <button
+                                            type="button"
+                                            class="contacts-row-action contacts-row-action--delete"
+                                            title="Delete contact"
+                                            aria-label="Delete {{ $contact['name'] }}"
+                                            onclick="event.stopPropagation(); deleteContact({{ $loop->iteration }}, @js($contact['name']))"
+                                        >
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -309,4 +336,53 @@
     </div>
 
     {!! view_render_event('admin.persons.index.content.after') !!}
+
+    @pushOnce('scripts')
+        <script>
+            window.deleteContact = function (contactId, contactName) {
+                const removeContactRow = function () {
+                    document.querySelector(`[data-contact-id="${contactId}"]`)?.remove();
+                    window.emitter?.emit('add-flash', {
+                        type: 'success',
+                        message: `${contactName} deleted successfully.`,
+                    });
+                };
+
+                if (window.Swal) {
+                    window.Swal.fire({
+                        title: 'Delete contact?',
+                        text: `Are you sure you want to delete ${contactName}?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: 'Delete',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            removeContactRow();
+                        }
+                    });
+
+                    return;
+                }
+
+                if (window.emitter) {
+                    window.emitter.emit('open-confirm-modal', {
+                        title: 'Delete contact?',
+                        message: `Are you sure you want to delete ${contactName}?`,
+                        options: {
+                            btnDisagree: 'Cancel',
+                            btnAgree: 'Delete',
+                        },
+                        agree: removeContactRow,
+                    });
+
+                    return;
+                }
+
+                if (window.confirm(`Are you sure you want to delete ${contactName}?`)) {
+                    removeContactRow();
+                }
+            };
+        </script>
+    @endPushOnce
 </x-admin::layouts>

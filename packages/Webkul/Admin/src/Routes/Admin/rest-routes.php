@@ -20,6 +20,8 @@ Route::view('segment', 'admin::segments.index')->name('admin.segment.index');
 
 Route::view('report', 'admin::reports.index')->name('admin.report.index');
 
+Route::view('audit-log', 'admin::audit-log.index')->name('admin.audit-log.index');
+
 /**
  * DataGrid routes.
  */

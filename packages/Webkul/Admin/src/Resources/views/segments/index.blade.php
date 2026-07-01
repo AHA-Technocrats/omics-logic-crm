@@ -5,10 +5,10 @@
 
     @php
         $metrics = [
-            ['icon' => 'ti ti-bookmark', 'label' => 'SAVED SEGMENTS', 'value' => '14', 'note' => '6 shared with team'],
-            ['icon' => 'ti ti-refresh', 'label' => 'AUTO-REFRESHING', 'value' => '9', 'note' => 'daily or weekly'],
-            ['icon' => 'ti ti-users', 'label' => 'LARGEST SEGMENT', 'value' => '5,941', 'note' => 'engaged, not customer'],
-            ['icon' => 'ti ti-world', 'label' => 'USED IN OUTREACH', 'value' => '5', 'note' => 'exported this month'],
+            ['icon' => 'fa-regular fa-bookmark', 'label' => 'SAVED SEGMENTS', 'value' => '14', 'note' => '6 shared with team'],
+            ['icon' => 'fa-solid fa-rotate', 'label' => 'AUTO-REFRESHING', 'value' => '9', 'note' => 'daily or weekly'],
+            ['icon' => 'fa-solid fa-users', 'label' => 'LARGEST SEGMENT', 'value' => '5,941', 'note' => 'engaged, not customer'],
+            ['icon' => 'fa-solid fa-bullhorn', 'label' => 'USED IN OUTREACH', 'value' => '5', 'note' => 'exported this month'],
         ];
 
         $segments = [
@@ -53,7 +53,7 @@
                     type="button"
                     class="segments-new-button"
                 >
-                    <i class="ti ti-plus"></i>
+                    <i class="fa-solid fa-plus"></i>
                     New segment
                 </button>
             </div>
@@ -76,7 +76,7 @@
                                 <td>
                                     <div class="segments-name">
                                         <div>
-                                            <i class="ti ti-bookmark"></i>
+                                            <i class="fa-regular fa-bookmark"></i>
                                             <strong>{{ $segment['name'] }}</strong>
                                         </div>
 
@@ -87,17 +87,54 @@
                                 <td class="segments-count">{{ $segment['contacts'] }}</td>
                                 <td>{{ $segment['owner'] }}</td>
                                 <td>
-                                    <span class="segments-refresh">
-                                        <i class="ti ti-refresh"></i>
+                                    <span class="segments-refresh {{ $segment['refresh'] === 'manual' ? 'segments-refresh--manual' : '' }}">
+                                        <i class="{{ $segment['refresh'] === 'manual' ? 'fa-regular fa-hand' : 'fa-solid fa-rotate' }}"></i>
                                         {{ $segment['refresh'] }}
                                     </span>
                                 </td>
 
                                 <td>
-                                    <div class="segments-actions">
-                                        <span><i class="ti ti-eye"></i> Open</span>
-                                        <span><i class="ti ti-download"></i> Export</span>
-                                        <span>···</span>
+                                    <div class="segments-row-actions">
+                                        <button type="button">
+                                            <i class="fa-regular fa-eye"></i>
+                                            Open
+                                        </button>
+
+                                        <button type="button">
+                                            <i class="fa-solid fa-download"></i>
+                                            Export
+                                        </button>
+
+                                        <div class="segments-row-menu">
+                                            <button
+                                                type="button"
+                                                class="segments-row-menu__toggle"
+                                                aria-label="More segment actions"
+                                                onclick="event.stopPropagation(); toggleSegmentActions(this)"
+                                            >
+                                                <i class="fa-solid fa-ellipsis"></i>
+                                            </button>
+
+                                            <div class="segments-row-menu__dropdown">
+                                                <button type="button">
+                                                    <i class="fa-solid fa-plus"></i>
+                                                    Create
+                                                </button>
+
+                                                <button type="button">
+                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                    Edit
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="segments-row-menu__delete"
+                                                >
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -109,4 +146,26 @@
     </div>
 
     {!! view_render_event('admin.segment.index.content.after') !!}
+
+    @pushOnce('scripts')
+        <script>
+            window.toggleSegmentActions = function (trigger) {
+                const menu = trigger.closest('.segments-row-menu');
+
+                document.querySelectorAll('.segments-row-menu.is-open').forEach((item) => {
+                    if (item !== menu) {
+                        item.classList.remove('is-open');
+                    }
+                });
+
+                menu?.classList.toggle('is-open');
+            };
+
+            document.addEventListener('click', () => {
+                document.querySelectorAll('.segments-row-menu.is-open').forEach((item) => {
+                    item.classList.remove('is-open');
+                });
+            });
+        </script>
+    @endPushOnce
 </x-admin::layouts>

@@ -338,40 +338,39 @@ Route::prefix('settings')->group(function () {
         });
     });
 
-    Route::prefix('data-transfer')->group(function () {
-        /**
-         * Import routes.
-         */
-        Route::controller(ImportController::class)->prefix('imports')->group(function () {
-            Route::get('', 'index')->name('admin.settings.data_transfer.imports.index');
+});
 
-            Route::get('create', 'create')->name('admin.settings.data_transfer.imports.create');
+/**
+ * Import routes.
+ */
+Route::controller(ImportController::class)->prefix('import')->group(function () {
+    Route::get('', 'index')->name('admin.settings.data_transfer.imports.index');
 
-            Route::post('create', 'store')->name('admin.settings.data_transfer.imports.store');
+    Route::get('create', 'create')->name('admin.settings.data_transfer.imports.create');
 
-            Route::get('edit/{id}', 'edit')->name('admin.settings.data_transfer.imports.edit');
+    Route::post('create', 'store')->name('admin.settings.data_transfer.imports.store');
 
-            Route::put('update/{id}', 'update')->name('admin.settings.data_transfer.imports.update');
+    Route::get('edit/{id}', 'edit')->name('admin.settings.data_transfer.imports.edit');
 
-            Route::delete('destroy/{id}', 'destroy')->name('admin.settings.data_transfer.imports.delete');
+    Route::put('update/{id}', 'update')->name('admin.settings.data_transfer.imports.update');
 
-            Route::get('import/{id}', 'import')->name('admin.settings.data_transfer.imports.import');
+    Route::delete('destroy/{id}', 'destroy')->name('admin.settings.data_transfer.imports.delete');
 
-            Route::get('validate/{id}', 'validateImport')->name('admin.settings.data_transfer.imports.validate');
+    Route::get('import/{id}', 'import')->name('admin.settings.data_transfer.imports.import');
 
-            Route::get('start/{id}', 'start')->name('admin.settings.data_transfer.imports.start');
+    Route::get('validate/{id}', 'validateImport')->name('admin.settings.data_transfer.imports.validate');
 
-            Route::get('link/{id}', 'link')->name('admin.settings.data_transfer.imports.link');
+    Route::get('start/{id}', 'start')->name('admin.settings.data_transfer.imports.start');
 
-            Route::get('index/{id}', 'indexData')->name('admin.settings.data_transfer.imports.index_data');
+    Route::get('link/{id}', 'link')->name('admin.settings.data_transfer.imports.link');
 
-            Route::get('stats/{id}/{state?}', 'stats')->name('admin.settings.data_transfer.imports.stats');
+    Route::get('index/{id}', 'indexData')->name('admin.settings.data_transfer.imports.index_data');
 
-            Route::get('download-sample/{sample?}', 'downloadSample')->name('admin.settings.data_transfer.imports.download_sample');
+    Route::get('stats/{id}/{state?}', 'stats')->name('admin.settings.data_transfer.imports.stats');
 
-            Route::get('download/{id}', 'download')->name('admin.settings.data_transfer.imports.download');
+    Route::get('download-sample/{sample?}', 'downloadSample')->name('admin.settings.data_transfer.imports.download_sample');
 
-            Route::get('download-error-report/{id}', 'downloadErrorReport')->name('admin.settings.data_transfer.imports.download_error_report');
-        });
-    });
+    Route::get('download/{id}', 'download')->name('admin.settings.data_transfer.imports.download');
+
+    Route::get('download-error-report/{id}', 'downloadErrorReport')->name('admin.settings.data_transfer.imports.download_error_report');
 });

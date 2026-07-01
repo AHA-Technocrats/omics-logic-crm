@@ -1,5 +1,106 @@
+@php
+    $user = auth()->guard('user')->user();
+
+    $sections = [
+        [
+            'label' => 'START HERE',
+            'items' => [
+                [
+                    'label' => 'Dashboard',
+                    'icon' => 'fa-regular fa-map',
+                    'route' => 'admin.dashboard.index',
+                    'active' => request()->routeIs('admin.dashboard.*'),
+                    'badge' => ['text' => 'New', 'class' => 'crm-sidebar__badge--green'],
+                ],
+            ],
+        ],
+        [
+            'label' => 'DATA',
+            'items' => [
+                [
+                    'label' => 'Contacts',
+                    'icon' => 'fa-solid fa-users',
+                    'route' => 'admin.contacts.persons.index',
+                    'active' => request()->routeIs('admin.contacts.persons.*'),
+                ],
+                [
+                    'label' => 'Organizations',
+                    'icon' => 'fa-regular fa-building',
+                    'route' => 'admin.contacts.organizations.index',
+                    'active' => request()->routeIs('admin.contacts.organizations.*'),
+                ],
+                [
+                    'label' => 'Campaigns',
+                    'icon' => 'fa-regular fa-flag',
+                    'route' => 'admin.leads.index',
+                    'active' => request()->routeIs('admin.leads.*'),
+                ],
+                [
+                    'label' => 'Merge review',
+                    'icon' => 'fa-solid fa-code-merge',
+                    'route' => 'admin.leads.index',
+                    'active' => false,
+                    'badge' => ['text' => '23', 'class' => 'crm-sidebar__badge--orange'],
+                ],
+            ],
+        ],
+        [
+            'label' => 'WORK',
+            'items' => [
+                [
+                    'label' => 'Segments',
+                    'icon' => 'fa-regular fa-bookmark',
+                    'route' => 'admin.segment.index',
+                    'active' => request()->routeIs('admin.segment.*'),
+                ],
+                [
+                    'label' => 'Reports',
+                    'icon' => 'fa-solid fa-chart-simple',
+                    'route' => 'admin.report.index',
+                    'active' => false,
+                ],
+                [
+                    'label' => 'Imports',
+                    'icon' => 'fa-solid fa-database',
+                    'route' => 'admin.settings.data_transfer.imports.index',
+                    'active' => request()->routeIs('admin.settings.data_transfer.imports.*'),
+                ],
+            ],
+        ],
+        [
+            'label' => 'SYSTEM',
+            'items' => [
+                [
+                    'label' => 'Connectors',
+                    'icon' => 'fa-solid fa-plug',
+                    'route' => 'admin.configuration.index',
+                    'active' => request()->routeIs('admin.configuration.*'),
+                ],
+                [
+                    'label' => 'Audit log',
+                    'icon' => 'fa-solid fa-clock-rotate-left',
+                    'route' => 'admin.audit-log.index',
+                    'active' => request()->routeIs('admin.audit-log.*'),
+                ],
+                [
+                    'label' => 'Settings',
+                    'icon' => 'fa-solid fa-gear',
+                    'route' => 'admin.settings.index',
+                    'active' => request()->routeIs('admin.settings.*') && ! request()->routeIs('admin.settings.data_transfer.imports.*'),
+                ],
+            ],
+        ],
+    ];
+@endphp
+
 <v-sidebar-drawer>
-    <i class="icon-menu lg:hidden cursor-pointer rounded-md p-1.5 text-2xl hover:bg-gray-100 dark:hover:bg-gray-950 max-lg:block"></i>
+    <button
+        type="button"
+        class="admin-mobile-menu-trigger"
+        aria-label="Open navigation menu"
+    >
+        <i class="fa-solid fa-bars"></i>
+    </button>
 </v-sidebar-drawer>
 
 @pushOnce('scripts')
@@ -9,86 +110,74 @@
     >
         <x-admin::drawer
             position="left"
-            width="280px"
-            class="lg:hidden [&>:nth-child(3)]:!m-0 [&>:nth-child(3)]:!rounded-l-none [&>:nth-child(3)]:max-sm:!w-[80%]"
+            width="286px"
+            class="lg:hidden [&>:nth-child(3)]:!m-0 [&>:nth-child(3)]:!rounded-l-none [&>:nth-child(3)]:max-sm:!w-[86%]"
         >
             <x-slot:toggle>
-                <i class="icon-menu lg:hidden cursor-pointer rounded-md p-1.5 text-2xl hover:bg-gray-100 dark:hover:bg-gray-950 max-lg:block"></i>
+                <button
+                    type="button"
+                    class="admin-mobile-menu-trigger"
+                    aria-label="Open navigation menu"
+                >
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </x-slot>
 
-            <x-slot:header>
-                @if ($logo = core()->getConfigData('general.general.admin_logo.logo_image'))
-                    <img
-                        class="h-10"
-                        src="{{ Storage::url($logo) }}"
-                        alt="{{ config('app.name') }}"
-                    />
-                @else
-                    <img
-                        class="h-10"
-                        src="{{ request()->cookie('dark_mode') ? vite()->asset('images/dark-logo.svg') : vite()->asset('images/logo.svg') }}"
-                        id="logo-image"
-                        alt="{{ config('app.name') }}"
-                    />
-                @endif
+            <x-slot:header class="crm-sidebar-mobile__header">
+                <a
+                    href="{{ route('admin.dashboard.index') }}"
+                    class="crm-sidebar__brand"
+                >
+                    <span class="crm-sidebar__logo-mark">O</span>
+                    <span>OmicsLogic CRM</span>
+                </a>
             </x-slot>
 
-            <x-slot:content class="p-4">
-                <div class="journal-scroll h-[calc(100vh-100px)] overflow-auto">
-                    <nav class="grid w-full gap-2">
-                        @foreach (menu()->getItems('admin') as $menuItem)
-                            @php
-                                $hasActiveChild = $menuItem->haveChildren() && collect($menuItem->getChildren())->contains(fn($child) => $child->isActive());
+            <x-slot:content class="crm-sidebar-mobile__content">
+                <div class="crm-sidebar-mobile">
+                    <div class="crm-sidebar__scroll">
+                        <nav class="grid gap-1">
+                            @foreach ($sections as $section)
+                                <div class="crm-sidebar__section">
+                                    <p class="crm-sidebar__section-title">{{ $section['label'] }}</p>
 
-                                $isMenuActive = $menuItem->isActive() == 'active' || $hasActiveChild;
-
-                                $menuKey = $menuItem->getKey();
-                            @endphp
-
-                            <div
-                                class="menu-item relative"
-                                data-menu-key="{{ $menuKey }}"
-                            >
-                                <a
-                                    href="{{ ! in_array($menuItem->getKey(), ['settings', 'configuration']) && $menuItem->haveChildren() ? 'javascript:void(0)' : $menuItem->getUrl() }}"
-                                    class="menu-link flex items-center justify-between rounded-lg p-2 transition-colors duration-200"
-                                    @if ($menuItem->haveChildren() && !in_array($menuKey, ['settings', 'configuration']))
-                                        @click.prevent="toggleMenu('{{ $menuKey }}')"
-                                    @endif
-                                    :class="{ 'bg-brandColor text-white': activeMenu === '{{ $menuKey }}' || {{ $isMenuActive ? 'true' : 'false' }}, 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-950': !(activeMenu === '{{ $menuKey }}' || {{ $isMenuActive ? 'true' : 'false' }}) }"
-                                >
-                                    <div class="flex items-center gap-3">
-                                        <span class="{{ $menuItem->getIcon() }} text-2xl"></span>
-
-                                        <p class="whitespace-nowrap font-semibold">{{ $menuItem->getName() }}</p>
-                                    </div>
-
-                                    @if ($menuItem->haveChildren())
-                                        <span
-                                            class="transform text-lg transition-transform duration-300"
-                                            :class="{ 'icon-arrow-up': activeMenu === '{{ $menuKey }}', 'icon-arrow-down': activeMenu !== '{{ $menuKey }}' }"
-                                        ></span>
-                                    @endif
-                                </a>
-
-                                @if ($menuItem->haveChildren() && !in_array($menuKey, ['settings', 'configuration']))
-                                    <div
-                                        class="submenu ml-1 mt-1 overflow-hidden rounded-b-lg border-l-2 transition-all duration-300 dark:border-gray-700"
-                                        :class="{ 'max-h-[500px] py-2 border-l-brandColor bg-gray-50 dark:bg-gray-900': activeMenu === '{{ $menuKey }}' || {{ $hasActiveChild ? 'true' : 'false' }}, 'max-h-0 py-0 border-transparent bg-transparent': activeMenu !== '{{ $menuKey }}' && !{{ $hasActiveChild ? 'true' : 'false' }} }"
-                                    >
-                                        @foreach ($menuItem->getChildren() as $subMenuItem)
+                                    <div class="grid gap-1">
+                                        @foreach ($section['items'] as $item)
                                             <a
-                                                href="{{ $subMenuItem->getUrl() }}"
-                                                class="submenu-link block whitespace-nowrap p-2 pl-10 text-sm transition-colors duration-200"
-                                                :class="{ 'text-brandColor font-medium bg-gray-100 dark:bg-gray-800': '{{ $subMenuItem->isActive() }}' === '1', 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800': '{{ $subMenuItem->isActive() }}' !== '1' }">
-                                                {{ $subMenuItem->getName() }}
+                                                href="{{ route($item['route']) }}"
+                                                class="crm-sidebar__link {{ $item['active'] ? 'is-active' : '' }}"
+                                            >
+                                                <span class="crm-sidebar__icon">
+                                                    @if ($item['icon'])
+                                                        <i class="{{ $item['icon'] }}"></i>
+                                                    @endif
+                                                </span>
+
+                                                <span class="crm-sidebar__label">{{ $item['label'] }}</span>
+
+                                                @isset($item['badge'])
+                                                    <span class="crm-sidebar__badge {{ $item['badge']['class'] }}">
+                                                        {{ $item['badge']['text'] }}
+                                                    </span>
+                                                @endisset
                                             </a>
                                         @endforeach
                                     </div>
-                                @endif
-                            </div>
-                        @endforeach
-                    </nav>
+                                </div>
+                            @endforeach
+                        </nav>
+                    </div>
+
+                    <div class="crm-sidebar__profile">
+                        <span class="crm-sidebar__avatar">
+                            {{ $user ? collect(explode(' ', $user->name))->filter()->map(fn ($part) => substr($part, 0, 1))->take(2)->implode('') : 'OM' }}
+                        </span>
+
+                        <div>
+                            <p class="crm-sidebar__profile-name">{{ $user?->name ?? 'Admin' }}</p>
+                            <p class="crm-sidebar__profile-role">Admin</p>
+                        </div>
+                    </div>
                 </div>
             </x-slot>
         </x-admin::drawer>
@@ -99,21 +188,7 @@
             template: '#v-sidebar-drawer-template',
 
             data() {
-                return { activeMenu: null };
-            },
-
-            mounted() {
-                const activeElement = document.querySelector('.menu-item .menu-link.bg-brandColor');
-
-                if (activeElement) {
-                    this.activeMenu = activeElement.closest('.menu-item').getAttribute('data-menu-key');
-                }
-            },
-
-            methods: {
-                toggleMenu(menuKey) {
-                    this.activeMenu = this.activeMenu === menuKey ? null : menuKey;
-                }
+                return {};
             },
         });
     </script>

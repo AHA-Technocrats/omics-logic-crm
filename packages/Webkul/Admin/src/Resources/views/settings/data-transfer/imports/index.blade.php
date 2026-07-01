@@ -5,19 +5,19 @@
 
     @php
         $metrics = [
-            ['icon' => 'ti ti-plug-connected', 'label' => 'SOURCES CONNECTED', 'value' => '4', 'note' => '14 forms + portal'],
-            ['icon' => 'ti ti-clock', 'label' => 'LAST SYNC', 'value' => '1h ago', 'note' => 'portal events'],
-            ['icon' => 'ti ti-database-import', 'label' => 'ROWS INGESTED (30D)', 'value' => '2,140', 'note' => 'auto-deduped'],
-            ['icon' => 'ti ti-alert-triangle', 'label' => 'NEEDS ATTENTION', 'value' => '1', 'note' => 'portal auth expired', 'attention' => true],
+            ['icon' => 'fa-solid fa-plug-circle-check', 'label' => 'SOURCES CONNECTED', 'value' => '4', 'note' => '14 forms + portal'],
+            ['icon' => 'fa-regular fa-clock', 'label' => 'LAST SYNC', 'value' => '1h ago', 'note' => 'portal events'],
+            ['icon' => 'fa-solid fa-database', 'label' => 'ROWS INGESTED (30D)', 'value' => '2,140', 'note' => 'auto-deduped'],
+            ['icon' => 'fa-solid fa-triangle-exclamation', 'label' => 'NEEDS ATTENTION', 'value' => '1', 'note' => 'portal auth expired', 'attention' => true],
         ];
 
         $runs = [
-            ['source' => 'scRNA-Seq workshop', 'type' => 'Google Form', 'icon' => 'ti ti-forms', 'rows' => '88', 'new' => '+81', 'merged' => '5', 'review' => '2', 'status' => ['label' => 'success', 'class' => 'imports-status--success'], 'when' => '2h ago'],
-            ['source' => 'Portal activity sync', 'type' => 'Portal', 'icon' => 'ti ti-world', 'rows' => '1,240', 'new' => '—', 'merged' => '—', 'review' => '—', 'status' => ['label' => 'success', 'class' => 'imports-status--success'], 'when' => '1h ago'],
-            ['source' => 'From Sample to Sequencer', 'type' => 'Google Form', 'icon' => 'ti ti-forms', 'rows' => '161', 'new' => '+150', 'merged' => '9', 'review' => '2', 'status' => ['label' => 'success', 'class' => 'imports-status--success'], 'when' => 'overnight'],
-            ['source' => 'AI in Drug Discovery', 'type' => 'Google Form', 'icon' => 'ti ti-forms', 'rows' => '142', 'new' => '+131', 'merged' => '8', 'review' => '3', 'status' => ['label' => 'success', 'class' => 'imports-status--success'], 'when' => '1d ago'],
-            ['source' => 'Zoho CRM backfill 2024', 'type' => 'CSV upload', 'icon' => 'ti ti-file-spreadsheet', 'rows' => '35,112', 'new' => '+29,400', 'merged' => '4,900', 'review' => '812', 'status' => ['label' => 'completed', 'class' => 'imports-status--success'], 'when' => 'Jan 2025'],
-            ['source' => 'Portal activity sync', 'type' => 'Portal', 'icon' => 'ti ti-world', 'rows' => '0', 'new' => '—', 'merged' => '—', 'review' => '—', 'status' => ['label' => 'failed · auth expired', 'class' => 'imports-status--failed'], 'when' => '5h ago'],
+            ['source' => 'scRNA-Seq workshop', 'type' => 'Google Form', 'icon' => 'fa-regular fa-rectangle-list', 'rows' => '88', 'new' => '+81', 'merged' => '5', 'review' => '2', 'status' => ['label' => 'success', 'class' => 'imports-status--success', 'icon' => 'fa-solid fa-check'], 'when' => '2h ago'],
+            ['source' => 'Portal activity sync', 'type' => 'Portal', 'icon' => 'fa-solid fa-graduation-cap', 'rows' => '1,240', 'new' => '—', 'merged' => '—', 'review' => '—', 'status' => ['label' => 'success', 'class' => 'imports-status--success', 'icon' => 'fa-solid fa-check'], 'when' => '1h ago'],
+            ['source' => 'From Sample to Sequencer', 'type' => 'Google Form', 'icon' => 'fa-regular fa-rectangle-list', 'rows' => '161', 'new' => '+150', 'merged' => '9', 'review' => '2', 'status' => ['label' => 'success', 'class' => 'imports-status--success', 'icon' => 'fa-solid fa-check'], 'when' => 'overnight'],
+            ['source' => 'AI in Drug Discovery', 'type' => 'Google Form', 'icon' => 'fa-regular fa-rectangle-list', 'rows' => '142', 'new' => '+131', 'merged' => '8', 'review' => '3', 'status' => ['label' => 'success', 'class' => 'imports-status--success', 'icon' => 'fa-solid fa-check'], 'when' => '1d ago'],
+            ['source' => 'Zoho CRM backfill 2024', 'type' => 'CSV upload', 'icon' => 'fa-regular fa-file-lines', 'rows' => '35,112', 'new' => '+29,400', 'merged' => '4,900', 'review' => '812', 'status' => ['label' => 'completed', 'class' => 'imports-status--success', 'icon' => 'fa-solid fa-check'], 'when' => 'Jan 2025'],
+            ['source' => 'Portal activity sync', 'type' => 'Portal', 'icon' => 'fa-solid fa-graduation-cap', 'rows' => '0', 'new' => '—', 'merged' => '—', 'review' => '—', 'status' => ['label' => 'failed · auth expired', 'class' => 'imports-status--failed', 'icon' => 'fa-solid fa-triangle-exclamation'], 'when' => '5h ago'],
         ];
     @endphp
 
@@ -51,7 +51,7 @@
                 href="{{ route('admin.settings.data_transfer.imports.create') }}"
                 class="imports-choose-button"
             >
-                <i class="ti ti-upload"></i>
+                <i class="fa-solid fa-upload"></i>
                 Choose file
             </a>
         </section>
@@ -61,7 +61,7 @@
                 <h2>Recent runs</h2>
 
                 <button type="button">
-                    <i class="ti ti-refresh"></i>
+                    <i class="fa-solid fa-rotate"></i>
                     Sync now
                 </button>
             </div>
@@ -97,7 +97,7 @@
                                 <td class="imports-review">{{ $run['review'] }}</td>
                                 <td>
                                     <span class="imports-status {{ $run['status']['class'] }}">
-                                        <i class="ti ti-check"></i>
+                                        <i class="{{ $run['status']['icon'] }}"></i>
                                         {{ $run['status']['label'] }}
                                     </span>
                                 </td>

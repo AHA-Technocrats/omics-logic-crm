@@ -7,10 +7,10 @@
 
     @php
         $metrics = [
-            ['icon' => 'ti ti-folder', 'label' => 'CANONICAL CAMPAIGNS', 'value' => '9', 'note' => '9 categories'],
-            ['icon' => 'ti ti-link', 'label' => 'ALIASES MAPPED', 'value' => '188', 'note' => 'auto-resolved on import'],
-            ['icon' => 'ti ti-alert-circle', 'label' => 'NEEDS NAMING', 'value' => '7', 'note' => 'unmapped variants', 'review' => true],
-            ['icon' => 'ti ti-users', 'label' => 'LEADS ATTRIBUTED', 'value' => '31,402', 'note' => '90% of all leads'],
+            ['icon' => 'fa-regular fa-flag', 'label' => 'CANONICAL CAMPAIGNS', 'value' => '9', 'note' => '9 categories'],
+            ['icon' => 'fa-solid fa-link', 'label' => 'ALIASES MAPPED', 'value' => '188', 'note' => 'auto-resolved on import'],
+            ['icon' => 'fa-regular fa-circle-question', 'label' => 'NEEDS NAMING', 'value' => '7', 'note' => 'unmapped variants', 'review' => true],
+            ['icon' => 'fa-solid fa-users', 'label' => 'LEADS ATTRIBUTED', 'value' => '31,402', 'note' => '90% of all leads'],
         ];
 
         $campaigns = [
@@ -37,7 +37,7 @@
     <div class="campaigns-page">
         <section class="campaigns-hero">
             <h1>Campaigns &amp; programs</h1>
-            <p>Canonical program names with their messy aliases mapped underneath — so every report counts the same thing. Tick rows to manually group workshops under one canonical name.</p>
+            <div>Canonical program names with their messy aliases mapped underneath — so every report counts the same thing. Tick rows to manually group workshops under one canonical name.</div>
         </section>
 
         <section class="campaigns-metrics">
@@ -67,7 +67,7 @@
                 href="{{ route('admin.leads.create') }}"
                 class="campaigns-action campaigns-action--new"
             >
-                <i class="ti ti-plus"></i>
+                <i class="fa-solid fa-plus"></i>
                 New campaign
             </a>
 
@@ -75,7 +75,7 @@
                 type="button"
                 class="campaigns-action"
             >
-                <i class="ti ti-download"></i>
+                <i class="fa-solid fa-download"></i>
                 Export
             </button>
         </section>
@@ -97,6 +97,7 @@
                             <th>Customers</th>
                             <th>Conversion</th>
                             <th>Status</th>
+                            <th class="text-right">Actions</th>
                         </tr>
                     </thead>
 
@@ -106,15 +107,49 @@
                                 <td><input type="checkbox" class="campaigns-checkbox"></td>
                                 <td class="campaigns-name">{{ $campaign['name'] }}</td>
                                 <td>{{ $campaign['category'] }}</td>
-                                <td><span class="campaigns-alias-count"><i class="ti ti-link"></i> {{ $campaign['aliases'] }}</span></td>
+                                <td><span class="campaigns-alias-count"><i class="fa-solid fa-tags"></i> {{ $campaign['aliases'] }}</span></td>
                                 <td class="campaigns-number">{{ $campaign['leads'] }}</td>
                                 <td>{{ $campaign['customers'] }}</td>
                                 <td><span class="{{ $campaign['conversion_class'] }}">{{ $campaign['conversion'] }}</span></td>
                                 <td>
                                     <span class="campaigns-status {{ $campaign['status']['class'] }}">
-                                        <i class="ti ti-check"></i>
+                                        <i class="{{ $campaign['status']['label'] === 'review' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-check' }}"></i>
                                         {{ $campaign['status']['label'] }}
                                     </span>
+                                </td>
+                                <td>
+                                    <div class="campaigns-row-actions">
+                                        <div class="campaigns-row-menu">
+                                            <button
+                                                type="button"
+                                                class="campaigns-row-menu__toggle"
+                                                aria-label="More campaign actions"
+                                                onclick="event.stopPropagation(); toggleCampaignActions(this)"
+                                            >
+                                                <i class="fa-solid fa-ellipsis"></i>
+                                            </button>
+
+                                            <div class="campaigns-row-menu__dropdown">
+                                                <button type="button">
+                                                    <i class="fa-solid fa-plus"></i>
+                                                    Create
+                                                </button>
+
+                                                <button type="button">
+                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                    Edit
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="campaigns-row-menu__delete"
+                                                >
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -176,4 +211,26 @@
     </div>
 
     {!! view_render_event('admin.leads.index.content.after') !!}
+
+    @pushOnce('scripts')
+        <script>
+            window.toggleCampaignActions = function (trigger) {
+                const menu = trigger.closest('.campaigns-row-menu');
+
+                document.querySelectorAll('.campaigns-row-menu.is-open').forEach((item) => {
+                    if (item !== menu) {
+                        item.classList.remove('is-open');
+                    }
+                });
+
+                menu?.classList.toggle('is-open');
+            };
+
+            document.addEventListener('click', () => {
+                document.querySelectorAll('.campaigns-row-menu.is-open').forEach((item) => {
+                    item.classList.remove('is-open');
+                });
+            });
+        </script>
+    @endPushOnce
 </x-admin::layouts>
