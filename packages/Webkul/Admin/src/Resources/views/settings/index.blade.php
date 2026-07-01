@@ -1,58 +1,92 @@
 <x-admin::layouts>
-    <!-- Title of the page. -->
     <x-slot:title>
-        @lang('admin::app.settings.title')
+        Settings
     </x-slot>
 
-    <x-admin::breadcrumbs name="settings" />
+    @php
+        $generalSettings = [
+            ['label' => 'Organization', 'value' => 'OmicsLogic', 'type' => 'text'],
+            ['label' => 'CRM domain', 'value' => 'crm.omicslogic.com', 'type' => 'link', 'href' => 'https://crm.omicslogic.com'],
+            ['label' => 'Time zone', 'value' => 'Asia/Kolkata (IST)', 'type' => 'text'],
+            ['label' => 'Default new-contact stage', 'value' => 'Subscriber', 'type' => 'text'],
+        ];
 
-    <!-- Heading of the page -->
-    <div class="mb-7 flex items-center justify-between">
-        <p class="py-3 text-xl font-bold text-gray-800 dark:text-white">
-            @lang('admin::app.settings.title')
-        </p>
-    </div>
+        $deduplicationSettings = [
+            ['label' => 'Auto-merge at confidence ≥', 'value' => '0.95', 'type' => 'text'],
+            ['label' => 'Send to review band', 'value' => '0.70 – 0.95', 'type' => 'text'],
+            ['label' => 'Match on exact email', 'type' => 'toggle', 'enabled' => true],
+            ['label' => 'Fuzzy match name + phone', 'type' => 'toggle', 'enabled' => true],
+            ['label' => 'Survivorship: newest non-empty wins', 'type' => 'toggle', 'enabled' => true],
+        ];
+    @endphp
 
-    <!-- Page Content -->
-    <div class="grid gap-y-8">
-        @foreach (menu()->getAdminMenuByKey('settings')->getChildren() as $setting)
-            <div>
-                <div class="grid gap-1">
-                    <!-- Title of the Main Card -->
-                    <p class="font-semibold text-gray-600 dark:text-gray-300">
-                        {{ $setting->getName() }}
-                    </p>
+    <section class="settings-hub-page">
+        <div class="settings-hub-hero">
+            <h1>Settings</h1>
+            <p>The rules that keep the database clean, governed, and safe — owned by the admins.</p>
+        </div>
 
-                    <!-- Info of the Main Card -->
-                    <p class="text-gray-600 dark:text-gray-300">
-                        {{ $setting->getInfo() }}
-                    </p>
+        <div class="settings-hub-grid">
+            <article class="settings-hub-panel">
+                <div class="settings-hub-panel__head">
+                    <h2>General</h2>
+
+                    <button type="button" class="settings-hub-edit">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                        Edit
+                    </button>
                 </div>
-            
-                <div class="box-shadow max-1580:grid-cols-3 mt-2 grid grid-cols-4 flex-wrap justify-between gap-x-12 gap-y-6 rounded bg-white p-4 dark:bg-gray-900 max-xl:grid-cols-2 max-lg:gap-y-4 max-sm:grid-cols-1">
-                    <!-- Menus cards -->
-                    @foreach ($setting->getChildren() as $key => $child)
-                        <a 
-                            class="flex max-w-[360px] items-center gap-2 rounded-lg p-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-950"
-                            href="{{ $child->getUrl() }}"
-                        >
-                            <div class="rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
-                                <i class="{{ $child->getIcon() }} text-3xl"></i>
-                            </div>
 
-                            <div class="grid">
-                                <p class="mb-1.5 text-base font-semibold text-gray-800 dark:text-white">
-                                    {{ $child->getName() }}
-                                </p>
-                                
-                                <p class="text-xs text-gray-600 dark:text-gray-300">
-                                    {{ $child->getInfo() }}
-                                </p>
-                            </div>
-                        </a>
+                <dl class="settings-hub-rows">
+                    @foreach ($generalSettings as $row)
+                        <div class="settings-hub-row">
+                            <dt>{{ $row['label'] }}</dt>
+
+                            <dd>
+                                @if ($row['type'] === 'link')
+                                    <a href="{{ $row['href'] }}" target="_blank" rel="noopener noreferrer">
+                                        {{ $row['value'] }}
+                                    </a>
+                                @else
+                                    {{ $row['value'] }}
+                                @endif
+                            </dd>
+                        </div>
                     @endforeach
+                </dl>
+            </article>
+
+            <article class="settings-hub-panel">
+                <div class="settings-hub-panel__head">
+                    <h2>Deduplication rules</h2>
+
+                    <button type="button" class="settings-hub-edit">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                        Edit
+                    </button>
                 </div>
-            </div>
-        @endforeach
-    </div>
+
+                <dl class="settings-hub-rows">
+                    @foreach ($deduplicationSettings as $row)
+                        <div class="settings-hub-row">
+                            <dt>{{ $row['label'] }}</dt>
+
+                            <dd>
+                                @if ($row['type'] === 'toggle')
+                                    <span
+                                        class="settings-hub-toggle {{ $row['enabled'] ? 'settings-hub-toggle--on' : '' }}"
+                                        aria-hidden="true"
+                                    >
+                                        <span class="settings-hub-toggle__thumb"></span>
+                                    </span>
+                                @else
+                                    {{ $row['value'] }}
+                                @endif
+                            </dd>
+                        </div>
+                    @endforeach
+                </dl>
+            </article>
+        </div>
+    </section>
 </x-admin::layouts>
