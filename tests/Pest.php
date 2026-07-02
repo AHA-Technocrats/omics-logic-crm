@@ -2,7 +2,7 @@
 
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
-use Webkul\User\Models\User;
+use AHATechnocrats\User\Models\User;
 
 /*
 |--------------------------------------------------------------------------

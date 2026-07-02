@@ -1,26 +1,26 @@
 <?php
 
-use Webkul\Activity\Providers\ModuleServiceProvider;
+use AHATechnocrats\Activity\Providers\ModuleServiceProvider;
 
 return [
     'modules' => [
         ModuleServiceProvider::class,
-        Webkul\Admin\Providers\ModuleServiceProvider::class,
-        Webkul\Attribute\Providers\ModuleServiceProvider::class,
-        Webkul\Automation\Providers\ModuleServiceProvider::class,
-        Webkul\Contact\Providers\ModuleServiceProvider::class,
-        Webkul\Core\Providers\ModuleServiceProvider::class,
-        Webkul\DataGrid\Providers\ModuleServiceProvider::class,
-        Webkul\EmailTemplate\Providers\ModuleServiceProvider::class,
-        Webkul\Email\Providers\ModuleServiceProvider::class,
-        Webkul\Lead\Providers\ModuleServiceProvider::class,
-        Webkul\Product\Providers\ModuleServiceProvider::class,
-        Webkul\Quote\Providers\ModuleServiceProvider::class,
-        Webkul\Tag\Providers\ModuleServiceProvider::class,
-        Webkul\User\Providers\ModuleServiceProvider::class,
-        Webkul\Warehouse\Providers\ModuleServiceProvider::class,
-        Webkul\WebForm\Providers\ModuleServiceProvider::class,
-        Webkul\DataTransfer\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Admin\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Attribute\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Automation\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Contact\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Core\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\DataGrid\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\EmailTemplate\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Email\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Lead\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Product\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Quote\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Tag\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\User\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\Warehouse\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\WebForm\Providers\ModuleServiceProvider::class,
+        AHATechnocrats\DataTransfer\Providers\ModuleServiceProvider::class,
     ],
 
     'register_route_models' => true,

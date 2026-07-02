@@ -1,0 +1,28 @@
+{
+    "name": "ahatechnocrats/laravel-tag",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jitendra Singh",
+            "email": "jitendra@webkul.com"
+        }
+    ],
+    "require": {
+        "ahatechnocrats/laravel-core": "^1.0",
+        "ahatechnocrats/laravel-user": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AHATechnocrats\\Tag\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AHATechnocrats\\Tag\\Providers\\TagServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "minimum-stability": "dev"
+}

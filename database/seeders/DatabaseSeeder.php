@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Webkul\Installer\Database\Seeders\DatabaseSeeder as KrayinDatabaseSeeder;
+use AHATechnocrats\Installer\Database\Seeders\DatabaseSeeder as KrayinDatabaseSeeder;
 
 class DatabaseSeeder extends Seeder
 {

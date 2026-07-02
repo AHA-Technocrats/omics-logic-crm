@@ -8976,13 +8976,13 @@
                 "laravel": {
                     "aliases": [],
                     "providers": [
-                        "Webkul\\PackageGenerator\\Providers\\PackageGeneratorServiceProvider"
+                        "AHATechnocrats\\PackageGenerator\\Providers\\PackageGeneratorServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Webkul\\PackageGenerator\\": "src/"
+                    "AHATechnocrats\\PackageGenerator\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",

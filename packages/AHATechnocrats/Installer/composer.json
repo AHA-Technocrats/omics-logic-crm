@@ -1,0 +1,26 @@
+{
+    "name": "ahatechnocrats/laravel-installer",
+    "license": "MIT",
+    "description": "Installer package",
+    "authors": [
+        {
+            "name": "ahatechnocrats",
+            "email": "support@ahatechnocrats.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "AHATechnocrats\\Installer\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AHATechnocrats\\Installer\\Providers\\InstallerServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "minimum-stability": "dev"
+}

@@ -1,6 +1,6 @@
 <?php
 
-use Webkul\User\Models\User;
+use AHATechnocrats\User\Models\User;
 
 return [
 

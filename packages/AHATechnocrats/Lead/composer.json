@@ -1,0 +1,35 @@
+{
+    "name": "ahatechnocrats/laravel-lead",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jitendra Singh",
+            "email": "jitendra@webkul.com"
+        }
+    ],
+    "require": {
+        "ahatechnocrats/laravel-activity": "^1.0",
+        "ahatechnocrats/laravel-attribute": "^1.0",
+        "ahatechnocrats/laravel-contact": "^1.0",
+        "ahatechnocrats/laravel-core": "^1.0",
+        "ahatechnocrats/laravel-email": "^1.0",
+        "ahatechnocrats/laravel-product": "^1.0",
+        "ahatechnocrats/laravel-quote": "^1.0",
+        "ahatechnocrats/laravel-tag": "^1.0",
+        "ahatechnocrats/laravel-user": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AHATechnocrats\\Lead\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AHATechnocrats\\Lead\\Providers\\LeadServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "minimum-stability": "dev"
+}
