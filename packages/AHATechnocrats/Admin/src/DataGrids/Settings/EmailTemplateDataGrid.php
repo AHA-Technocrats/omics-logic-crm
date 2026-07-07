@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Admin\DataGrids\Settings;
 
-use Illuminate\Support\Facades\DB;
 use AHATechnocrats\DataGrid\DataGrid;
+use Illuminate\Support\Facades\DB;
 
 class EmailTemplateDataGrid extends DataGrid
 {

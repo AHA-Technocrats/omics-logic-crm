@@ -2,13 +2,13 @@
 
 namespace AHATechnocrats\Installer\Console\Commands;
 
+use AHATechnocrats\Core\Providers\CoreServiceProvider;
+use AHATechnocrats\Installer\Database\Seeders\DatabaseSeeder as AHATechnocratsDatabaseSeeder;
+use AHATechnocrats\Installer\Events\ComposerEvents;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
-use AHATechnocrats\Core\Providers\CoreServiceProvider;
-use AHATechnocrats\Installer\Database\Seeders\DatabaseSeeder as AHATechnocratsDatabaseSeeder;
-use AHATechnocrats\Installer\Events\ComposerEvents;
 
 use function Laravel\Prompts\password;
 use function Laravel\Prompts\select;

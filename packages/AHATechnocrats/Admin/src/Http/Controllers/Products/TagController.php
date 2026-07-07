@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Products;
 
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Event;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Product\Repositories\ProductRepository;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Event;
 
 class TagController extends Controller
 {

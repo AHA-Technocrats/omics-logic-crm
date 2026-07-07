@@ -2,11 +2,6 @@
 
 namespace AHATechnocrats\Lead\Models;
 
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use AHATechnocrats\Activity\Models\ActivityProxy;
 use AHATechnocrats\Activity\Traits\LogsActivity;
 use AHATechnocrats\Attribute\Traits\CustomAttribute;
@@ -16,6 +11,11 @@ use AHATechnocrats\Lead\Contracts\Lead as LeadContract;
 use AHATechnocrats\Quote\Models\QuoteProxy;
 use AHATechnocrats\Tag\Models\TagProxy;
 use AHATechnocrats\User\Models\UserProxy;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lead extends Model implements LeadContract
 {

@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Contact\Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use AHATechnocrats\Contact\Models\Person;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PersonFactory extends Factory
 {

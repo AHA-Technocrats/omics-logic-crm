@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use AHATechnocrats\Admin\Http\Controllers\Settings\AttributeController;
 use AHATechnocrats\Admin\Http\Controllers\Settings\DataTransfer\ImportController;
 use AHATechnocrats\Admin\Http\Controllers\Settings\EmailTemplateController;
@@ -21,6 +20,7 @@ use AHATechnocrats\Admin\Http\Controllers\Settings\Warehouse\WarehouseController
 use AHATechnocrats\Admin\Http\Controllers\Settings\WebFormController;
 use AHATechnocrats\Admin\Http\Controllers\Settings\WebhookController;
 use AHATechnocrats\Admin\Http\Controllers\Settings\WorkflowController;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Settings group routes.
@@ -83,22 +83,20 @@ Route::prefix('settings')->group(function () {
     });
 
     /**
-     * WebForms Routes.
+     * WebForms Routes (legacy settings URLs).
      */
     Route::controller(WebFormController::class)->prefix('web-forms')->group(function () {
-        Route::group(['middleware' => ['user']], function () {
-            Route::get('', 'index')->name('admin.settings.web_forms.index');
+        Route::redirect('', '/admin/web-forms')->name('admin.settings.web_forms.index');
 
-            Route::get('create', 'create')->name('admin.settings.web_forms.create');
+        Route::redirect('create', '/admin/web-forms/create')->name('admin.settings.web_forms.create');
 
-            Route::post('create', 'store')->name('admin.settings.web_forms.store');
+        Route::post('create', 'store')->name('admin.settings.web_forms.store');
 
-            Route::get('edit/{id?}', 'edit')->name('admin.settings.web_forms.edit');
+        Route::redirect('edit/{id?}', '/admin/web-forms/edit/{id?}')->name('admin.settings.web_forms.edit');
 
-            Route::put('edit/{id}', 'update')->name('admin.settings.web_forms.update');
+        Route::put('edit/{id}', 'update')->name('admin.settings.web_forms.update');
 
-            Route::delete('{id}', 'destroy')->name('admin.settings.web_forms.delete');
-        });
+        Route::delete('{id}', 'destroy')->name('admin.settings.web_forms.delete');
     });
 
     /**

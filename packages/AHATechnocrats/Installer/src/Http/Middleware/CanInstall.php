@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Installer\Http\Middleware;
 
+use AHATechnocrats\Installer\Helpers\DatabaseManager;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
-use AHATechnocrats\Installer\Helpers\DatabaseManager;
 
 class CanInstall
 {

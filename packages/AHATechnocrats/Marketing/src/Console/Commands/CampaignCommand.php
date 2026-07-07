@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Marketing\Console\Commands;
 
-use Illuminate\Console\Command;
 use AHATechnocrats\Marketing\Helpers\Campaign;
+use Illuminate\Console\Command;
 
 class CampaignCommand extends Command
 {

@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\Helpers\Reporting;
 
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
 use AHATechnocrats\Lead\Repositories\StageRepository;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class Lead extends AbstractReporting
 {

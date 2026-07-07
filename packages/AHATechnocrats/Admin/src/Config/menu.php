@@ -24,13 +24,35 @@ return [
     ],
 
     /**
+     * Persons.
+     */
+    [
+        'key' => 'persons',
+        'name' => 'admin::app.layouts.persons',
+        'route' => 'admin.contacts.persons.index',
+        'sort' => 3,
+        'icon-class' => 'icon-contact',
+    ],
+
+    /**
+     * Organizations.
+     */
+    [
+        'key' => 'organizations',
+        'name' => 'omicslogic::app.menu.organizations',
+        'route' => 'admin.contacts.organizations.index',
+        'sort' => 4,
+        'icon-class' => 'icon-organization',
+    ],
+
+    /**
      * Quotes.
      */
     [
         'key' => 'quotes',
         'name' => 'admin::app.layouts.quotes',
         'route' => 'admin.quotes.index',
-        'sort' => 3,
+        'sort' => 5,
         'icon-class' => 'icon-quote',
     ],
 
@@ -42,7 +64,7 @@ return [
         'name' => 'admin::app.layouts.mail.title',
         'route' => 'admin.mail.index',
         'params' => ['route' => 'inbox'],
-        'sort' => 4,
+        'sort' => 6,
         'icon-class' => 'icon-mail',
     ], [
         'key' => 'mail.inbox',
@@ -85,45 +107,88 @@ return [
      * Activities.
      */
     [
-        'key' => 'activities',
-        'name' => 'admin::app.layouts.activities',
-        'route' => 'admin.activities.index',
-        'sort' => 5,
-        'icon-class' => 'icon-activity',
-    ],
-
-    /**
-     * Contacts.
-     */
-    [
-        'key' => 'contacts',
-        'name' => 'admin::app.layouts.contacts',
-        'route' => 'admin.contacts.persons.index',
-        'sort' => 6,
-        'icon-class' => 'icon-contact',
-    ], [
-        'key' => 'contacts.persons',
-        'name' => 'admin::app.layouts.persons',
-        'route' => 'admin.contacts.persons.index',
-        'sort' => 1,
-        'icon-class' => '',
-    ], [
-        'key' => 'contacts.organizations',
-        'name' => 'admin::app.layouts.organizations',
-        'route' => 'admin.contacts.organizations.index',
-        'sort' => 2,
-        'icon-class' => '',
-    ],
-
-    /**
-     * Products.
-     */
-    [
-        'key' => 'products',
-        'name' => 'admin::app.layouts.products',
-        'route' => 'admin.products.index',
+        'key' => 'web_forms',
+        'name' => 'web_form::app.menu.title',
+        'route' => 'admin.web_forms.index',
         'sort' => 7,
+        'icon-class' => 'icon-settings-webforms',
+    ],
+
+    /**
+     * Campaigns.
+     */
+    [
+        'key' => 'campaigns',
+        'name' => 'omicslogic::app.menu.campaigns',
+        'route' => 'admin.campaigns.index',
+        'sort' => 8,
         'icon-class' => 'icon-product',
+    ],
+
+    /**
+     * Merge Review.
+     */
+    [
+        'key' => 'merge_review',
+        'name' => 'omicslogic::app.menu.merge-review',
+        'route' => 'admin.omics.merge.index',
+        'sort' => 9,
+        'icon-class' => 'icon-settings-flow',
+    ],
+
+    /**
+     * Segments.
+     */
+    [
+        'key' => 'segments',
+        'name' => 'omicslogic::app.menu.segments',
+        'route' => 'admin.omics.segments.index',
+        'sort' => 10,
+        'icon-class' => 'icon-attribute',
+    ],
+
+    /**
+     * Reports.
+     */
+    [
+        'key' => 'reports',
+        'name' => 'omicslogic::app.menu.reports',
+        'route' => 'admin.omics.reports.index',
+        'sort' => 11,
+        'icon-class' => 'icon-dashboard',
+    ],
+
+    /**
+     * Imports.
+     */
+    [
+        'key' => 'imports',
+        'name' => 'omicslogic::app.menu.imports',
+        'route' => 'admin.settings.data_transfer.imports.index',
+        'sort' => 12,
+        'icon-class' => 'icon-download',
+    ],
+
+    /**
+     * Connectors.
+     */
+    [
+        'key' => 'connectors',
+        'name' => 'omicslogic::app.menu.connectors',
+        'route' => 'admin.omics.connectors.index',
+        'sort' => 13,
+        'icon-class' => 'icon-settings-webhooks',
+    ],
+
+    /**
+     * Audit Log.
+     */
+    [
+        'key' => 'audit_log',
+        'name' => 'omicslogic::app.menu.audit-log',
+        'route' => 'admin.omics.audit.index',
+        'sort' => 14,
+        'icon-class' => 'icon-activity',
     ],
 
     /**
@@ -133,7 +198,7 @@ return [
         'key' => 'settings',
         'name' => 'admin::app.layouts.settings',
         'route' => 'admin.settings.index',
-        'sort' => 8,
+        'sort' => 15,
         'icon-class' => 'icon-setting',
     ], [
         'key' => 'settings.user',
@@ -255,13 +320,6 @@ return [
         'sort' => 3,
         'icon-class' => 'icon-settings-flow',
     ], [
-        'key' => 'settings.automation.data_transfer',
-        'name' => 'admin::app.layouts.data_transfer',
-        'info' => 'admin::app.layouts.data_transfer_info',
-        'route' => 'admin.settings.data_transfer.imports.index',
-        'sort' => 4,
-        'icon-class' => 'icon-download',
-    ], [
         'key' => 'settings.other_settings',
         'name' => 'admin::app.layouts.other-settings',
         'info' => 'admin::app.layouts.other-settings-info',
@@ -284,18 +342,7 @@ return [
         'key' => 'configuration',
         'name' => 'admin::app.layouts.configuration',
         'route' => 'admin.configuration.index',
-        'sort' => 9,
+        'sort' => 16,
         'icon-class' => 'icon-configuration',
-    ],
-
-    /**
-     * Help.
-     */
-    [
-        'key' => 'help',
-        'name' => 'admin::app.layouts.help',
-        'route' => 'admin.help.index',
-        'sort' => 10,
-        'icon-class' => 'icon-help',
     ],
 ];

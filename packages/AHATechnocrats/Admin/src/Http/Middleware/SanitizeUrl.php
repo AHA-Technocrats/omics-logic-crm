@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\Http\Middleware;
 
+use AHATechnocrats\Email\Enums\SupportedFolderEnum;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use AHATechnocrats\Email\Enums\SupportedFolderEnum;
 
 class SanitizeUrl
 {

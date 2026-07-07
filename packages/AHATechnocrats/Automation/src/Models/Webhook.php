@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Automation\Models;
 
+use AHATechnocrats\Automation\Contracts\Webhook as ContractsWebhook;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use AHATechnocrats\Automation\Contracts\Webhook as ContractsWebhook;
 
 class Webhook extends Model implements ContractsWebhook
 {

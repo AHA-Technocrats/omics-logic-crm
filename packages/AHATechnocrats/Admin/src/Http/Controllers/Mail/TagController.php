@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Mail;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Event;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Email\Repositories\EmailRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Event;
 
 class TagController extends Controller
 {

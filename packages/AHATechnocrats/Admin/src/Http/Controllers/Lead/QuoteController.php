@@ -2,16 +2,16 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Lead;
 
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\Admin\Notifications\Common;
+use AHATechnocrats\Lead\Repositories\LeadRepository;
+use AHATechnocrats\Quote\Repositories\QuoteRepository;
 use ArPHP\I18N\Arabic;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Mpdf\Mpdf;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\Admin\Notifications\Common;
-use AHATechnocrats\Lead\Repositories\LeadRepository;
-use AHATechnocrats\Quote\Repositories\QuoteRepository;
 
 class QuoteController extends Controller
 {

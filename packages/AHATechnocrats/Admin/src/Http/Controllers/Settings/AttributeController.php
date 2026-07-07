@@ -2,17 +2,17 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
 use AHATechnocrats\Admin\DataGrids\Settings\AttributeDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Core\Contracts\Validations\Code;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class AttributeController extends Controller
 {
@@ -168,7 +168,10 @@ class AttributeController extends Controller
      */
     public function lookup($lookup): JsonResponse
     {
-        $results = $this->attributeRepository->getLookUpOptions($lookup, request()->input('query'));
+        $results = $this->attributeRepository->getLookUpOptions(
+            $lookup,
+            request()->input('query', '')
+        );
 
         return response()->json($results);
     }

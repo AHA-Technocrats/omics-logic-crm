@@ -49,21 +49,18 @@
 
                 <x-admin::attributes
                     :custom-attributes="app('AHATechnocrats\Attribute\Repositories\AttributeRepository')->findWhere([
+                        ['code', 'IN', ['name']],
                         'entity_type' => 'organizations',
                     ])"
                     :custom-validations="[
                         'name' => [
                             'max:100',
                         ],
-                        'address' => [
-                            'max:100',
-                        ],
-                        'postcode' => [
-                            'postcode',
-                        ],
                     ]"
                     :can-add-new="false"
                 />
+
+                @include('admin::omics.partials.organization-fields')
 
                 {!! view_render_event('admin.contacts.organizations.edit.form_controls.after') !!}
             </div>

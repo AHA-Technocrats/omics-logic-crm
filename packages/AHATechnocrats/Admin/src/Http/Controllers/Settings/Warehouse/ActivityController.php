@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings\Warehouse;
 
-use Illuminate\Http\Response;
 use AHATechnocrats\Activity\Repositories\ActivityRepository;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Resources\ActivityResource;
 use AHATechnocrats\Email\Repositories\EmailRepository;
+use Illuminate\Http\Response;
 
 class ActivityController extends Controller
 {

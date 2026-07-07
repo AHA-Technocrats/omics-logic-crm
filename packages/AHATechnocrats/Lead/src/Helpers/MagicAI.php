@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Lead\Helpers;
 
+use AHATechnocrats\Admin\Http\Requests\LeadForm;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use AHATechnocrats\Admin\Http\Requests\LeadForm;
 
 class MagicAI
 {

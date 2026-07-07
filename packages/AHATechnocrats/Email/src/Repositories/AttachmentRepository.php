@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Email\Repositories;
 
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Webklex\PHPIMAP\Attachment as ImapAttachment;
 use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\Email\Contracts\Attachment;
 use AHATechnocrats\Email\Contracts\Email;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Webklex\PHPIMAP\Attachment as ImapAttachment;
 
 class AttachmentRepository extends Repository
 {

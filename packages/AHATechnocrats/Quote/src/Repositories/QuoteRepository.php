@@ -2,13 +2,13 @@
 
 namespace AHATechnocrats\Quote\Repositories;
 
-use Illuminate\Container\Container;
-use Illuminate\Support\Str;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\Lead\Repositories\ProductRepository;
 use AHATechnocrats\Quote\Contracts\Quote;
+use Illuminate\Container\Container;
+use Illuminate\Support\Str;
 
 class QuoteRepository extends Repository
 {

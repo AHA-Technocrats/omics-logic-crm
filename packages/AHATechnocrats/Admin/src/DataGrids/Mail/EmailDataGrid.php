@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Admin\DataGrids\Mail;
 
-use Carbon\Carbon;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 use AHATechnocrats\DataGrid\DataGrid;
 use AHATechnocrats\Email\Repositories\EmailRepository;
 use AHATechnocrats\Tag\Repositories\TagRepository;
+use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class EmailDataGrid extends DataGrid
 {

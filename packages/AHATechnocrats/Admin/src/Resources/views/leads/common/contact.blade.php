@@ -1,6 +1,6 @@
 {!! view_render_event('admin.leads.create.contact_person.form_controls.before') !!}
 
-<v-contact-component :data="person"></v-contact-component>
+<v-contact-component :data="person" @on-selected="personSelected"></v-contact-component>
 
 {!! view_render_event('admin.leads.create.contact_person.form_controls.after') !!}
 
@@ -92,7 +92,16 @@
                 :value="person.organization"
                 :is-disabled="person?.id ? true : false"
                 can-add-new="true"
+                @lookup-added="handleOrganizationAdded"
+                @lookup-removed="handleOrganizationRemoved"
             ></v-lookup-component>
+
+            <x-admin::form.control-group.control
+                type="hidden"
+                name="person[organization_name]"
+                v-model="organizationName"
+                v-if="organizationName"
+            />
         </x-admin::form.control-group>
     </script>
 
@@ -102,6 +111,8 @@
 
             props: ['data'],
 
+            emits: ['on-selected'],
+
             data () {
                 return {
                     is_searching: false,
@@ -109,6 +120,8 @@
                     person: this.data ? this.data : {
                         'name': ''
                     },
+
+                    organizationName: this.data?.organization?.name || null,
 
                     persons: [],
                 }
@@ -134,8 +147,27 @@
 
             methods: {
                 addPerson (person) {
-                    this.person = person;
+                    this.person = person || {};
+                    this.organizationName = this.person.organization?.name || null;
+                    this.$emit('on-selected', this.person);
                 },
+
+                handleOrganizationAdded (organization) {
+                    this.organizationName = organization.id ? null : organization.name;
+                    if (! this.person.organization) {
+                        this.person.organization = {};
+                    }
+                    this.person.organization = organization;
+                    this.$emit('on-selected', this.person);
+                },
+
+                handleOrganizationRemoved () {
+                    this.organizationName = null;
+                    if (this.person.organization) {
+                        this.person.organization = {};
+                    }
+                    this.$emit('on-selected', this.person);
+                }
             }
         });
     </script>

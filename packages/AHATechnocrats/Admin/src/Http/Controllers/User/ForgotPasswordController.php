@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\User;
 
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\Admin\Notifications\User\UserResetPassword;
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Password;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\Admin\Notifications\User\UserResetPassword;
 
 class ForgotPasswordController extends Controller
 {

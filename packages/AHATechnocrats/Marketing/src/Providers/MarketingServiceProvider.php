@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Marketing\Providers;
 
+use AHATechnocrats\Marketing\Console\Commands\CampaignCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
-use AHATechnocrats\Marketing\Console\Commands\CampaignCommand;
 
 class MarketingServiceProvider extends ServiceProvider
 {

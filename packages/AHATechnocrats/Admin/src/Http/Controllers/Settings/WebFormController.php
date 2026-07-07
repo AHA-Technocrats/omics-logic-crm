@@ -2,19 +2,22 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Event;
-use Illuminate\View\View;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
+use AHATechnocrats\EmailTemplate\Models\EmailTemplate;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
 use AHATechnocrats\Lead\Repositories\PipelineRepository;
 use AHATechnocrats\Lead\Repositories\SourceRepository;
 use AHATechnocrats\Lead\Repositories\TypeRepository;
 use AHATechnocrats\WebForm\DataGrids\WebFormDataGrid;
+use AHATechnocrats\WebForm\Helpers\WebFormCampaigns;
+use AHATechnocrats\WebForm\Helpers\WebFormFieldOrder;
 use AHATechnocrats\WebForm\Repositories\WebFormRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Event;
+use Illuminate\View\View;
 
 class WebFormController extends Controller
 {
@@ -50,7 +53,7 @@ class WebFormController extends Controller
      */
     public function create(): View
     {
-        $tempAttributes = $this->attributeRepository->findWhereIn('entity_type', ['persons', 'leads']);
+        $tempAttributes = $this->attributeRepository->findWhereIn('entity_type', ['persons', 'leads', 'organizations']);
 
         $attributes = [];
 
@@ -65,7 +68,12 @@ class WebFormController extends Controller
             }
         }
 
-        return view('admin::settings.web-forms.create', compact('attributes'));
+        return view('admin::settings.web-forms.create', [
+            'attributes' => $attributes,
+            'defaultFields' => WebFormFieldOrder::defaultEditorFields(),
+            'emailTemplates' => EmailTemplate::query()->orderBy('name')->get(['id', 'name']),
+            'activeCampaigns' => WebFormCampaigns::activeAsOptions(),
+        ]);
     }
 
     /**
@@ -90,7 +98,7 @@ class WebFormController extends Controller
 
         session()->flash('success', trans('admin::app.settings.webforms.index.create-success'));
 
-        return redirect()->route('admin.settings.web_forms.index');
+        return redirect()->route('admin.web_forms.index');
     }
 
     /**
@@ -101,11 +109,16 @@ class WebFormController extends Controller
         $webForm = $this->webFormRepository->findOrFail($id);
 
         $attributes = $this->attributeRepository->findWhere([
-            ['entity_type', 'IN', ['persons', 'leads']],
+            ['entity_type', 'IN', ['persons', 'leads', 'organizations']],
             ['id', 'NOTIN', $webForm->attributes()->pluck('attribute_id')->toArray()],
         ]);
 
-        return view('admin::settings.web-forms.edit', compact('webForm', 'attributes'));
+        return view('admin::settings.web-forms.edit', [
+            'webForm' => $webForm,
+            'attributes' => $attributes,
+            'emailTemplates' => EmailTemplate::query()->orderBy('name')->get(['id', 'name']),
+            'activeCampaigns' => WebFormCampaigns::activeAsOptions(),
+        ]);
     }
 
     /**
@@ -130,7 +143,7 @@ class WebFormController extends Controller
 
         session()->flash('success', trans('admin::app.settings.webforms.index.update-success'));
 
-        return redirect()->route('admin.settings.web_forms.index');
+        return redirect()->route('admin.web_forms.index');
     }
 
     /**

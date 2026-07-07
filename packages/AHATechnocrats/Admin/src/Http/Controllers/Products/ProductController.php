@@ -2,17 +2,17 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Products;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Event;
-use Illuminate\View\View;
-use Prettus\Repository\Criteria\RequestCriteria;
 use AHATechnocrats\Admin\DataGrids\Product\ProductDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\AttributeForm;
 use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
 use AHATechnocrats\Admin\Http\Resources\ProductResource;
 use AHATechnocrats\Product\Repositories\ProductRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Event;
+use Illuminate\View\View;
+use Prettus\Repository\Criteria\RequestCriteria;
 
 class ProductController extends Controller
 {
@@ -35,7 +35,7 @@ class ProductController extends Controller
             return datagrid(ProductDataGrid::class)->process();
         }
 
-        return view('admin::products.index');
+        return view('admin::campaigns.index');
     }
 
     /**
@@ -43,7 +43,7 @@ class ProductController extends Controller
      */
     public function create(): View
     {
-        return view('admin::products.create');
+        return view('admin::campaigns.create');
     }
 
     /**
@@ -53,20 +53,22 @@ class ProductController extends Controller
     {
         Event::dispatch('product.create.before');
 
-        $product = $this->productRepository->create($request->all());
+        $product = $this->productRepository->create($this->campaignPayload($request));
+
+        $this->syncCampaignAliases($product->id, $request->input('aliases'));
 
         Event::dispatch('product.create.after', $product);
 
         if (request()->ajax()) {
             return response()->json([
                 'data' => $product,
-                'message' => trans('admin::app.products.index.create-success'),
+                'message' => trans('admin::app.campaigns.index.create-success'),
             ]);
         }
 
-        session()->flash('success', trans('admin::app.products.index.create-success'));
+        session()->flash('success', trans('admin::app.campaigns.index.create-success'));
 
-        return redirect()->route('admin.products.index');
+        return redirect()->route('admin.campaigns.index');
     }
 
     /**
@@ -76,7 +78,7 @@ class ProductController extends Controller
     {
         $product = $this->productRepository->findOrFail($id);
 
-        return view('admin::products.view', compact('product'));
+        return view('admin::campaigns.view', compact('product'));
     }
 
     /**
@@ -100,7 +102,7 @@ class ProductController extends Controller
                 ];
             });
 
-        return view('admin::products.edit', compact('product', 'inventories'));
+        return view('admin::campaigns.edit', compact('product', 'inventories'));
     }
 
     /**
@@ -110,19 +112,21 @@ class ProductController extends Controller
     {
         Event::dispatch('product.update.before', $id);
 
-        $product = $this->productRepository->update($request->all(), $id);
+        $product = $this->productRepository->update($this->campaignPayload($request), $id);
+
+        $this->syncCampaignAliases($id, $request->input('aliases'));
 
         Event::dispatch('product.update.after', $product);
 
         if (request()->ajax()) {
             return response()->json([
-                'message' => trans('admin::app.products.index.update-success'),
+                'message' => trans('admin::app.campaigns.index.update-success'),
             ]);
         }
 
-        session()->flash('success', trans('admin::app.products.index.update-success'));
+        session()->flash('success', trans('admin::app.campaigns.index.update-success'));
 
-        return redirect()->route('admin.products.index');
+        return redirect()->route('admin.campaigns.index');
     }
 
     /**
@@ -147,7 +151,7 @@ class ProductController extends Controller
         Event::dispatch('product.update.after', $product);
 
         return new JsonResponse([
-            'message' => trans('admin::app.products.index.update-success'),
+            'message' => trans('admin::app.campaigns.index.update-success'),
         ], 200);
     }
 
@@ -200,11 +204,11 @@ class ProductController extends Controller
             Event::dispatch('settings.products.delete.after', $id);
 
             return new JsonResponse([
-                'message' => trans('admin::app.products.index.delete-success'),
+                'message' => trans('admin::app.campaigns.index.delete-success'),
             ], 200);
         } catch (\Exception $exception) {
             return new JsonResponse([
-                'message' => trans('admin::app.products.index.delete-failed'),
+                'message' => trans('admin::app.campaigns.index.delete-failed'),
             ], 400);
         }
     }
@@ -225,7 +229,47 @@ class ProductController extends Controller
         }
 
         return new JsonResponse([
-            'message' => trans('admin::app.products.index.delete-success'),
+            'message' => trans('admin::app.campaigns.index.delete-success'),
         ]);
+    }
+
+    /**
+     * Merge campaign OmicsLogic fields into the attribute payload.
+     */
+    private function campaignPayload(AttributeForm $request): array
+    {
+        return array_merge($request->all(), [
+            'category' => $request->input('category'),
+            'mapping_status' => $request->input('mapping_status', 'mapped'),
+            'is_active' => $request->boolean('is_active'),
+        ]);
+    }
+
+    /**
+     * Sync campaign aliases in the database.
+     */
+    private function syncCampaignAliases(int $productId, ?string $aliasesString): void
+    {
+        if (is_null($aliasesString) || trim($aliasesString) === '') {
+            \DB::table('omics_product_aliases')->where('product_id', $productId)->delete();
+
+            return;
+        }
+
+        $aliases = array_filter(array_map('trim', explode(',', $aliasesString)));
+
+        // Remove aliases that are no longer present
+        \DB::table('omics_product_aliases')
+            ->where('product_id', $productId)
+            ->whereNotIn('alias_name', $aliases)
+            ->delete();
+
+        // Insert new aliases
+        foreach ($aliases as $alias) {
+            \DB::table('omics_product_aliases')->updateOrInsert(
+                ['product_id' => $productId, 'alias_name' => $alias],
+                ['source' => 'manual', 'updated_at' => now(), 'created_at' => now()]
+            );
+        }
     }
 }

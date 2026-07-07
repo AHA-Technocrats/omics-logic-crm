@@ -2,8 +2,6 @@
 
 namespace AHATechnocrats\DataTransfer\Helpers\Importers;
 
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Event;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Core\Contracts\Validations\Decimal;
@@ -19,6 +17,8 @@ use AHATechnocrats\DataTransfer\Jobs\Import\Indexing as IndexingJob;
 use AHATechnocrats\DataTransfer\Jobs\Import\LinkBatch as LinkBatchJob;
 use AHATechnocrats\DataTransfer\Jobs\Import\Linking as LinkingJob;
 use AHATechnocrats\DataTransfer\Repositories\ImportBatchRepository;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Event;
 
 abstract class AbstractImporter
 {
@@ -83,6 +83,13 @@ abstract class AbstractImporter
     protected bool $indexingRequired = false;
 
     /**
+     * Column that receives the source selected on the import form.
+     * Importers that support source assignment override this (e.g. persons
+     * use "primary_source_id", leads use "lead_source_id"). Null disables it.
+     */
+    protected ?string $sourceColumn = null;
+
+    /**
      * Error helper instance.
      *
      * @var Error
@@ -105,6 +112,25 @@ abstract class AbstractImporter
      * Valid column names.
      */
     protected array $validColumnNames = [];
+
+    /**
+     * Optional header aliases for importers that accept "raw" file headers.
+     *
+     * Keys are normalized header slugs (lowercased, non-alphanumerics stripped)
+     * and values are the canonical internal column name — or an array of names
+     * when one source column feeds several canonical columns. Leave empty to
+     * disable aliasing (default) so existing importers are unaffected.
+     *
+     * @var array<string, string|string[]>
+     */
+    protected array $columnAliases = [];
+
+    /**
+     * Keep the untouched source row (original headers => values) under the
+     * "_raw_submission" key so importers can persist the raw payload. Off by
+     * default to preserve existing importer behavior.
+     */
+    protected bool $keepRawRow = false;
 
     /**
      * Array of numbers of validated rows as keys and boolean TRUE as values.
@@ -217,6 +243,64 @@ abstract class AbstractImporter
     }
 
     /**
+     * Normalize a raw header into a lookup slug used by the alias map.
+     */
+    protected function normalizeHeaderKey(string $header): string
+    {
+        return preg_replace('/[^a-z0-9]+/', '', strtolower(trim($header)));
+    }
+
+    /**
+     * Map raw source headers onto canonical column names using the alias map.
+     * A single header may expand into multiple canonical columns.
+     */
+    protected function mapColumnNames(array $columns): array
+    {
+        if (empty($this->columnAliases)) {
+            return $columns;
+        }
+
+        $mapped = [];
+
+        foreach ($columns as $column) {
+            $canonical = $this->columnAliases[$this->normalizeHeaderKey((string) $column)] ?? $column;
+
+            foreach ((array) $canonical as $name) {
+                $mapped[] = $name;
+            }
+        }
+
+        return $mapped;
+    }
+
+    /**
+     * Re-key a source row onto canonical column names, optionally preserving the
+     * untouched original row under "_raw_submission".
+     */
+    protected function mapRowColumns(array $rowData): array
+    {
+        if (empty($this->columnAliases) && ! $this->keepRawRow) {
+            return $rowData;
+        }
+
+        $mapped = [];
+
+        foreach ($rowData as $key => $value) {
+            $canonical = $this->columnAliases[$this->normalizeHeaderKey((string) $key)] ?? $key;
+
+            foreach ((array) $canonical as $name) {
+                $mapped[$name] = $value;
+            }
+        }
+
+        if ($this->keepRawRow) {
+            $mapped['_raw_submission'] = $rowData;
+        }
+
+        return $mapped;
+    }
+
+    /**
      * Validate data.
      */
     public function validateData(): void
@@ -225,7 +309,9 @@ abstract class AbstractImporter
 
         $errors = [];
 
-        $absentColumns = array_diff($this->permanentAttributes, $columns = $this->getSource()->getColumnNames());
+        $columns = $this->mapColumnNames($this->getSource()->getColumnNames());
+
+        $absentColumns = array_diff($this->permanentAttributes, $columns);
 
         if (! empty($absentColumns)) {
             $errors[self::ERROR_CODE_COLUMN_NOT_FOUND] = $absentColumns;
@@ -290,7 +376,7 @@ abstract class AbstractImporter
             }
 
             if ($source->valid()) {
-                $rowData = $source->current();
+                $rowData = $this->mapRowColumns($source->current());
 
                 if ($this->validateRow($rowData, $source->getCurrentRowNumber())) {
                     $batchRows[] = $this->prepareRowForDb($rowData);
@@ -491,6 +577,35 @@ abstract class AbstractImporter
         $rowData = array_map(function ($value) {
             return $value === '' ? null : $value;
         }, $rowData);
+
+        return $rowData;
+    }
+
+    /**
+     * Assign the source chosen on the import form to a row.
+     *
+     * Only fills the configured source column when the row does not already
+     * carry a value, so per-row values in the file always win. Skipped for
+     * delete imports and when the importer does not support source assignment.
+     */
+    protected function applyImportSource(array $rowData): array
+    {
+        if (
+            $this->sourceColumn === null
+            || $this->import->action == Import::ACTION_DELETE
+        ) {
+            return $rowData;
+        }
+
+        $sourceId = $this->import->source_id ?? null;
+
+        if (empty($sourceId)) {
+            return $rowData;
+        }
+
+        if (empty($rowData[$this->sourceColumn])) {
+            $rowData[$this->sourceColumn] = $sourceId;
+        }
 
         return $rowData;
     }

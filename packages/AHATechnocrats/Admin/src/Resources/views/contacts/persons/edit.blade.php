@@ -51,7 +51,7 @@
 
                 <x-admin::attributes
                     :custom-attributes="app('AHATechnocrats\Attribute\Repositories\AttributeRepository')->findWhere([
-                        ['code', 'NOTIN', ['organization_id']],
+                        ['code', 'IN', ['name', 'emails', 'contact_numbers']],
                         'entity_type' => 'persons',
                     ])"
                     :custom-validations="[
@@ -59,14 +59,13 @@
                             'min:2',
                             'max:100',
                         ],
-                        'job_title' => [
-                            'max:100',
-                        ],
                     ]"
                     :entity="$person"
                 />
 
                 <v-organization></v-organization>
+
+                @include('admin::omics.partials.person-fields', ['record' => $person])
 
                 {!! view_render_event('admin.contacts.persons.edit.form_controls.after') !!}
             </div>
@@ -105,8 +104,17 @@
 
                 data() {
                     return {
-                        organizationName: null,
+                        organizationName: @json($person->organization?->name),
                     };
+                },
+
+                mounted() {
+                    if (this.organizationName) {
+                        this.handleLookupAdded({
+                            id: @json($person->organization_id),
+                            name: this.organizationName,
+                        });
+                    }
                 },
 
                 methods: {

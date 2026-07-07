@@ -2,19 +2,21 @@
 
 namespace AHATechnocrats\Contact\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use AHATechnocrats\Activity\Models\ActivityProxy;
 use AHATechnocrats\Activity\Traits\LogsActivity;
 use AHATechnocrats\Attribute\Traits\CustomAttribute;
 use AHATechnocrats\Contact\Contracts\Person as PersonContract;
 use AHATechnocrats\Contact\Database\Factories\PersonFactory;
 use AHATechnocrats\Lead\Models\LeadProxy;
+use AHATechnocrats\Lead\Models\SourceProxy;
+use AHATechnocrats\Product\Models\ProductProxy;
 use AHATechnocrats\Tag\Models\TagProxy;
 use AHATechnocrats\User\Models\UserProxy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Person extends Model implements PersonContract
 {
@@ -35,16 +37,6 @@ class Person extends Model implements PersonContract
     protected $with = 'organization';
 
     /**
-     * The attributes that are castable.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'emails' => 'array',
-        'contact_numbers' => 'array',
-    ];
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -57,6 +49,39 @@ class Person extends Model implements PersonContract
         'user_id',
         'organization_id',
         'unique_id',
+        'lifecycle_stage',
+        'is_student',
+        'converted_at',
+        'lead_score',
+        'country_code',
+        'education_level',
+        'inquiry_details',
+        'primary_source_id',
+        'portal_user_id',
+        'primary_product_id',
+        'sales_stage',
+        'next_action',
+        'next_action_due',
+        'last_contacted_at',
+        'last_activity_at',
+        'engagement_lessons',
+        'is_opted_out',
+        'normalized_email',
+        'normalized_phone',
+        'spam_score',
+        'spam_status',
+        'merged_into_id',
+    ];
+
+    protected $casts = [
+        'emails' => 'array',
+        'contact_numbers' => 'array',
+        'is_student' => 'boolean',
+        'converted_at' => 'datetime',
+        'last_contacted_at' => 'datetime',
+        'last_activity_at' => 'datetime',
+        'next_action_due' => 'date',
+        'is_opted_out' => 'boolean',
     ];
 
     /**
@@ -73,6 +98,16 @@ class Person extends Model implements PersonContract
     public function organization(): BelongsTo
     {
         return $this->belongsTo(OrganizationProxy::modelClass());
+    }
+
+    public function primarySource(): BelongsTo
+    {
+        return $this->belongsTo(SourceProxy::modelClass(), 'primary_source_id');
+    }
+
+    public function primaryProduct(): BelongsTo
+    {
+        return $this->belongsTo(ProductProxy::modelClass(), 'primary_product_id');
     }
 
     /**

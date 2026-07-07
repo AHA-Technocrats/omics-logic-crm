@@ -2,13 +2,6 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Activity;
 
-use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use AHATechnocrats\Activity\Repositories\ActivityRepository;
 use AHATechnocrats\Activity\Repositories\FileRepository;
 use AHATechnocrats\Admin\DataGrids\Activity\ActivityDataGrid;
@@ -17,6 +10,13 @@ use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
 use AHATechnocrats\Admin\Http\Requests\MassUpdateRequest;
 use AHATechnocrats\Admin\Http\Resources\ActivityResource;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ActivityController extends Controller
 {
@@ -170,7 +170,7 @@ class ActivityController extends Controller
 
         session()->flash('success', trans('admin::app.activities.update-success'));
 
-        return redirect()->route('admin.activities.index');
+        return redirect()->route('admin.web_forms.index');
     }
 
     /**

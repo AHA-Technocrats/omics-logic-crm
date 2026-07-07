@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Marketing\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\EmailTemplate\Models\EmailTemplateProxy;
 use AHATechnocrats\Marketing\Contracts\Campaign as CampaignContract;
+use Illuminate\Database\Eloquent\Model;
 
 class Campaign extends Model implements CampaignContract
 {

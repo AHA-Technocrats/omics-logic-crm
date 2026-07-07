@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Warehouse\Repositories;
 
-use Illuminate\Container\Container;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\Warehouse\Contracts\Warehouse;
+use Illuminate\Container\Container;
 
 class WarehouseRepository extends Repository
 {

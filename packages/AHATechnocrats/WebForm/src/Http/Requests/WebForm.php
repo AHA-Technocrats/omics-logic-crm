@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\WebForm\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Core\Contracts\Validations\Decimal;
 use AHATechnocrats\WebForm\Rules\PhoneNumber;
+use Illuminate\Foundation\Http\FormRequest;
 
 class WebForm extends FormRequest
 {

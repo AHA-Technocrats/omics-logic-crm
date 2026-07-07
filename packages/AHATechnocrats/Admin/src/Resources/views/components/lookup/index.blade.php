@@ -170,12 +170,16 @@
             emits: ['on-selected'],
 
             data() {
+                const initialValue = this.value?.id
+                    ? { id: this.value.id, name: this.value.name ?? '' }
+                    : {};
+
                 return {
                     showPopup: false,
 
                     searchTerm: '',
 
-                    selectedItem: {},
+                    selectedItem: initialValue,
 
                     searchedResults: [],
 
@@ -186,11 +190,11 @@
             },
 
             mounted() {
-                if (this.value) {
-                    this.selectedItem = this.value;
-                }
+                this.syncSelectedItem(this.value);
 
-                console.log(this.placeholder);
+                if (this.preload && ! this.selectedItem?.id) {
+                    this.fetchResults('', 5);
+                }
             },
 
             created() {
@@ -202,6 +206,13 @@
             },
 
             watch: {
+                value: {
+                    deep: true,
+                    handler(newValue) {
+                        this.syncSelectedItem(newValue);
+                    },
+                },
+
                 searchTerm(newVal, oldVal) {
                     this.search();
                 },
@@ -231,6 +242,19 @@
             },
 
             methods: {
+                syncSelectedItem(value) {
+                    if (value?.id) {
+                        this.selectedItem = {
+                            id: value.id,
+                            name: value.name ?? '',
+                        };
+
+                        return;
+                    }
+
+                    this.selectedItem = {};
+                },
+
                 /**
                  * Toggle the popup.
                  *

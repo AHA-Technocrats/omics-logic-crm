@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Lead\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Lead\Contracts\Source as SourceContract;
+use Illuminate\Database\Eloquent\Model;
 
 class Source extends Model implements SourceContract
 {

@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Marketing\Mail;
 
+use AHATechnocrats\Marketing\Contracts\Campaign;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use AHATechnocrats\Marketing\Contracts\Campaign;
 
 class CampaignMail extends Mailable
 {

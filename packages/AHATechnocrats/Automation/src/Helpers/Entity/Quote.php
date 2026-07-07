@@ -2,7 +2,6 @@
 
 namespace AHATechnocrats\Automation\Helpers\Entity;
 
-use Illuminate\Support\Facades\Mail;
 use AHATechnocrats\Admin\Notifications\Common;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Automation\Repositories\WebhookRepository;
@@ -12,6 +11,7 @@ use AHATechnocrats\EmailTemplate\Repositories\EmailTemplateRepository;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
 use AHATechnocrats\Quote\Contracts\Quote as ContractsQuote;
 use AHATechnocrats\Quote\Repositories\QuoteRepository;
+use Illuminate\Support\Facades\Mail;
 
 class Quote extends AbstractEntity
 {

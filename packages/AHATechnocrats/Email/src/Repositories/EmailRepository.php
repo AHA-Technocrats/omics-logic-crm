@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Email\Repositories;
 
-use Illuminate\Container\Container;
 use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\Email\Contracts\Email;
+use Illuminate\Container\Container;
 
 class EmailRepository extends Repository
 {

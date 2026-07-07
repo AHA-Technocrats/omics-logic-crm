@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\User\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\User\Contracts\Role as RoleContract;
+use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model implements RoleContract
 {

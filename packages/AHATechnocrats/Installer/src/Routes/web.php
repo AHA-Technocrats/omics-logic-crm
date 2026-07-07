@@ -1,8 +1,8 @@
 <?php
 
+use AHATechnocrats\Installer\Http\Controllers\InstallerController;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
-use AHATechnocrats\Installer\Http\Controllers\InstallerController;
 
 Route::middleware(['web', 'installer_locale'])->group(function () {
     Route::controller(InstallerController::class)->group(function () {

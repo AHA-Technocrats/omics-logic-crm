@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Admin\DataGrids\Settings;
 
+use AHATechnocrats\DataGrid\DataGrid;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use AHATechnocrats\DataGrid\DataGrid;
 
 class WarehouseDataGrid extends DataGrid
 {

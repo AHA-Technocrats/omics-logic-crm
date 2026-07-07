@@ -1,10 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use AHATechnocrats\Admin\Http\Controllers\Activity\ActivityController;
+use Illuminate\Support\Facades\Route;
+
+Route::redirect('activities', '/admin/web-forms')->name('admin.activities.index');
 
 Route::controller(ActivityController::class)->prefix('activities')->group(function () {
-    Route::get('', 'index')->name('admin.activities.index');
 
     Route::get('get', 'get')->name('admin.activities.get');
 

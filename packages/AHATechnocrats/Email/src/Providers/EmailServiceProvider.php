@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Email\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use AHATechnocrats\Email\Console\Commands\ProcessInboundEmails;
 use AHATechnocrats\Email\InboundEmailProcessor\Contracts\InboundEmailProcessor;
 use AHATechnocrats\Email\InboundEmailProcessor\SendgridEmailProcessor;
 use AHATechnocrats\Email\InboundEmailProcessor\WebklexImapEmailProcessor;
+use Illuminate\Support\ServiceProvider;
 
 class EmailServiceProvider extends ServiceProvider
 {

@@ -2,13 +2,13 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings;
 
+use AHATechnocrats\Admin\DataGrids\Settings\RoleDataGrid;
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\User\Repositories\RoleRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Event;
 use Illuminate\View\View;
-use AHATechnocrats\Admin\DataGrids\Settings\RoleDataGrid;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\User\Repositories\RoleRepository;
 
 class RoleController extends Controller
 {

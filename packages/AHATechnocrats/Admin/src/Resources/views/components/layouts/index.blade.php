@@ -104,6 +104,9 @@
         <!-- Confirm Modal Blade Component -->
         <x-admin::modal.confirm />
 
+        <!-- Cascade Delete Timeline Modal -->
+        <x-admin::modal.cascade-delete />
+
         {!! view_render_event('admin.layout.content.before') !!}
 
         <!-- Page Header Blade Component -->

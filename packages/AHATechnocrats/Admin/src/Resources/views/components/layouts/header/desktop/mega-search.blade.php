@@ -54,7 +54,7 @@
                         <div class="grid max-h-[400px] overflow-y-auto">
                             <template v-for="product in searchedResults.products">
                                 <a
-                                    :href="'{{ route('admin.products.view', ':id') }}'.replace(':id', product.id)"
+                                    :href="'{{ route('admin.campaigns.view', ':id') }}'.replace(':id', product.id)"
                                     class="flex cursor-pointer justify-between gap-2.5 border-b border-slate-300 p-4 last:border-b-0 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-gray-950"
                                 >
                                     <!-- Left Information -->
@@ -86,20 +86,20 @@
                         <div class="flex border-t p-3 dark:border-gray-800">
                             <template v-if="searchedResults.products.length">
                                 <a
-                                    :href="'{{ route('admin.products.index') }}?search=:query'.replace(':query', searchTerm)"
+                                    :href="'{{ route('admin.campaigns.index') }}?search=:query'.replace(':query', searchTerm)"
                                     class="cursor-pointer text-xs font-semibold text-brandColor transition-all hover:underline"
                                 >
 
-                                    @{{ `@lang('admin::app.components.layouts.header.mega-search.explore-all-matching-products')`.replace(':query', searchTerm).replace(':count', searchedResults.products.length) }}
+                                    @{{ `@lang('admin::app.components.layouts.header.mega-search.explore-all-matching-campaigns')`.replace(':query', searchTerm).replace(':count', searchedResults.products.length) }}
                                 </a>
                             </template>
 
                             <template v-else>
                                 <a
-                                    href="{{ route('admin.products.index') }}"
+                                    href="{{ route('admin.campaigns.index') }}"
                                     class="cursor-pointer text-xs font-semibold text-brandColor transition-all hover:underline"
                                 >
-                                    @lang('admin::app.components.layouts.header.mega-search.explore-all-products')
+                                    @lang('admin::app.components.layouts.header.mega-search.explore-all-campaigns')
                                 </a>
                             </template>
                         </div>
@@ -405,9 +405,9 @@
 
                         products: {
                             key: 'products',
-                            title: "@lang('admin::app.components.layouts.header.mega-search.tabs.products')",
+                            title: "@lang('admin::app.components.layouts.header.mega-search.tabs.campaigns')",
                             is_active: false,
-                            endpoint: "{{ route('admin.products.search') }}",
+                            endpoint: "{{ route('admin.campaigns.search') }}",
                             query_params: [
                                 {
                                     search: 'name',

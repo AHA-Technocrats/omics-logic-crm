@@ -2,29 +2,29 @@
 
 return [
     [
-        'key' => 'settings.other_settings.web_forms',
+        'key' => 'web_forms',
         'name' => 'web_form::app.acl.title',
-        'route' => 'admin.settings.web_forms.index',
-        'sort' => 1,
+        'route' => ['admin.web_forms.index', 'admin.web_forms.responses.index', 'admin.web_forms.responses.export'],
+        'sort' => 5,
     ], [
-        'key' => 'settings.other_settings.web_forms.view',
+        'key' => 'web_forms.view',
         'name' => 'web_form::app.acl.view',
         'route' => 'admin.settings.web_forms.view',
         'sort' => 1,
     ], [
-        'key' => 'settings.other_settings.web_forms.create',
+        'key' => 'web_forms.create',
         'name' => 'web_form::app.acl.create',
-        'route' => ['admin.settings.web_forms.create', 'admin.settings.web_forms.store'],
+        'route' => ['admin.web_forms.create', 'admin.web_forms.store'],
         'sort' => 2,
     ], [
-        'key' => 'settings.other_settings.web_forms.edit',
+        'key' => 'web_forms.edit',
         'name' => 'web_form::app.acl.edit',
-        'route' => ['admin.settings.web_forms.edit', 'admin.settings.web_forms.update'],
+        'route' => ['admin.web_forms.edit', 'admin.web_forms.update'],
         'sort' => 3,
     ], [
-        'key' => 'settings.other_settings.web_forms.delete',
+        'key' => 'web_forms.delete',
         'name' => 'web_form::app.acl.delete',
-        'route' => 'admin.settings.web_forms.delete',
+        'route' => 'admin.web_forms.delete',
         'sort' => 4,
     ],
 ];

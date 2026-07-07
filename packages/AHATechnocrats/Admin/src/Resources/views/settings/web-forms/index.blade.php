@@ -8,7 +8,7 @@
             <div class="scroll-reactive-sticky sticky top-[60px] z-[1000] flex items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
                 <div class="flex flex-col gap-2">
                     <!-- Bredcrumbs -->
-                    <x-admin::breadcrumbs name="settings.web_forms" />
+                    <x-admin::breadcrumbs name="web_forms" />
         
                     <div class="text-xl font-bold dark:text-white">
                         @lang('admin::app.settings.webforms.index.title')
@@ -18,7 +18,7 @@
                 <div class="flex items-center gap-x-2.5">
                     <!-- Create button for person -->
                     <div class="flex items-center gap-x-2.5">
-                        @if (bouncer()->hasPermission('admin.settings.web_forms.create'))
+                        @if (bouncer()->hasPermission('web_forms.create'))
                             <button
                                 type="button"
                                 class="primary-button"
@@ -44,7 +44,7 @@
                 <div class="scroll-reactive-sticky sticky top-[60px] z-[1000] flex items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
                     <div class="flex flex-col gap-2">
                         <!-- Bredcrumbs -->
-                        <x-admin::breadcrumbs name="settings.web_forms" />
+                        <x-admin::breadcrumbs name="web_forms" />
             
                         <div class="text-xl font-bold dark:text-white">
                             @lang('admin::app.settings.webforms.index.title')
@@ -56,9 +56,9 @@
                         <div class="flex items-center gap-x-2.5">
                             {!! view_render_event('admin.settings.web_forms.index.create_button.before') !!}
             
-                            @if (bouncer()->hasPermission('admin.settings.web_forms.create'))
+                            @if (bouncer()->hasPermission('web_forms.create'))
                                 <a
-                                    href="{{ route('admin.settings.web_forms.create') }}"
+                                    href="{{ route('admin.web_forms.create') }}"
                                     class="primary-button"
                                 >
                                     @lang('admin::app.settings.webforms.index.create-btn')
@@ -74,7 +74,7 @@
 
                 <!-- Datagrid -->
                 <x-admin::datagrid
-                    :src="route('admin.settings.web_forms.index')"
+                    :src="route('admin.web_forms.index')"
                     ref="datagrid"
                 >
                     <template #header="{

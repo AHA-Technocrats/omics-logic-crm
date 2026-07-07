@@ -2,15 +2,15 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings\Marketing;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Event;
-use Illuminate\View\View;
 use AHATechnocrats\Admin\DataGrids\Settings\Marketing\CampaignDatagrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
 use AHATechnocrats\EmailTemplate\Repositories\EmailTemplateRepository;
 use AHATechnocrats\Marketing\Repositories\CampaignRepository;
 use AHATechnocrats\Marketing\Repositories\EventRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Event;
+use Illuminate\View\View;
 
 class CampaignsController extends Controller
 {

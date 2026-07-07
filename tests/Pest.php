@@ -1,8 +1,8 @@
 <?php
 
+use AHATechnocrats\User\Models\User;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
-use AHATechnocrats\User\Models\User;
 
 /*
 |--------------------------------------------------------------------------

@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers;
 
+use AHATechnocrats\Core\Traits\Sanitizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use AHATechnocrats\Core\Traits\Sanitizer;
 
 class TinyMCEController extends Controller
 {

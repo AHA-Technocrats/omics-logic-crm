@@ -1,9 +1,9 @@
 @php
     $canCreateLead = bouncer()->hasPermission('leads.create.quick-create');
     $canCreateMail = bouncer()->hasPermission('mail.compose.quick-create');
-    $canCreatePerson = bouncer()->hasPermission('contacts.persons.create.quick-create');
-    $canCreateOrganization = bouncer()->hasPermission('contacts.organizations.create.quick-create');
-    $canCreateProduct = bouncer()->hasPermission('products.create.quick-create');
+    $canCreatePerson = bouncer()->hasPermission('persons.create.quick-create');
+    $canCreateOrganization = bouncer()->hasPermission('organizations.create.quick-create');
+    $canCreateProduct = bouncer()->hasPermission('campaigns.create.quick-create');
 
     $hasAnyQuickAddPermission = $canCreateLead
         || $canCreateMail
@@ -15,7 +15,7 @@
         $canCreateLead => 'lead',
         $canCreatePerson => 'person',
         $canCreateOrganization => 'organization',
-        $canCreateProduct => 'product',
+        $canCreateProduct => 'campaign',
         $canCreateMail => 'mail',
         default => '',
     };
@@ -154,7 +154,7 @@
                                 @endif
 
                                 @if ($canCreateProduct)
-                                    <div v-show="selectedType == 'product'">
+                                    <div v-show="selectedType == 'campaign'">
                                         <x-admin::form
                                             v-slot="{ meta, errors, handleSubmit }"
                                             as="div"
@@ -351,7 +351,7 @@
                                 { name: 'organization', label: "@lang('admin::app.layouts.organization')" },
                             @endif
                             @if ($canCreateProduct)
-                                { name: 'product',      label: "@lang('admin::app.layouts.product')" },
+                                { name: 'campaign',      label: "@lang('admin::app.layouts.campaign')" },
                             @endif
                             @if ($canCreateMail)
                                 { name: 'mail',         label: "@lang('admin::app.layouts.email')" },
@@ -362,7 +362,7 @@
                             lead:         "{{ route('admin.leads.store') }}",
                             person:       "{{ route('admin.contacts.persons.store') }}",
                             organization: "{{ route('admin.contacts.organizations.store') }}",
-                            product:      "{{ route('admin.products.store') }}",
+                            product:      "{{ route('admin.campaigns.store') }}",
                             mail:         "{{ route('admin.mail.store') }}",
                         },
                     };

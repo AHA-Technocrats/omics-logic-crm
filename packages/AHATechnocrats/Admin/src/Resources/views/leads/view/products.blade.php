@@ -21,23 +21,23 @@
                     <x-admin::table.thead>
                         <x-admin::table.thead.tr>
                             <x-admin::table.th>
-                                @lang('admin::app.leads.view.products.product-name')
+                                @lang('admin::app.leads.view.campaigns.campaign-name')
                             </x-admin::table.th>
 
                             <x-admin::table.th class="ltr:text-left rtl:text-right">
-                                @lang('admin::app.leads.view.products.quantity')
+                                @lang('admin::app.leads.view.campaigns.quantity')
                             </x-admin::table.th>
 
                             <x-admin::table.th class="ltr:text-left rtl:text-right">
-                                @lang('admin::app.leads.view.products.price')
+                                @lang('admin::app.leads.view.campaigns.price')
                             </x-admin::table.th>
 
                             <x-admin::table.th class="ltr:text-left rtl:text-right">
-                                @lang('admin::app.leads.view.products.amount')
+                                @lang('admin::app.leads.view.campaigns.amount')
                             </x-admin::table.th>
 
                             <x-admin::table.th class="ltr:text-right rtl:text-left">
-                                @lang('admin::app.leads.view.products.action')
+                                @lang('admin::app.leads.view.campaigns.action')
                             </x-admin::table.th>
                         </x-admin::table.thead.tr>
                     </x-admin::table.thead>
@@ -75,7 +75,7 @@
                 >
                     <i class="icon-add text-md !text-brandColor"></i>
 
-                    @lang('admin::app.leads.view.products.add-more')
+                    @lang('admin::app.leads.view.campaigns.add-more')
                 </button>
             </div>
 
@@ -91,11 +91,11 @@
 
                 <div class="flex flex-col items-center gap-2">
                     <p class="text-xl font-semibold dark:text-white">
-                        @lang('admin::app.leads.view.products.empty-title')
+                        @lang('admin::app.leads.view.campaigns.empty-title')
                     </p>
 
                     <p class="text-gray-400 dark:text-gray-400">
-                        @lang('admin::app.leads.view.products.empty-info')
+                        @lang('admin::app.leads.view.campaigns.empty-info')
                     </p>
                 </div>
 
@@ -103,7 +103,7 @@
                     class="secondary-button"
                     @click="addProduct"
                 >
-                     @lang('admin::app.leads.view.products.add-product')
+                     @lang('admin::app.leads.view.campaigns.add-campaign')
                 </div>
             </div>
         </div>
@@ -123,7 +123,7 @@
                             ::src="src"
                             name="name"
                             ::params="params"
-                            :placeholder="trans('admin::app.leads.view.products.product-name')"
+                            :placeholder="trans('admin::app.leads.view.campaigns.campaign-name')"
                             @on-selected="(product) => addProduct(product)"
                             ::value="{ id: product.product_id, name: product.name }"
                         />
@@ -133,8 +133,8 @@
                             name="product_id"
                             v-model="product.product_id"
                             rules="required"
-                            :label="trans('admin::app.leads.view.products.product-name')"
-                            :placeholder="trans('admin::app.leads.view.products.product-name')"
+                            :label="trans('admin::app.leads.view.campaigns.campaign-name')"
+                            :placeholder="trans('admin::app.leads.view.campaigns.campaign-name')"
                             ::url="url(product)"
                         />
 
@@ -152,8 +152,8 @@
                             ::name="'quantity'"
                             ::value="product.quantity"
                             rules="required|decimal:4"
-                            :label="trans('admin::app.leads.view.products.quantity')"
-                            :placeholder="trans('admin::app.leads.view.products.quantity')"
+                            :label="trans('admin::app.leads.view.campaigns.quantity')"
+                            :placeholder="trans('admin::app.leads.view.campaigns.quantity')"
                             @on-change="handleQuantityChange"
                             ::url="url(product)"
                             ::params="{product_id: product.product_id, price: product.price}"
@@ -173,8 +173,8 @@
                             ::name="'price'"
                             ::value="product.price"
                             rules="required|decimal:4"
-                            :label="trans('admin::app.leads.view.products.price')"
-                            :placeholder="trans('admin::app.leads.view.products.price')"
+                            :label="trans('admin::app.leads.view.campaigns.price')"
+                            :placeholder="trans('admin::app.leads.view.campaigns.price')"
                             @on-change="handlePriceChange"
                             ::url="url(product)"
                             ::params="{product_id: product.product_id, quantity: product.quantity}"
@@ -195,8 +195,8 @@
                             ::name="'amount'"
                             ::value="product.price * product.quantity"
                             rules="required|decimal:4"
-                            :label="trans('admin::app.leads.view.products.total')"
-                            :placeholder="trans('admin::app.leads.view.products.total')"
+                            :label="trans('admin::app.leads.view.campaigns.total')"
+                            :placeholder="trans('admin::app.leads.view.campaigns.total')"
                             :allowEdit="false"
                             ::url="url(product)"
                             position="left"
@@ -286,7 +286,7 @@
                 },
 
                 src() {
-                    return '{{ route('admin.products.search') }}';
+                    return '{{ route('admin.campaigns.search') }}';
                 },
 
                 params() {

@@ -2,14 +2,6 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Lead;
 
-use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\View\View;
-use Prettus\Repository\Criteria\RequestCriteria;
 use AHATechnocrats\Admin\DataGrids\Lead\LeadDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\LeadForm;
@@ -31,6 +23,15 @@ use AHATechnocrats\Quote\Repositories\QuoteItemRepository;
 use AHATechnocrats\Quote\Repositories\QuoteRepository;
 use AHATechnocrats\Tag\Repositories\TagRepository;
 use AHATechnocrats\User\Repositories\UserRepository;
+use AHATechnocrats\WebForm\Models\WebFormSubmission;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\View\View;
+use Prettus\Repository\Criteria\RequestCriteria;
 
 class LeadController extends Controller
 {
@@ -230,7 +231,13 @@ class LeadController extends Controller
             ->orderBy('sort_order', 'asc')
             ->get();
 
-        $lead = $this->leadRepository->findOrFail($id);
+        $lead = $this->leadRepository->with([
+            'person.primaryProduct',
+            'person.primarySource',
+            'person.user',
+            'person.organization',
+            'products.product',
+        ])->findOrFail($id);
 
         return view('admin::leads.edit', compact('lead', 'attributes'));
     }
@@ -240,7 +247,13 @@ class LeadController extends Controller
      */
     public function view(int $id)
     {
-        $lead = $this->leadRepository->findOrFail($id);
+        $lead = $this->leadRepository->with([
+            'person.primaryProduct',
+            'person.primarySource',
+            'person.user',
+            'person.organization',
+            'products.product',
+        ])->findOrFail($id);
 
         $userIds = bouncer()->getAuthorizedUserIds();
 
@@ -251,7 +264,15 @@ class LeadController extends Controller
             return redirect()->route('admin.leads.index');
         }
 
-        return view('admin::leads.view', compact('lead'));
+        $webFormSubmission = $lead->person_id
+            ? WebFormSubmission::query()
+                ->with('webForm')
+                ->where('person_id', $lead->person_id)
+                ->latest()
+                ->first()
+            : null;
+
+        return view('admin::leads.view', compact('lead', 'webFormSubmission'));
     }
 
     /**
@@ -313,6 +334,44 @@ class LeadController extends Controller
         $lead = $this->leadRepository->update($data, $id, $attributes);
 
         Event::dispatch('lead.update.after', $lead);
+
+        return response()->json([
+            'message' => trans('admin::app.leads.update-success'),
+        ]);
+    }
+
+    /**
+     * Update the linked person's CRM profile from the lead view.
+     */
+    public function updatePersonProfile(int $id): JsonResponse
+    {
+        $lead = $this->leadRepository->with('person')->findOrFail($id);
+
+        $userIds = bouncer()->getAuthorizedUserIds();
+
+        if ($userIds && ! in_array($lead->user_id, $userIds)) {
+            abort(403);
+        }
+
+        if (! $lead->person) {
+            abort(404);
+        }
+
+        $allowed = ['lifecycle_stage', 'primary_product_id', 'primary_source_id', 'user_id'];
+        $data = request()->only($allowed);
+        $data['entity_type'] = 'persons';
+
+        foreach (['primary_product_id', 'primary_source_id', 'user_id'] as $key) {
+            if (array_key_exists($key, $data) && $data[$key] === '') {
+                $data[$key] = null;
+            }
+        }
+
+        Event::dispatch('contacts.person.update.before', $lead->person->id);
+
+        $person = $this->personRepository->update($data, $lead->person->id, array_keys($data));
+
+        Event::dispatch('contacts.person.update.after', $person);
 
         return response()->json([
             'message' => trans('admin::app.leads.update-success'),
@@ -412,7 +471,7 @@ class LeadController extends Controller
 
                 $lead?->update(['lead_pipeline_stage_id' => $massUpdateRequest->input('value')]);
 
-                Event::dispatch('lead.update.before', $lead->id);
+                Event::dispatch('lead.update.after', $lead);
             }
 
             return response()->json([
@@ -638,6 +697,25 @@ class LeadController extends Controller
                 'filterable_type' => 'searchable_dropdown',
                 'filterable_options' => [
                     'repository' => TagRepository::class,
+                    'column' => [
+                        'label' => 'name',
+                        'value' => 'name',
+                    ],
+                ],
+            ],
+            [
+                'index' => 'products.product.name',
+                'label' => trans('omicslogic::app.datagrid.program'),
+                'type' => 'string',
+                'searchable' => false,
+                'search_field' => 'in',
+                'filterable' => true,
+                'allow_multiple_values' => true,
+                'sortable' => true,
+                'visibility' => true,
+                'filterable_type' => 'searchable_dropdown',
+                'filterable_options' => [
+                    'repository' => \AHATechnocrats\Product\Repositories\ProductRepository::class,
                     'column' => [
                         'label' => 'name',
                         'value' => 'name',

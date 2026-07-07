@@ -2,10 +2,6 @@
 
 namespace AHATechnocrats\DataTransfer\Helpers\Importers\Products;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Validator;
 use AHATechnocrats\Attribute\Repositories\AttributeOptionRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
@@ -15,6 +11,10 @@ use AHATechnocrats\DataTransfer\Helpers\Importers\AbstractImporter;
 use AHATechnocrats\DataTransfer\Repositories\ImportBatchRepository;
 use AHATechnocrats\Product\Repositories\ProductInventoryRepository;
 use AHATechnocrats\Product\Repositories\ProductRepository;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Validator;
 
 class Importer extends AbstractImporter
 {

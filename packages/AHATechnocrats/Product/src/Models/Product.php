@@ -2,9 +2,6 @@
 
 namespace AHATechnocrats\Product\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use AHATechnocrats\Activity\Models\ActivityProxy;
 use AHATechnocrats\Activity\Traits\LogsActivity;
 use AHATechnocrats\Attribute\Traits\CustomAttribute;
@@ -12,10 +9,25 @@ use AHATechnocrats\Product\Contracts\Product as ProductContract;
 use AHATechnocrats\Tag\Models\TagProxy;
 use AHATechnocrats\Warehouse\Models\LocationProxy;
 use AHATechnocrats\Warehouse\Models\WarehouseProxy;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model implements ProductContract
 {
     use CustomAttribute, LogsActivity;
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::deleting(function ($product) {
+            \DB::table('omics_product_aliases')->where('product_id', $product->id)->delete();
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -28,6 +40,16 @@ class Product extends Model implements ProductContract
         'description',
         'quantity',
         'price',
+        'category',
+        'is_active',
+        'canonical_product_id',
+        'mapping_status',
+        'mapping_confidence',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'mapping_confidence' => 'decimal:2',
     ];
 
     /**

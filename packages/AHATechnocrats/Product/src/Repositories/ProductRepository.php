@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Product\Repositories;
 
-use Illuminate\Container\Container;
-use Illuminate\Support\Str;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\Product\Contracts\Product;
+use Illuminate\Container\Container;
+use Illuminate\Support\Str;
 
 class ProductRepository extends Repository
 {

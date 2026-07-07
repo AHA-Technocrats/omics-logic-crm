@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Core;
 
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use AHATechnocrats\Core\Repositories\CoreConfigRepository;
 use AHATechnocrats\Core\Repositories\CountryRepository;
 use AHATechnocrats\Core\Repositories\CountryStateRepository;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class Core
 {

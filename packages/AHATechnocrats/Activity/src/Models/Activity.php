@@ -2,13 +2,13 @@
 
 namespace AHATechnocrats\Activity\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Activity\Contracts\Activity as ActivityContract;
 use AHATechnocrats\Contact\Models\PersonProxy;
 use AHATechnocrats\Lead\Models\LeadProxy;
 use AHATechnocrats\Product\Models\ProductProxy;
 use AHATechnocrats\User\Models\UserProxy;
 use AHATechnocrats\Warehouse\Models\WarehouseProxy;
+use Illuminate\Database\Eloquent\Model;
 
 class Activity extends Model implements ActivityContract
 {

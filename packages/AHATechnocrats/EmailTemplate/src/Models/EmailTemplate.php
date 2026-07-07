@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\EmailTemplate\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\EmailTemplate\Contracts\EmailTemplate as EmailTemplateContract;
+use Illuminate\Database\Eloquent\Model;
 
 class EmailTemplate extends Model implements EmailTemplateContract
 {

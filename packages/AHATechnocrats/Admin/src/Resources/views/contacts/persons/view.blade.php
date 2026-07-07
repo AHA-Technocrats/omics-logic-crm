@@ -39,9 +39,11 @@
                         {{ $person->name }}
                     </h3>
 
-                    <p class="dark:text-white">
-                        {{ $person->job_title }}
-                    </p>
+                    @if ($person->emails[0]['value'] ?? null)
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            {{ $person->emails[0]['value'] }}
+                        </p>
+                    @endif
 
                     {!! view_render_event('admin.contact.persons.view.title.after', ['person' => $person]) !!}
                 </div>
@@ -78,8 +80,8 @@
                 </div>
             </div>
 
-            <!-- Person Attributes -->
-            @include ('admin::contacts.persons.view.attributes')
+            <!-- Person Profile -->
+            @include ('admin::contacts.persons.view.profile')
 
             <!-- Contact Organization -->
             @include ('admin::contacts.persons.view.organization')

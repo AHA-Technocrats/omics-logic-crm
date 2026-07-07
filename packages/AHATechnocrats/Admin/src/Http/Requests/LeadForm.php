@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Core\Contracts\Validations\Decimal;
+use Illuminate\Foundation\Http\FormRequest;
 
 class LeadForm extends FormRequest
 {

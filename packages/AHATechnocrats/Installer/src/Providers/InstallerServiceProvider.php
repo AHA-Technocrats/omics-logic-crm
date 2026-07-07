@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Installer\Providers;
 
-use Illuminate\Routing\Router;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\ServiceProvider;
 use AHATechnocrats\Installer\Console\Commands\Installer as InstallerCommand;
 use AHATechnocrats\Installer\Http\Middleware\CanInstall;
 use AHATechnocrats\Installer\Http\Middleware\Locale;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
 
 class InstallerServiceProvider extends ServiceProvider
 {

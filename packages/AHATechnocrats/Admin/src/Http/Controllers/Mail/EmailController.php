@@ -2,14 +2,6 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Mail;
 
-use Exception;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
 use AHATechnocrats\Admin\DataGrids\Mail\EmailDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
@@ -21,6 +13,14 @@ use AHATechnocrats\Email\Mails\Email;
 use AHATechnocrats\Email\Repositories\AttachmentRepository;
 use AHATechnocrats\Email\Repositories\EmailRepository;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class EmailController extends Controller
 {

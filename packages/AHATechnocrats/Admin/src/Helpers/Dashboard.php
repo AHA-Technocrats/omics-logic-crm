@@ -2,14 +2,14 @@
 
 namespace AHATechnocrats\Admin\Helpers;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use AHATechnocrats\Admin\Helpers\Reporting\Activity;
 use AHATechnocrats\Admin\Helpers\Reporting\Lead;
 use AHATechnocrats\Admin\Helpers\Reporting\Organization;
 use AHATechnocrats\Admin\Helpers\Reporting\Person;
 use AHATechnocrats\Admin\Helpers\Reporting\Product;
 use AHATechnocrats\Admin\Helpers\Reporting\Quote;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class Dashboard
 {

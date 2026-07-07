@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Automation\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Automation\Contracts\Workflow as WorkflowContract;
+use Illuminate\Database\Eloquent\Model;
 
 class Workflow extends Model implements WorkflowContract
 {

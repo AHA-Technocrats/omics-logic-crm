@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\DataGrid\Models;
 
+use AHATechnocrats\DataGrid\Contracts\SavedFilter as SavedFilterContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use AHATechnocrats\DataGrid\Contracts\SavedFilter as SavedFilterContract;
 
 class SavedFilter extends Model implements SavedFilterContract
 {

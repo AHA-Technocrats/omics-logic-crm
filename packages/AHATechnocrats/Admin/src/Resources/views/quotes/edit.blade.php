@@ -319,7 +319,7 @@
                             <!-- Quote Item Vue component -->
                             <template
                                 v-for='(product, index) in products'
-                                :key="index"
+                                :key="`${index}-${product.product_id ?? product.id ?? 'new'}`"
                             >
                                 <v-quote-item
                                     :product="product"
@@ -426,8 +426,7 @@
                             ::params="params"
                             ::value="{ id: product.product_id, name: product.name }"
                             @on-selected="(product) => addProduct(product)"
-                            :placeholder="trans('admin::app.quotes.edit.search-products')"
-                            rules="required"
+                            :placeholder="trans('admin::app.quotes.edit.search-campaigns')"
                             :label="trans('admin::app.quotes.edit.product-name')"
                             ::class="errors[`${inputName}[product_id]`] ? 'border !border-red-600 hover:border-red-600' : ''"
                         />
@@ -850,7 +849,7 @@
                      * @returns {String}
                      */
                     src() {
-                        return "{{ route('admin.products.search') }}";
+                        return "{{ route('admin.campaigns.search') }}";
                     },
 
                     params() {

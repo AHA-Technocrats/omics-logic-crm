@@ -2,18 +2,22 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Contact;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Event;
-use Illuminate\View\View;
 use AHATechnocrats\Admin\DataGrids\Contact\OrganizationDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\AttributeForm;
 use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
+use AHATechnocrats\Admin\Traits\AuthorizesOwnerAccess;
 use AHATechnocrats\Contact\Repositories\OrganizationRepository;
+use AHATechnocrats\OmicsLogic\Services\DeletionTimelineService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Event;
+use Illuminate\View\View;
 
 class OrganizationController extends Controller
 {
+    use AuthorizesOwnerAccess;
+
     /**
      * Create a new controller instance.
      *
@@ -68,11 +72,50 @@ class OrganizationController extends Controller
     }
 
     /**
+     * Display the specified organization.
+     */
+    public function show(int $id): View|RedirectResponse
+    {
+        $organization = $this->organizationRepository
+            ->with(['persons.primaryProduct', 'accountOwner'])
+            ->findOrFail($id);
+
+        if ($redirect = $this->authorizeOrganizationAccess($organization)) {
+            return $redirect;
+        }
+
+        $customers = $organization->persons->where('lifecycle_stage', 'customer')->count();
+
+        $stats = [
+            'contacts' => $organization->persons->count(),
+            'engaged' => $organization->persons->where('lifecycle_stage', 'engaged')->count(),
+            'customers' => $customers,
+            'estimated_value' => $customers * 1200,
+        ];
+
+        $topProgram = $organization->persons
+            ->pluck('primaryProduct.name')
+            ->filter()
+            ->countBy()
+            ->sortDesc()
+            ->keys()
+            ->first();
+
+        return view('admin::contacts.organizations.view', compact('organization', 'stats', 'topProgram'));
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
-    public function edit(int $id): View
+    public function edit(int $id): View|RedirectResponse
     {
-        $organization = $this->organizationRepository->findOrFail($id);
+        $organization = $this->organizationRepository
+            ->with(['accountOwner'])
+            ->findOrFail($id);
+
+        if ($redirect = $this->authorizeOrganizationAccess($organization)) {
+            return $redirect;
+        }
 
         return view('admin::contacts.organizations.edit', compact('organization'));
     }
@@ -82,6 +125,12 @@ class OrganizationController extends Controller
      */
     public function update(AttributeForm $request, int $id): RedirectResponse
     {
+        $organization = $this->organizationRepository->findOrFail($id);
+
+        if ($redirect = $this->authorizeOrganizationAccess($organization)) {
+            return $redirect;
+        }
+
         Event::dispatch('contacts.organization.update.before', $id);
 
         $organization = $this->organizationRepository->update(request()->all(), $id);
@@ -94,10 +143,42 @@ class OrganizationController extends Controller
     }
 
     /**
+     * Preview what must be deleted before this organization can be removed.
+     */
+    public function deletePreview(int $id): JsonResponse
+    {
+        $organization = $this->organizationRepository->findOrFail($id);
+
+        if ($this->authorizeOrganizationAccess($organization)) {
+            return response()->json([
+                'message' => trans('admin::app.errors.401'),
+            ], 401);
+        }
+
+        return response()->json(
+            app(DeletionTimelineService::class)->organizationTimeline($organization)
+        );
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(int $id): JsonResponse
     {
+        $organization = $this->organizationRepository->findOrFail($id);
+
+        if ($this->authorizeOrganizationAccess($organization)) {
+            return response()->json([
+                'message' => trans('admin::app.errors.401'),
+            ], 401);
+        }
+
+        if ($organization->persons()->exists()) {
+            return response()->json([
+                'message' => trans('omicslogic::app.delete-timeline.organization-has-persons'),
+            ], 422);
+        }
+
         try {
             Event::dispatch('contact.organization.delete.before', $id);
 
@@ -123,6 +204,10 @@ class OrganizationController extends Controller
         $organizations = $this->organizationRepository->findWhereIn('id', $massDestroyRequest->input('indices'));
 
         foreach ($organizations as $organization) {
+            if ($this->authorizeOrganizationAccess($organization)) {
+                continue;
+            }
+
             Event::dispatch('contact.organization.delete.before', $organization);
 
             $this->organizationRepository->delete($organization->id);
@@ -133,5 +218,16 @@ class OrganizationController extends Controller
         return response()->json([
             'message' => trans('admin::app.contacts.organizations.index.delete-success'),
         ]);
+    }
+
+    /**
+     * Ensure the current user can access the given organization record.
+     */
+    protected function authorizeOrganizationAccess($organization): ?RedirectResponse
+    {
+        return $this->authorizeAnyOwner(
+            [$organization->account_owner_id, $organization->user_id],
+            'admin.contacts.organizations.index'
+        );
     }
 }

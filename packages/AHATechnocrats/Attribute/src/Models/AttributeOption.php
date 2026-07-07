@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Attribute\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Attribute\Contracts\AttributeOption as AttributeOptionContract;
+use Illuminate\Database\Eloquent\Model;
 
 class AttributeOption extends Model implements AttributeOptionContract
 {

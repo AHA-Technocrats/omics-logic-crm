@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Marketing\Helpers;
 
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Mail;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\Marketing\Mail\CampaignMail;
 use AHATechnocrats\Marketing\Repositories\CampaignRepository;
 use AHATechnocrats\Marketing\Repositories\EventRepository;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class Campaign
 {

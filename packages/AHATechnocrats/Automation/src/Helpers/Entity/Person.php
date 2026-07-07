@@ -2,7 +2,6 @@
 
 namespace AHATechnocrats\Automation\Helpers\Entity;
 
-use Illuminate\Support\Facades\Mail;
 use AHATechnocrats\Admin\Notifications\Common;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Automation\Contracts\Workflow;
@@ -12,6 +11,7 @@ use AHATechnocrats\Contact\Contracts\Person as PersonContract;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\EmailTemplate\Repositories\EmailTemplateRepository;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
+use Illuminate\Support\Facades\Mail;
 
 class Person extends AbstractEntity
 {

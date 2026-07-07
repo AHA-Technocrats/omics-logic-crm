@@ -2,13 +2,13 @@
 
 namespace AHATechnocrats\Installer\Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use AHATechnocrats\Installer\Database\Seeders\Attribute\DatabaseSeeder as AttributeSeeder;
 use AHATechnocrats\Installer\Database\Seeders\Core\DatabaseSeeder as CoreSeeder;
 use AHATechnocrats\Installer\Database\Seeders\EmailTemplate\DatabaseSeeder as EmailTemplateSeeder;
 use AHATechnocrats\Installer\Database\Seeders\Lead\DatabaseSeeder as LeadSeeder;
 use AHATechnocrats\Installer\Database\Seeders\User\DatabaseSeeder as UserSeeder;
 use AHATechnocrats\Installer\Database\Seeders\Workflow\DatabaseSeeder as WorkflowSeeder;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {

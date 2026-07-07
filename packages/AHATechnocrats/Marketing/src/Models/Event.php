@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Marketing\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Marketing\Contracts\Event as EventContract;
+use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model implements EventContract
 {

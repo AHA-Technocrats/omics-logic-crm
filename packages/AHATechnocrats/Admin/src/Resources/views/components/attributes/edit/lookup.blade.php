@@ -157,6 +157,12 @@
             emits: ['lookup-added', 'lookup-removed'],
 
             data() {
+                const initialValue = this.value;
+
+                const selectedItem = initialValue?.id
+                    ? { id: initialValue.id, name: initialValue.name ?? '' }
+                    : { id: '', name: '' };
+
                 return {
                     showPopup: false,
 
@@ -164,10 +170,7 @@
 
                     searchedResults: [],
 
-                    selectedItem: {
-                        id: '',
-                        name: ''
-                    },
+                    selectedItem,
 
                     searchRoute: `{{ route('admin.settings.attributes.lookup') }}/${this.attribute.lookup_type}`,
 
@@ -177,18 +180,27 @@
                 };
             },
 
+            watch: {
+                value: {
+                    deep: true,
+                    handler(newValue) {
+                        if (newValue?.id) {
+                            this.selectedItem = this.normalizeSelectedItem(newValue);
+                        }
+                    },
+                },
+
+                searchTerm(newVal, oldVal) {
+                    this.search();
+                },
+            },
+
             mounted() {
-                if (this.value) {
+                if (this.value?.id && ! this.value?.name) {
                     this.getLookUpEntity();
                 }
 
                 window.addEventListener('click', this.handleFocusOut);
-            },
-
-            watch: {
-                searchTerm(newVal, oldVal) {
-                    this.search();
-                },
             },
 
             computed: {
@@ -199,12 +211,26 @@
                  */
                 filteredResults() {
                     return this.searchedResults.filter(item =>
-                        item.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+                        (item.name ?? '').toLowerCase().includes(this.searchTerm.toLowerCase())
                     );
                 }
             },
 
             methods: {
+                normalizeSelectedItem(value) {
+                    if (value?.id) {
+                        return {
+                            id: value.id,
+                            name: value.name ?? '',
+                        };
+                    }
+
+                    return {
+                        id: '',
+                        name: '',
+                    };
+                },
+
                 toggle() {
                     if (this.isDisabled) {
                         this.showPopup = false;
@@ -215,9 +241,7 @@
                     this.showPopup = ! this.showPopup;
 
                     if (this.showPopup) {
-                        if (! this.searchTerm.trim()) {
-                            this.fetchLookupResults('', 5);
-                        }
+                        this.fetchLookupResults(this.searchTerm.trim(), 5);
 
                         this.$nextTick(() => this.$refs.searchInput.focus());
                     }

@@ -28,6 +28,7 @@
                     :select-all="selectAll"
                     :sort="sort"
                     :perform-action="performAction"
+                    :grid-template-columns="gridTemplateColumns"
                 >
                     <template v-if="isLoading">
                         <x-admin::shimmer.datagrid.table.head :isMultiRow="$isMultiRow" />
@@ -36,7 +37,7 @@
                     <template v-else>
                         <div
                             class="row grid min-h-[47px] items-center gap-2.5 border-b bg-gray-50 px-4 py-2.5 text-black dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 max-lg:hidden"
-                            :style="`grid-template-columns: repeat(${gridsCount}, minmax(0, 1fr))`"
+                            :style="`grid-template-columns: ${gridTemplateColumns}`"
                         >
                             <!-- Mass Actions -->
                             <p v-if="available.massActions.length">
@@ -164,6 +165,7 @@
                     :select-all="selectAll"
                     :sort="sort"
                     :perform-action="performAction"
+                    :grid-template-columns="gridTemplateColumns"
                 >
                     <template v-if="isLoading">
                         <x-admin::shimmer.datagrid.table.body :isMultiRow="$isMultiRow" />
@@ -175,7 +177,7 @@
                             <div
                                 class="row grid items-center gap-2.5 border-b px-4 py-4 text-black transition-all hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-950 max-lg:hidden"
                                 v-for="record in available.records"
-                                :style="`grid-template-columns: repeat(${gridsCount}, minmax(0, 1fr))`"
+                                :style="`grid-template-columns: ${gridTemplateColumns}`"
                             >
                                 <!-- Mass Actions -->
                                 <p v-if="available.massActions.length">
@@ -306,6 +308,26 @@
 
                     return count;
                 },
+
+                gridTemplateColumns() {
+                    let columns = [];
+
+                    if (this.available.massActions.length) {
+                        columns.push('40px');
+                    }
+
+                    this.available.columns.forEach((column) => {
+                        if (column.visibility) {
+                            columns.push('minmax(0, 1fr)');
+                        }
+                    });
+
+                    if (this.available.actions.length) {
+                        columns.push('100px');
+                    }
+
+                    return columns.join(' ');
+                },
             },
 
             methods: {
@@ -349,7 +371,7 @@
                         case 'delete':
                             this.$emitter.emit('open-confirm-modal', {
                                 agree: () => {
-                                    this.$axios[method](action.url)
+                                     this.$axios[method](action.url)
                                         .then(response => {
                                             this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
 
@@ -361,6 +383,13 @@
                                             this.$emit('actionError', error.response.data);
                                         });
                                 }
+                            });
+
+                            break;
+
+                        case 'cascade_delete':
+                            this.$emitter.emit('open-cascade-delete-modal', {
+                                previewUrl: action.url,
                             });
 
                             break;

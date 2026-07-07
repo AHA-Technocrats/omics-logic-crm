@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Quote\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Quote\Contracts\QuoteItem as QuoteItemContract;
+use Illuminate\Database\Eloquent\Model;
 
 class QuoteItem extends Model implements QuoteItemContract
 {

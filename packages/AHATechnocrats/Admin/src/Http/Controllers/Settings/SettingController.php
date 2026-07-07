@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings;
 
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\Core\Menu\MenuItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\Core\Menu\MenuItem;
 
 class SettingController extends Controller
 {

@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Email\Models;
 
+use AHATechnocrats\Email\Contracts\Attachment as AttachmentContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use AHATechnocrats\Email\Contracts\Attachment as AttachmentContract;
 
 class Attachment extends Model implements AttachmentContract
 {

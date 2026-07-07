@@ -2,16 +2,16 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Event;
-use Illuminate\View\View;
-use Prettus\Repository\Criteria\RequestCriteria;
 use AHATechnocrats\Admin\DataGrids\Settings\TagDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
 use AHATechnocrats\Admin\Http\Resources\TagResource;
 use AHATechnocrats\Tag\Repositories\TagRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Event;
+use Illuminate\View\View;
+use Prettus\Repository\Criteria\RequestCriteria;
 
 class TagController extends Controller
 {

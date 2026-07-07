@@ -91,6 +91,12 @@
             <!-- Lead Attributes -->
             @include ('admin::leads.view.attributes')
 
+            <!-- Contact CRM profile -->
+            @include ('admin::leads.view.contact-profile')
+
+            <!-- Web form submission -->
+            @include ('admin::leads.view.web-form-submission')
+
             <!-- Contact Person -->
             @include ('admin::leads.view.person')
         </div>
@@ -113,7 +119,7 @@
                 :activeType="request()->query('tab') ?? (request()->query('from') === 'quotes' ? 'quotes' : 'all')"
                 :extra-types="[
                     ['name' => 'description', 'label' => trans('admin::app.leads.view.tabs.description')],
-                    ['name' => 'products', 'label' => trans('admin::app.leads.view.tabs.products')],
+                    ['name' => 'products', 'label' => trans('admin::app.leads.view.tabs.campaigns')],
                     ['name' => 'quotes', 'label' => trans('admin::app.leads.view.tabs.quotes')],
                 ]"
             >

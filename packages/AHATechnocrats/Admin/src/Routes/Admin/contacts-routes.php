@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use AHATechnocrats\Admin\Http\Controllers\Contact\OrganizationController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\ActivityController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\PersonController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\TagController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('contacts')->group(function () {
     /**
@@ -24,6 +24,8 @@ Route::prefix('contacts')->group(function () {
         Route::put('edit/{id}', 'update')->name('admin.contacts.persons.update');
 
         Route::get('search', 'search')->name('admin.contacts.persons.search');
+
+        Route::get('delete-preview/{id}', 'deletePreview')->name('admin.contacts.persons.delete-preview');
 
         Route::middleware(['throttle:100,60'])->delete('{id}', 'destroy')->name('admin.contacts.persons.delete');
 
@@ -60,9 +62,13 @@ Route::prefix('contacts')->group(function () {
 
         Route::post('create', 'store')->name('admin.contacts.organizations.store');
 
+        Route::get('view/{id}', 'show')->name('admin.contacts.organizations.view');
+
         Route::get('edit/{id?}', 'edit')->name('admin.contacts.organizations.edit');
 
         Route::put('edit/{id}', 'update')->name('admin.contacts.organizations.update');
+
+        Route::get('delete-preview/{id}', 'deletePreview')->name('admin.contacts.organizations.delete-preview');
 
         Route::delete('{id}', 'destroy')->name('admin.contacts.organizations.delete');
 

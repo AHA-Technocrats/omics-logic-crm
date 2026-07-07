@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Core\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Core\Contracts\CoreConfig as CoreConfigContract;
+use Illuminate\Database\Eloquent\Model;
 
 class CoreConfig extends Model implements CoreConfigContract
 {

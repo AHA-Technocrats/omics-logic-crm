@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\User;
 
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\Core\Menu\MenuItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\Core\Menu\MenuItem;
 
 class SessionController extends Controller
 {

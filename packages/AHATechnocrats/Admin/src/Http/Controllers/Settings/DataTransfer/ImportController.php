@@ -2,15 +2,16 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings\DataTransfer;
 
+use AHATechnocrats\Admin\DataGrids\Settings\DataTransfer\ImportDataGrid;
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\DataTransfer\Helpers\Import;
+use AHATechnocrats\DataTransfer\Repositories\ImportRepository;
+use AHATechnocrats\Lead\Repositories\SourceRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use AHATechnocrats\Admin\DataGrids\Settings\DataTransfer\ImportDataGrid;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\DataTransfer\Helpers\Import;
-use AHATechnocrats\DataTransfer\Repositories\ImportRepository;
 
 class ImportController extends Controller
 {
@@ -21,6 +22,7 @@ class ImportController extends Controller
      */
     public function __construct(
         protected ImportRepository $importRepository,
+        protected SourceRepository $sourceRepository,
         protected Import $importHelper
     ) {}
 
@@ -41,7 +43,9 @@ class ImportController extends Controller
      */
     public function create(): View
     {
-        return view('admin::settings.data-transfer.imports.create');
+        $sources = $this->sourceRepository->all();
+
+        return view('admin::settings.data-transfer.imports.create', compact('sources'));
     }
 
     /**
@@ -53,6 +57,7 @@ class ImportController extends Controller
 
         $this->validate(request(), [
             'type' => 'required|in:'.implode(',', $importers),
+            'source_id' => 'nullable|integer|exists:lead_sources,id',
             'action' => 'required:in:append,delete',
             'validation_strategy' => 'required:in:stop-on-errors,skip-errors',
             'allowed_errors' => 'required|integer|min:0',
@@ -64,6 +69,7 @@ class ImportController extends Controller
 
         $data = request()->only([
             'type',
+            'source_id',
             'action',
             'process_in_queue',
             'validation_strategy',
@@ -71,6 +77,10 @@ class ImportController extends Controller
             'allowed_errors',
             'field_separator',
         ]);
+
+        if (empty($data['source_id'])) {
+            $data['source_id'] = null;
+        }
 
         if (! isset($data['process_in_queue'])) {
             $data['process_in_queue'] = false;
@@ -105,7 +115,9 @@ class ImportController extends Controller
     {
         $import = $this->importRepository->findOrFail($id);
 
-        return view('admin::settings.data-transfer.imports.edit', compact('import'));
+        $sources = $this->sourceRepository->all();
+
+        return view('admin::settings.data-transfer.imports.edit', compact('import', 'sources'));
     }
 
     /**
@@ -119,6 +131,7 @@ class ImportController extends Controller
 
         $this->validate(request(), [
             'type' => 'required|in:'.implode(',', $importers),
+            'source_id' => 'nullable|integer|exists:lead_sources,id',
             'action' => 'required:in:append,delete',
             'validation_strategy' => 'required:in:stop-on-errors,skip-errors',
             'allowed_errors' => 'required|integer|min:0',
@@ -131,6 +144,7 @@ class ImportController extends Controller
         $data = array_merge(
             request()->only([
                 'type',
+                'source_id',
                 'action',
                 'process_in_queue',
                 'validation_strategy',
@@ -139,6 +153,7 @@ class ImportController extends Controller
                 'field_separator',
             ]),
             [
+                'source_id' => request()->input('source_id') ?: null,
                 'state' => 'pending',
                 'processed_rows_count' => 0,
                 'invalid_rows_count' => 0,
@@ -460,13 +475,17 @@ class ImportController extends Controller
     }
 
     /**
-     * Download import error report
+     * Download the sample file for the given importer type.
      */
-    public function downloadSample(string $type)
+    public function downloadSample(?string $sample = null)
     {
-        $importer = config('importers.'.$type);
+        $importer = config('importers.'.$sample);
 
-        return Storage::download($importer['sample_path']);
+        if (empty($importer['sample_path'])) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->download($importer['sample_path']);
     }
 
     /**

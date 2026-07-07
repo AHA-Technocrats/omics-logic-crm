@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\DataGrid\Exports;
 
+use AHATechnocrats\DataGrid\DataGrid;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use AHATechnocrats\DataGrid\DataGrid;
 
 class DataGridExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping
 {

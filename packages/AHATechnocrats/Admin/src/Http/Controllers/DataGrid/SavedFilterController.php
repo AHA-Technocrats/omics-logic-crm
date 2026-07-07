@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\DataGrid;
 
-use Illuminate\Support\Facades\Event;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\DataGrid\Repositories\SavedFilterRepository;
+use Illuminate\Support\Facades\Event;
 
 class SavedFilterController extends Controller
 {

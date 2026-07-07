@@ -43,7 +43,8 @@
                         applied,
                         selectAll,
                         sort,
-                        performAction
+                        performAction,
+                        gridTemplateColumns
                     }">
                         <slot
                             name="header"
@@ -53,6 +54,7 @@
                             :select-all="selectAll"
                             :sort="sort"
                             :perform-action="performAction"
+                            :grid-template-columns="gridTemplateColumns"
                         >
                         </slot>
                     </template>
@@ -63,7 +65,8 @@
                         applied,
                         selectAll,
                         sort,
-                        performAction
+                        performAction,
+                        gridTemplateColumns
                     }">
                         <slot
                             name="body"
@@ -73,6 +76,7 @@
                             :select-all="selectAll"
                             :sort="sort"
                             :perform-action="performAction"
+                            :grid-template-columns="gridTemplateColumns"
                         >
                         </slot>
                     </template>
@@ -164,6 +168,12 @@
 
             mounted() {
                 this.boot();
+
+                this.$emitter.on('refresh-datagrid', this.get);
+            },
+
+            beforeUnmount() {
+                this.$emitter.off('refresh-datagrid', this.get);
             },
 
             methods: {

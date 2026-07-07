@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Installer\Helpers;
 
+use AHATechnocrats\Installer\Database\Seeders\DatabaseSeeder as AHATechnocratsDatabaseSeeder;
 use Exception;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use AHATechnocrats\Installer\Database\Seeders\DatabaseSeeder as AHATechnocratsDatabaseSeeder;
 
 class DatabaseManager
 {

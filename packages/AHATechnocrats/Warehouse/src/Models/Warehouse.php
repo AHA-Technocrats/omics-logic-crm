@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Warehouse\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Activity\Models\ActivityProxy;
 use AHATechnocrats\Activity\Traits\LogsActivity;
 use AHATechnocrats\Attribute\Traits\CustomAttribute;
 use AHATechnocrats\Tag\Models\TagProxy;
 use AHATechnocrats\Warehouse\Contracts\Warehouse as WarehouseContract;
+use Illuminate\Database\Eloquent\Model;
 
 class Warehouse extends Model implements WarehouseContract
 {

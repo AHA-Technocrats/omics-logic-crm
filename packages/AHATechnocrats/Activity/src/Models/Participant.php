@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Activity\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Activity\Contracts\Participant as ParticipantContract;
 use AHATechnocrats\Contact\Models\PersonProxy;
 use AHATechnocrats\User\Models\UserProxy;
+use Illuminate\Database\Eloquent\Model;
 
 class Participant extends Model implements ParticipantContract
 {

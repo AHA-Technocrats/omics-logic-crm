@@ -2,9 +2,6 @@
 
 namespace AHATechnocrats\Core\Providers;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Foundation\AliasLoader;
-use Illuminate\Support\ServiceProvider;
 use AHATechnocrats\Core\Acl;
 use AHATechnocrats\Core\Console\Commands\Version;
 use AHATechnocrats\Core\Core;
@@ -14,6 +11,9 @@ use AHATechnocrats\Core\Facades\Menu as MenuFacade;
 use AHATechnocrats\Core\Facades\SystemConfig as SystemConfigFacade;
 use AHATechnocrats\Core\Menu;
 use AHATechnocrats\Core\SystemConfig;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Foundation\AliasLoader;
+use Illuminate\Support\ServiceProvider;
 
 class CoreServiceProvider extends ServiceProvider
 {

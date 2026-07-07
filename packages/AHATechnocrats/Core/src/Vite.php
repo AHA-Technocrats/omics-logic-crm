@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Core;
 
-use Illuminate\Support\Facades\Vite as BaseVite;
 use AHATechnocrats\Core\Exceptions\ViterNotFound;
+use Illuminate\Support\Facades\Vite as BaseVite;
 
 class Vite
 {

@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Core;
 
+use AHATechnocrats\Core\Menu\MenuItem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use AHATechnocrats\Core\Menu\MenuItem;
 
 class Menu
 {
@@ -117,13 +117,21 @@ class Menu
         $menu = Arr::undot(Arr::dot($menuWithDotNotation));
 
         foreach ($menu as $menuItemKey => $menuItem) {
+            if (! isset($menuItem['key'])) {
+                foreach ($this->processSubMenuItems($menuItem) as $childMenuItem) {
+                    $this->addItem($childMenuItem);
+                }
+
+                continue;
+            }
+
             $this->addItem(new MenuItem(
                 key: $menuItemKey,
                 name: trans($menuItem['name']),
                 route: $menuItem['route'],
                 url: $menuItem['url'],
                 sort: $menuItem['sort'],
-                icon: $menuItem['icon-class'],
+                icon: $menuItem['icon-class'] ?? '',
                 info: trans($menuItem['info'] ?? ''),
                 children: $this->processSubMenuItems($menuItem),
             ));
@@ -138,19 +146,25 @@ class Menu
         return collect($menuItem)
             ->sortBy('sort')
             ->filter(fn ($value) => is_array($value))
-            ->map(function ($subMenuItem) {
-                $subSubMenuItems = $this->processSubMenuItems($subMenuItem);
+            ->flatMap(function ($subMenuItem) {
+                if (isset($subMenuItem['key'])) {
+                    $subSubMenuItems = $this->processSubMenuItems($subMenuItem);
 
-                return new MenuItem(
-                    key: $subMenuItem['key'],
-                    name: trans($subMenuItem['name']),
-                    route: $subMenuItem['route'],
-                    url: $subMenuItem['url'],
-                    sort: $subMenuItem['sort'],
-                    icon: $subMenuItem['icon-class'],
-                    info: trans($subMenuItem['info'] ?? ''),
-                    children: $subSubMenuItems,
-                );
+                    return [
+                        new MenuItem(
+                            key: $subMenuItem['key'],
+                            name: trans($subMenuItem['name']),
+                            route: $subMenuItem['route'],
+                            url: $subMenuItem['url'],
+                            sort: $subMenuItem['sort'],
+                            icon: $subMenuItem['icon-class'] ?? '',
+                            info: trans($subMenuItem['info'] ?? ''),
+                            children: $subSubMenuItems,
+                        ),
+                    ];
+                }
+
+                return $this->processSubMenuItems($subMenuItem)->all();
             });
     }
 

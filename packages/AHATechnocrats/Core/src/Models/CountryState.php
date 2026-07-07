@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Core\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Core\Contracts\CountryState as CountryStateContract;
+use Illuminate\Database\Eloquent\Model;
 
 class CountryState extends Model implements CountryStateContract
 {

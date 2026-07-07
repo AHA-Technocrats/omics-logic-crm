@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Admin\DataGrids\Quote;
 
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\DataGrid\DataGrid;
 use AHATechnocrats\User\Repositories\UserRepository;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class QuoteDataGrid extends DataGrid
 {

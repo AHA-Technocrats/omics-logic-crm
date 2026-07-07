@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\WebForm\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Attribute\Models\AttributeProxy;
 use AHATechnocrats\WebForm\Contracts\WebFormAttribute as WebFormAttributeContract;
+use Illuminate\Database\Eloquent\Model;
 
 class WebFormAttribute extends Model implements WebFormAttributeContract
 {

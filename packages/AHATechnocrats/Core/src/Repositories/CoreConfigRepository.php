@@ -2,13 +2,13 @@
 
 namespace AHATechnocrats\Core\Repositories;
 
+use AHATechnocrats\Core\Contracts\CoreConfig;
+use AHATechnocrats\Core\Eloquent\Repository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use AHATechnocrats\Core\Contracts\CoreConfig;
-use AHATechnocrats\Core\Eloquent\Repository;
 
 class CoreConfigRepository extends Repository
 {

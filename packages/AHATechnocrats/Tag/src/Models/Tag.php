@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Tag\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Tag\Contracts\Tag as TagContract;
 use AHATechnocrats\User\Models\UserProxy;
+use Illuminate\Database\Eloquent\Model;
 
 class Tag extends Model implements TagContract
 {

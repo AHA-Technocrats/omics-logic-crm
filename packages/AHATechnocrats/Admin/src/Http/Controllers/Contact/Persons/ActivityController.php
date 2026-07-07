@@ -2,13 +2,13 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Contact\Persons;
 
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 use AHATechnocrats\Activity\Repositories\ActivityRepository;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Resources\ActivityResource;
 use AHATechnocrats\Email\Repositories\AttachmentRepository;
 use AHATechnocrats\Email\Repositories\EmailRepository;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class ActivityController extends Controller
 {

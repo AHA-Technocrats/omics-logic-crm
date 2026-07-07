@@ -2,6 +2,8 @@
 
 namespace AHATechnocrats\DataGrid;
 
+use AHATechnocrats\DataGrid\Enums\ColumnTypeEnum;
+use AHATechnocrats\DataGrid\Exports\DataGridExport;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -10,8 +12,6 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use AHATechnocrats\DataGrid\Enums\ColumnTypeEnum;
-use AHATechnocrats\DataGrid\Exports\DataGridExport;
 
 abstract class DataGrid
 {
@@ -343,9 +343,12 @@ abstract class DataGrid
                     }
                 });
             } else {
-                collect($this->columns)
-                    ->first(fn ($column) => $column->getIndex() === $requestedColumn)
-                    ->processFilter($this->queryBuilder, $requestedValues);
+                $column = collect($this->columns)
+                    ->first(fn ($column) => $column->getIndex() === $requestedColumn);
+
+                if ($column) {
+                    $column->processFilter($this->queryBuilder, $requestedValues);
+                }
             }
         }
 
@@ -363,7 +366,19 @@ abstract class DataGrid
             $this->sortColumn = $this->primaryColumn;
         }
 
-        return $this->queryBuilder->orderBy($requestedSort['column'] ?? $this->sortColumn, $requestedSort['order'] ?? $this->sortOrder);
+        $column = $requestedSort['column'] ?? $this->sortColumn;
+        $order = $requestedSort['order'] ?? $this->sortOrder;
+
+        $sortableColumn = collect($this->columns)
+            ->first(fn ($gridColumn) => $gridColumn->getSortable() && $gridColumn->getIndex() === $column);
+
+        if (! $sortableColumn) {
+            $column = $this->sortColumn;
+        } else {
+            $column = $sortableColumn->getColumnName();
+        }
+
+        return $this->queryBuilder->orderBy($column, $order);
     }
 
     /**

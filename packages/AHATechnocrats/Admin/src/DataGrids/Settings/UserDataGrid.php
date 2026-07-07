@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\DataGrids\Settings;
 
+use AHATechnocrats\DataGrid\DataGrid;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use AHATechnocrats\DataGrid\DataGrid;
 
 class UserDataGrid extends DataGrid
 {

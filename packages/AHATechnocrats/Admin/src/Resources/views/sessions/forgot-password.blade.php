@@ -79,8 +79,7 @@
         <div class="text-sm font-normal">
             @lang('admin::app.components.layouts.powered-by.description', [
                 'ahatechnocrats' => '<a class="text-brandColor hover:underline " href="https://ahatechnocratscrm.com/">AHATechnocrats</a>',
-                'webkul' => '<a class="text-brandColor hover:underline " href="https://webkul.com/">Webkul</a>',
-            ]) 
+            ])
         </div>
     </div>
 </x-admin::layouts.anonymous>

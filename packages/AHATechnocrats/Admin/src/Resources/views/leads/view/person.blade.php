@@ -8,7 +8,7 @@
                     <h4>@lang('admin::app.leads.view.persons.title')</h4>
 
                     <div class="flex items-center gap-1">
-                        @if (bouncer()->hasPermission('leads.edit') && bouncer()->hasPermission('contacts.persons.edit'))
+                        @if (bouncer()->hasPermission('leads.edit') && bouncer()->hasPermission('persons.edit'))
                             <v-lead-attach-person
                                 url="{{ route('admin.leads.attributes.update', $lead->id) }}"
                                 search-url="{{ route('admin.contacts.persons.search') }}"
@@ -62,7 +62,7 @@
 
                         {!! view_render_event('admin.leads.view.person.email.before', ['lead' => $lead]) !!}
 
-                        @foreach ($lead->person->emails as $email)
+                        @foreach ($lead->person->emails ?? [] as $email)
                             <div class="flex gap-1">
                                 <a
                                     class="text-brandColor"
@@ -81,7 +81,7 @@
 
                         {!! view_render_event('admin.leads.view.person.contact_numbers.before', ['lead' => $lead]) !!}
 
-                        @foreach ($lead->person->contact_numbers as $contactNumber)
+                        @foreach ($lead->person->contact_numbers ?? [] as $contactNumber)
                             <div class="flex gap-1">
                                 <a
                                     class="text-brandColor"
@@ -106,7 +106,7 @@
             <h4>@lang('admin::app.leads.view.persons.title')</h4>
         </div>
 
-        @if (bouncer()->hasPermission('leads.edit') && bouncer()->hasPermission('contacts.persons.edit'))
+        @if (bouncer()->hasPermission('leads.edit') && bouncer()->hasPermission('persons.edit'))
             <v-lead-attach-person
                 url="{{ route('admin.leads.attributes.update', $lead->id) }}"
                 search-url="{{ route('admin.contacts.persons.search') }}"
@@ -174,7 +174,7 @@
                     class="relative"
                     ref="changeWrapper"
                 >
-                    @if (bouncer()->hasPermission('leads.edit') && bouncer()->hasPermission('contacts.persons.edit'))
+                    @if (bouncer()->hasPermission('leads.edit') && bouncer()->hasPermission('persons.edit'))
                         <a
                             type="button"
                             class="icon-edit rounded-md p-1.5 text-2xl transition-all hover:bg-gray-100 dark:hover:bg-gray-950"

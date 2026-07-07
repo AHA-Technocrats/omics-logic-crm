@@ -2,13 +2,6 @@
 
 namespace AHATechnocrats\Admin\Providers;
 
-use Illuminate\Contracts\Debug\ExceptionHandler;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Foundation\AliasLoader;
-use Illuminate\Routing\Router;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
 use AHATechnocrats\Admin\Bouncer;
 use AHATechnocrats\Admin\Exceptions\Handler;
 use AHATechnocrats\Admin\Http\Middleware\Bouncer as BouncerMiddleware;
@@ -20,6 +13,13 @@ use AHATechnocrats\Lead\Models\Lead;
 use AHATechnocrats\Product\Models\Product;
 use AHATechnocrats\Quote\Models\Quote;
 use AHATechnocrats\Warehouse\Models\Warehouse;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Foundation\AliasLoader;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 
 class AdminServiceProvider extends ServiceProvider
 {

@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\User;
 
+use AHATechnocrats\Admin\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
 
 class AccountController extends Controller
 {

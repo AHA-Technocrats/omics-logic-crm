@@ -68,10 +68,10 @@ Breadcrumbs::for('mail.route.view', function (BreadcrumbTrail $trail, $route, $e
     $trail->push($email->subject ?? '', route('admin.mail.view', ['route' => $route, 'id' => $email->id]));
 });
 
-// Dashboard > Activities
+// Dashboard > Activities (legacy redirect)
 Breadcrumbs::for('activities', function (BreadcrumbTrail $trail) {
     $trail->parent('dashboard');
-    $trail->push(trans('admin::app.layouts.activities'), route('admin.activities.index'));
+    $trail->push(trans('web_form::app.menu.title'), route('admin.web_forms.index'));
 });
 
 // Dashboard > activities > Edit Activity
@@ -128,28 +128,85 @@ Breadcrumbs::for('contacts.organizations.edit', function (BreadcrumbTrail $trail
     $trail->push(trans('admin::app.contacts.organizations.edit.title'), route('admin.contacts.organizations.edit', $organization->id));
 });
 
-// Products
-Breadcrumbs::for('products', function (BreadcrumbTrail $trail) {
+// Dashboard > Organizations > View
+Breadcrumbs::for('contacts.organizations.view', function (BreadcrumbTrail $trail, $organization) {
+    $trail->parent('contacts.organizations');
+    $trail->push($organization->name, route('admin.contacts.organizations.view', $organization->id));
+});
+
+// OmicsLogic > Segments
+Breadcrumbs::for('omics.segments', function (BreadcrumbTrail $trail) {
     $trail->parent('dashboard');
-    $trail->push(trans('admin::app.layouts.products'), route('admin.products.index'));
+    $trail->push(trans('omicslogic::app.segments.title'), route('admin.omics.segments.index'));
 });
 
-// Dashboard > Products > Create Product
-Breadcrumbs::for('products.create', function (BreadcrumbTrail $trail) {
-    $trail->parent('products');
-    $trail->push(trans('admin::app.products.create.title'), route('admin.products.create'));
+Breadcrumbs::for('omics.segments.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('omics.segments');
+    $trail->push(trans('omicslogic::app.segments.create-title'), route('admin.omics.segments.create'));
 });
 
-// Dashboard > Products > View Product
-Breadcrumbs::for('products.view', function (BreadcrumbTrail $trail, $product) {
-    $trail->parent('products');
-    $trail->push('#'.$product->id, route('admin.products.view', $product->id));
+Breadcrumbs::for('omics.segments.edit', function (BreadcrumbTrail $trail, $segment) {
+    $trail->parent('omics.segments');
+    $trail->push(trans('omicslogic::app.segments.edit-title'), route('admin.omics.segments.edit', $segment->id));
 });
 
-// Dashboard > Products > Edit Product
-Breadcrumbs::for('products.edit', function (BreadcrumbTrail $trail, $product) {
-    $trail->parent('products');
-    $trail->push(trans('admin::app.products.edit.title'), route('admin.products.edit', $product->id));
+// OmicsLogic > Connectors
+Breadcrumbs::for('omics.connectors', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push(trans('omicslogic::app.connectors.title'), route('admin.omics.connectors.index'));
+});
+
+Breadcrumbs::for('omics.connectors.edit', function (BreadcrumbTrail $trail, $connector) {
+    $trail->parent('omics.connectors');
+    $trail->push(trans('omicslogic::app.connectors.configure'), route('admin.omics.connectors.edit', $connector->id));
+});
+
+// OmicsLogic > Merge Review
+Breadcrumbs::for('omics.merge', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push(trans('omicslogic::app.merge.title'), route('admin.omics.merge.index'));
+});
+
+// OmicsLogic > Reports
+Breadcrumbs::for('omics.reports', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push(trans('omicslogic::app.reports.title'), route('admin.omics.reports.index'));
+});
+
+// OmicsLogic > Audit Log
+Breadcrumbs::for('omics.audit', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push(trans('omicslogic::app.audit.title'), route('admin.omics.audit.index'));
+});
+
+// OmicsLogic > Audit Log > Detail
+Breadcrumbs::for('omics.audit.view', function (BreadcrumbTrail $trail, $log) {
+    $trail->parent('omics.audit');
+    $trail->push(trans('omicslogic::app.audit.detail.title'), route('admin.omics.audit.view', $log->id));
+});
+
+// Campaigns
+Breadcrumbs::for('campaigns', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push(trans('admin::app.layouts.campaigns'), route('admin.campaigns.index'));
+});
+
+// Dashboard > Campaigns > Create
+Breadcrumbs::for('campaigns.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('campaigns');
+    $trail->push(trans('admin::app.campaigns.create.title'), route('admin.campaigns.create'));
+});
+
+// Dashboard > Campaigns > View
+Breadcrumbs::for('campaigns.view', function (BreadcrumbTrail $trail, $product) {
+    $trail->parent('campaigns');
+    $trail->push('#'.$product->id, route('admin.campaigns.view', $product->id));
+});
+
+// Dashboard > Campaigns > Edit
+Breadcrumbs::for('campaigns.edit', function (BreadcrumbTrail $trail, $product) {
+    $trail->parent('campaigns');
+    $trail->push(trans('admin::app.campaigns.edit.title'), route('admin.campaigns.edit', $product->id));
 });
 
 // Settings
@@ -349,22 +406,46 @@ Breadcrumbs::for('settings.tags.edit', function (BreadcrumbTrail $trail, $tag) {
     $trail->push(trans('admin::app.settings.tags.edit-title'), route('admin.settings.tags.edit', $tag->id));
 });
 
-// Settings > Web Form
+// Dashboard > Web Forms
+Breadcrumbs::for('web_forms', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push(trans('admin::app.settings.webforms.index.title'), route('admin.web_forms.index'));
+});
+
+// Dashboard > Web Forms > Create
+Breadcrumbs::for('web_forms.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('web_forms');
+    $trail->push(trans('admin::app.settings.webforms.create.title'), route('admin.web_forms.create'));
+});
+
+// Dashboard > Web Forms > Edit
+Breadcrumbs::for('web_forms.edit', function (BreadcrumbTrail $trail, $webForm) {
+    $trail->parent('web_forms');
+    $trail->push(trans('admin::app.settings.webforms.edit.title'), route('admin.web_forms.edit', $webForm->id));
+});
+
+// Dashboard > Web Forms > Responses
+Breadcrumbs::for('web_forms.responses', function (BreadcrumbTrail $trail, $webForm) {
+    $trail->parent('web_forms');
+    $trail->push(trans('admin::app.settings.webforms.responses.title-short'), route('admin.web_forms.responses.index', $webForm->id));
+});
+
+// Settings > Web Form (legacy)
 Breadcrumbs::for('settings.web_forms', function (BreadcrumbTrail $trail) {
     $trail->parent('settings');
-    $trail->push(trans('admin::app.settings.webforms.index.title'), route('admin.settings.web_forms.index'));
+    $trail->push(trans('admin::app.settings.webforms.index.title'), route('admin.web_forms.index'));
 });
 
 // Dashboard > Web Form > Create Web Form
 Breadcrumbs::for('settings.web_forms.create', function (BreadcrumbTrail $trail) {
-    $trail->parent('settings.web_forms');
-    $trail->push(trans('admin::app.settings.webforms.create.title'), route('admin.settings.web_forms.create'));
+    $trail->parent('web_forms');
+    $trail->push(trans('admin::app.settings.webforms.create.title'), route('admin.web_forms.create'));
 });
 
 // Dashboard > Web Form > Edit Web Form
 Breadcrumbs::for('settings.web_forms.edit', function (BreadcrumbTrail $trail, $webForm) {
-    $trail->parent('settings.web_forms');
-    $trail->push(trans('admin::app.settings.webforms.edit.title'), route('admin.settings.web_forms.edit', $webForm->id));
+    $trail->parent('web_forms');
+    $trail->push(trans('admin::app.settings.webforms.edit.title'), route('admin.web_forms.edit', $webForm->id));
 });
 
 // Settings > Warehouse

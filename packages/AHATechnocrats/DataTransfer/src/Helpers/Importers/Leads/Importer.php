@@ -2,46 +2,90 @@
 
 namespace AHATechnocrats\DataTransfer\Helpers\Importers\Leads;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Validator;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
-use AHATechnocrats\Core\Contracts\Validations\Decimal;
 use AHATechnocrats\DataTransfer\Contracts\ImportBatch as ImportBatchContract;
 use AHATechnocrats\DataTransfer\Helpers\Import;
 use AHATechnocrats\DataTransfer\Helpers\Importers\AbstractImporter;
 use AHATechnocrats\DataTransfer\Repositories\ImportBatchRepository;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
-use AHATechnocrats\Lead\Repositories\ProductRepository as LeadProductRepository;
+use AHATechnocrats\OmicsLogic\Services\Import\LeadImportProcessor;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Validator;
 
 class Importer extends AbstractImporter
 {
     /**
-     * Error code for non existing id.
+     * Error code for non existing title on delete.
      */
     const ERROR_ID_NOT_FOUND_FOR_DELETE = 'id_not_found_to_delete';
 
     /**
      * Permanent entity columns.
+     *
+     * A lead row carries everything needed to create/link its contact and
+     * organization by NAME — no numeric IDs are required in the file.
      */
     protected array $validColumnNames = [
-        'id',
         'title',
         'description',
         'lead_value',
         'status',
-        'lost_reason',
-        'closed_at',
-        'user_id',
-        'person_id',
-        'lead_source_id',
-        'lead_type_id',
-        'lead_pipeline_id',
-        'lead_pipeline_stage_id',
-        'expected_close_date',
+        'person_name',
+        'email',
+        'phone',
+        'job_title',
+        'organization_name',
+        'country',
+        'education_level',
+        'inquiry_details',
+        'timestamp',
+        'source',
+        'lead_type',
+        'pipeline',
+        'stage',
+        'owner',
         'product',
+        'expected_close_date',
     ];
+
+    /**
+     * Accept "raw" web-form / Google-Form headers as-is by mapping them onto the
+     * canonical column names above. Keys are normalized header slugs (lowercased,
+     * non-alphanumerics stripped). "Full Name" feeds both the person name and the
+     * lead title. Canonical snake_case headers keep working (identity mapping).
+     *
+     * @var array<string, string|string[]>
+     */
+    protected array $columnAliases = [
+        'timestamp' => 'timestamp',
+        'emailaddress' => 'email',
+        'email' => 'email',
+        'fullname' => ['person_name', 'title'],
+        'name' => ['person_name', 'title'],
+        'phonenumber' => 'phone',
+        'phone' => 'phone',
+        'mobile' => 'phone',
+        'country' => 'country',
+        'companyorganizationuniversity' => 'organization_name',
+        'company' => 'organization_name',
+        'organization' => 'organization_name',
+        'organizationname' => 'organization_name',
+        'levelofeducation' => 'education_level',
+        'education' => 'education_level',
+        'educationlevel' => 'education_level',
+        'anyotherdetailsqueriesyouwishtomention' => 'inquiry_details',
+        'otherdetails' => 'inquiry_details',
+        'queries' => 'inquiry_details',
+        'product' => 'product',
+        'jobtitle' => 'job_title',
+    ];
+
+    /**
+     * Preserve the original submission row so it can be stored verbatim.
+     */
+    protected bool $keepRawRow = true;
 
     /**
      * Error message templates.
@@ -51,7 +95,7 @@ class Importer extends AbstractImporter
     ];
 
     /**
-     * Permanent entity columns.
+     * Columns that must be present in the file.
      *
      * @var string[]
      */
@@ -60,12 +104,7 @@ class Importer extends AbstractImporter
     /**
      * Permanent entity column.
      */
-    protected string $masterAttributeCode = 'id';
-
-    /**
-     * Is linking required
-     */
-    protected bool $linkingRequired = true;
+    protected string $masterAttributeCode = 'title';
 
     /**
      * Create a new helper instance.
@@ -75,10 +114,10 @@ class Importer extends AbstractImporter
     public function __construct(
         protected ImportBatchRepository $importBatchRepository,
         protected LeadRepository $leadRepository,
-        protected LeadProductRepository $leadProductRepository,
         protected AttributeRepository $attributeRepository,
         protected AttributeValueRepository $attributeValueRepository,
         protected Storage $leadsStorage,
+        protected LeadImportProcessor $leadImportProcessor,
     ) {
         parent::__construct(
             $importBatchRepository,
@@ -124,11 +163,11 @@ class Importer extends AbstractImporter
         $this->validatedRows[$rowNumber] = true;
 
         /**
-         * If import action is delete than no need for further validation.
+         * On delete, we only need an existing lead title.
          */
         if ($this->import->action == Import::ACTION_DELETE) {
-            if (! $this->isTitleExist($rowData['title'])) {
-                $this->skipRow($rowNumber, self::ERROR_ID_NOT_FOUND_FOR_DELETE, 'id');
+            if (! $this->isTitleExist($rowData['title'] ?? '')) {
+                $this->skipRow($rowNumber, self::ERROR_ID_NOT_FOUND_FOR_DELETE, 'title');
 
                 return false;
             }
@@ -136,39 +175,17 @@ class Importer extends AbstractImporter
             return true;
         }
 
-        if (! empty($rowData['product'])) {
-            $product = $this->parseProducts($rowData['product']);
-
-            $validator = Validator::make($product, [
-                'id' => 'required|exists:products,id',
-                'price' => 'required',
-                'quantity' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                $failedAttributes = $validator->failed();
-
-                foreach ($validator->errors()->getMessages() as $attributeCode => $message) {
-                    $errorCode = array_key_first($failedAttributes[$attributeCode] ?? []);
-
-                    $this->skipRow($rowNumber, $errorCode, $attributeCode, current($message));
-                }
-            }
-        }
-
         /**
-         * Validate leads attributes.
+         * Name-based validation — lookups (source/type/pipeline/stage/owner/
+         * organization/contact) are resolved or created at import time, so the
+         * file only needs a title and well-formed optional values.
          */
         $validator = Validator::make($rowData, [
-            ...$this->getValidationRules('leads|persons', $rowData),
-            'id' => 'numeric',
-            'status' => 'sometimes|required|in:0,1',
-            'user_id' => 'required|exists:users,id',
-            'person_id' => 'required|exists:persons,id',
-            'lead_source_id' => 'required|exists:lead_sources,id',
-            'lead_type_id' => 'required|exists:lead_types,id',
-            'lead_pipeline_id' => 'required|exists:lead_pipelines,id',
-            'lead_pipeline_stage_id' => 'required|exists:lead_pipeline_stages,id',
+            'title' => 'required',
+            'email' => 'nullable|email',
+            'lead_value' => 'nullable|numeric',
+            'status' => 'nullable|in:0,1',
+            'expected_close_date' => 'nullable|date',
         ]);
 
         if ($validator->fails()) {
@@ -182,121 +199,6 @@ class Importer extends AbstractImporter
         }
 
         return ! $this->errorHelper->isRowInvalid($rowNumber);
-    }
-
-    /**
-     * Prepare row data for lead product.
-     */
-    protected function parseProducts(?string $products): array
-    {
-        $productData = [];
-
-        $productArray = explode(',', $products);
-
-        foreach ($productArray as $product) {
-            if (empty($product)) {
-                continue;
-            }
-
-            [$key, $value] = explode('=', $product);
-
-            $productData[$key] = $value;
-        }
-
-        if (
-            isset($productData['price'])
-            && isset($productData['quantity'])
-        ) {
-            $productData['amount'] = $productData['price'] * $productData['quantity'];
-        }
-
-        return $productData;
-    }
-
-    /**
-     * Get validation rules.
-     */
-    public function getValidationRules(string $entityTypes, array $rowData): array
-    {
-        $rules = [];
-
-        foreach (explode('|', $entityTypes) as $entityType) {
-            $attributes = $this->attributeRepository->scopeQuery(fn ($query) => $query->whereIn('code', array_keys($rowData))->where('entity_type', $entityType))->get();
-
-            foreach ($attributes as $attribute) {
-                if ($entityType == 'persons') {
-                    $attribute->code = 'person.'.$attribute->code;
-                }
-
-                $validations = [];
-
-                if ($attribute->type == 'boolean') {
-                    continue;
-                } elseif ($attribute->type == 'address') {
-                    if (! $attribute->is_required) {
-                        continue;
-                    }
-
-                    $validations = [
-                        $attribute->code.'.address' => 'required',
-                        $attribute->code.'.country' => 'required',
-                        $attribute->code.'.state' => 'required',
-                        $attribute->code.'.city' => 'required',
-                        $attribute->code.'.postcode' => 'required',
-                    ];
-                } elseif ($attribute->type == 'email') {
-                    $validations = [
-                        $attribute->code => [$attribute->is_required ? 'required' : 'nullable'],
-                        $attribute->code.'.*.value' => [$attribute->is_required ? 'required' : 'nullable', 'email'],
-                        $attribute->code.'.*.label' => $attribute->is_required ? 'required' : 'nullable',
-                    ];
-                } elseif ($attribute->type == 'phone') {
-                    $validations = [
-                        $attribute->code => [$attribute->is_required ? 'required' : 'nullable'],
-                        $attribute->code.'.*.value' => [$attribute->is_required ? 'required' : 'nullable'],
-                        $attribute->code.'.*.label' => $attribute->is_required ? 'required' : 'nullable',
-                    ];
-                } else {
-                    $validations[$attribute->code] = [$attribute->is_required ? 'required' : 'nullable'];
-
-                    if ($attribute->type == 'text' && $attribute->validation) {
-                        array_push($validations[$attribute->code],
-                            $attribute->validation == 'decimal'
-                            ? new Decimal
-                            : $attribute->validation
-                        );
-                    }
-
-                    if ($attribute->type == 'price') {
-                        array_push($validations[$attribute->code], new Decimal);
-                    }
-                }
-
-                if ($attribute->is_unique) {
-                    array_push($validations[in_array($attribute->type, ['email', 'phone'])
-                        ? $attribute->code.'.*.value'
-                        : $attribute->code
-                    ], function ($field, $value, $fail) use ($attribute) {
-                        if (! $this->attributeValueRepository->isValueUnique(
-                            null,
-                            $attribute->entity_type,
-                            $attribute,
-                            request($field)
-                        )
-                        ) {
-                            $fail(trans('data_transfer::app.validation.errors.already-exists', ['attribute' => $attribute->name]));
-                        }
-                    });
-                }
-
-                $rules = [
-                    ...$rules,
-                    ...$validations,
-                ];
-            }
-        }
-
-        return $rules;
     }
 
     /**
@@ -331,86 +233,12 @@ class Importer extends AbstractImporter
     }
 
     /**
-     * Start the products linking process
-     */
-    public function linkBatch(ImportBatchContract $batch): bool
-    {
-        Event::dispatch('data_transfer.imports.batch.linking.before', $batch);
-
-        /**
-         * Load leads storage with batch ids.
-         */
-        $this->leadsStorage->load(Arr::pluck($batch->data, 'title'));
-
-        $products = [];
-
-        foreach ($batch->data as $rowData) {
-            /**
-             * Prepare products.
-             */
-            $this->prepareProducts($rowData, $products);
-        }
-
-        $this->saveProducts($products);
-
-        /**
-         * Update import batch summary
-         */
-        $this->importBatchRepository->update([
-            'state' => Import::STATE_LINKED,
-        ], $batch->id);
-
-        Event::dispatch('data_transfer.imports.batch.linking.after', $batch);
-
-        return true;
-    }
-
-    /**
-     * Prepare products.
-     */
-    public function prepareProducts($rowData, &$product): void
-    {
-        if (! empty($rowData['product'])) {
-            $product[$rowData['title']] = $this->parseProducts($rowData['product']);
-        }
-    }
-
-    /**
-     * Save products.
-     */
-    public function saveProducts(array $products): void
-    {
-        $leadProducts = [];
-
-        foreach ($products as $title => $product) {
-            $lead = $this->leadsStorage->get($title);
-
-            $leadProducts['insert'][] = [
-                'lead_id' => $lead['id'],
-                'product_id' => $product['id'],
-                'price' => $product['price'],
-                'quantity' => $product['quantity'],
-                'amount' => $product['amount'],
-            ];
-        }
-
-        foreach ($leadProducts['insert'] as $key => $leadProduct) {
-            $this->leadProductRepository->deleteWhere([
-                'lead_id' => $leadProduct['lead_id'],
-                'product_id' => $leadProduct['product_id'],
-            ]);
-        }
-
-        $this->leadProductRepository->upsert($leadProducts['insert'], ['lead_id', 'product_id']);
-    }
-
-    /**
      * Delete leads from current batch.
      */
     protected function deleteLeads(ImportBatchContract $batch): bool
     {
         /**
-         * Load leads storage with batch ids.
+         * Load leads storage with batch titles.
          */
         $this->leadsStorage->load(Arr::pluck($batch->data, 'title'));
 
@@ -421,7 +249,7 @@ class Importer extends AbstractImporter
                 continue;
             }
 
-            $idsToDelete[] = $this->leadsStorage->get($rowData['title']);
+            $idsToDelete[] = $this->leadsStorage->get($rowData['title'])['id'];
         }
 
         $idsToDelete = array_unique($idsToDelete);
@@ -435,62 +263,23 @@ class Importer extends AbstractImporter
 
     /**
      * Save leads from current batch.
+     *
+     * Each row is processed individually so the contact and organization can be
+     * matched (or created and queued for merge review) from the lead values.
      */
     protected function saveLeads(ImportBatchContract $batch): bool
     {
-        /**
-         * Load lead storage with batch unique title.
-         */
-        $this->leadsStorage->load(Arr::pluck($batch->data, 'title'));
+        $defaultSourceId = $this->import->source_id ?? null;
 
-        $leads = [];
-
-        /**
-         * Prepare leads for import.
-         */
         foreach ($batch->data as $rowData) {
-            if (isset($rowData['id'])) {
-                $leads['update'][$rowData['id']] = Arr::except($rowData, ['product']);
-            } else {
-                $leads['insert'][$rowData['title']] = [
-                    ...Arr::except($rowData, ['id', 'product']),
-                    'created_at' => $rowData['created_at'] ?? now(),
-                    'updated_at' => $rowData['updated_at'] ?? now(),
-                ];
-            }
-        }
+            try {
+                $lead = $this->leadImportProcessor->process($rowData, $defaultSourceId);
 
-        if (! empty($leads['update'])) {
-            $this->updatedItemsCount += count($leads['update']);
-
-            $this->leadRepository->upsert(
-                $leads['update'],
-                $this->masterAttributeCode
-            );
-        }
-
-        if (! empty($leads['insert'])) {
-            $this->createdItemsCount += count($leads['insert']);
-
-            $this->leadRepository->insert($leads['insert']);
-
-            /**
-             * Update the sku storage with newly created products
-             */
-            $newLeads = $this->leadRepository->findWhereIn(
-                'title',
-                array_keys($leads['insert']),
-                [
-                    'id',
-                    'title',
-                ]
-            );
-
-            foreach ($newLeads as $lead) {
-                $this->leadsStorage->set($lead->title, [
-                    'id' => $lead->id,
-                    'title' => $lead->title,
-                ]);
+                if ($lead) {
+                    $this->createdItemsCount++;
+                }
+            } catch (\Throwable $exception) {
+                report($exception);
             }
         }
 
@@ -503,13 +292,5 @@ class Importer extends AbstractImporter
     public function isTitleExist(string $title): bool
     {
         return $this->leadsStorage->has($title);
-    }
-
-    /**
-     * Prepare row data to save into the database.
-     */
-    protected function prepareRowForDb(array $rowData): array
-    {
-        return parent::prepareRowForDb($rowData);
     }
 }

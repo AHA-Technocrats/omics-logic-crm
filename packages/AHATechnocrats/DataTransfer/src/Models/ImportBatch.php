@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\DataTransfer\Models;
 
+use AHATechnocrats\DataTransfer\Contracts\ImportBatch as ImportBatchContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use AHATechnocrats\DataTransfer\Contracts\ImportBatch as ImportBatchContract;
 
 class ImportBatch extends Model implements ImportBatchContract
 {

@@ -78,7 +78,8 @@
             "AHATechnocrats\\User\\": "packages/AHATechnocrats/User/src",
             "AHATechnocrats\\Warehouse\\": "packages/AHATechnocrats/Warehouse/src",
             "AHATechnocrats\\WebForm\\": "packages/AHATechnocrats/WebForm/src",
-            "AHATechnocrats\\Automation\\": "packages/AHATechnocrats/Automation/src"
+            "AHATechnocrats\\Automation\\": "packages/AHATechnocrats/Automation/src",
+            "AHATechnocrats\\OmicsLogic\\": "packages/AHATechnocrats/OmicsLogic/src"
         }
     },
     "autoload-dev": {

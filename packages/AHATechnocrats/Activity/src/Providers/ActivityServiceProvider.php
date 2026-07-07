@@ -2,14 +2,14 @@
 
 namespace AHATechnocrats\Activity\Providers;
 
-use Illuminate\Routing\Router;
-use Illuminate\Support\ServiceProvider;
 use AHATechnocrats\Activity\Contracts\Activity as ActivityContract;
 use AHATechnocrats\Activity\Contracts\File as FileContract;
 use AHATechnocrats\Activity\Contracts\Participant as ParticipantContract;
 use AHATechnocrats\Activity\Models\Activity;
 use AHATechnocrats\Activity\Models\File;
 use AHATechnocrats\Activity\Models\Participant;
+use Illuminate\Routing\Router;
+use Illuminate\Support\ServiceProvider;
 
 class ActivityServiceProvider extends ServiceProvider
 {

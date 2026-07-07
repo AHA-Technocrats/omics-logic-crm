@@ -2,14 +2,14 @@
 
 namespace AHATechnocrats\Email\InboundEmailProcessor;
 
-use Carbon\Carbon;
-use Webklex\IMAP\Facades\Client;
-use Webklex\IMAP\Support\FolderCollection;
-use Webklex\PHPIMAP\Message;
 use AHATechnocrats\Email\Enums\SupportedFolderEnum;
 use AHATechnocrats\Email\InboundEmailProcessor\Contracts\InboundEmailProcessor;
 use AHATechnocrats\Email\Repositories\AttachmentRepository;
 use AHATechnocrats\Email\Repositories\EmailRepository;
+use Carbon\Carbon;
+use Webklex\IMAP\Facades\Client;
+use Webklex\IMAP\Support\FolderCollection;
+use Webklex\PHPIMAP\Message;
 
 class WebklexImapEmailProcessor implements InboundEmailProcessor
 {

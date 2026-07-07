@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Automation\Services;
 
+use AHATechnocrats\Contact\Repositories\PersonRepository;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Message;
-use AHATechnocrats\Contact\Repositories\PersonRepository;
 
 class WebhookService
 {

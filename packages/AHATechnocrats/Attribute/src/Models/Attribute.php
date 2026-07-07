@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Attribute\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Attribute\Contracts\Attribute as AttributeContract;
+use Illuminate\Database\Eloquent\Model;
 
 class Attribute extends Model implements AttributeContract
 {

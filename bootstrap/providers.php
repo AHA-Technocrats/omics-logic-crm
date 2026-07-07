@@ -1,9 +1,5 @@
 <?php
 
-use App\Providers\AppServiceProvider;
-use Barryvdh\DomPDF\ServiceProvider;
-use Konekt\Concord\ConcordServiceProvider;
-use Prettus\Repository\Providers\RepositoryServiceProvider;
 use AHATechnocrats\Activity\Providers\ActivityServiceProvider;
 use AHATechnocrats\Admin\Providers\AdminServiceProvider;
 use AHATechnocrats\Attribute\Providers\AttributeServiceProvider;
@@ -17,12 +13,17 @@ use AHATechnocrats\EmailTemplate\Providers\EmailTemplateServiceProvider;
 use AHATechnocrats\Installer\Providers\InstallerServiceProvider;
 use AHATechnocrats\Lead\Providers\LeadServiceProvider;
 use AHATechnocrats\Marketing\Providers\MarketingServiceProvider;
+use AHATechnocrats\OmicsLogic\Providers\OmicsLogicServiceProvider;
 use AHATechnocrats\Product\Providers\ProductServiceProvider;
 use AHATechnocrats\Quote\Providers\QuoteServiceProvider;
 use AHATechnocrats\Tag\Providers\TagServiceProvider;
 use AHATechnocrats\User\Providers\UserServiceProvider;
 use AHATechnocrats\Warehouse\Providers\WarehouseServiceProvider;
 use AHATechnocrats\WebForm\Providers\WebFormServiceProvider;
+use App\Providers\AppServiceProvider;
+use Barryvdh\DomPDF\ServiceProvider;
+use Konekt\Concord\ConcordServiceProvider;
+use Prettus\Repository\Providers\RepositoryServiceProvider;
 
 return [
     /*
@@ -59,4 +60,5 @@ return [
     UserServiceProvider::class,
     WarehouseServiceProvider::class,
     WebFormServiceProvider::class,
+    OmicsLogicServiceProvider::class,
 ];

@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Quote\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Attribute\Traits\CustomAttribute;
 use AHATechnocrats\Contact\Models\PersonProxy;
 use AHATechnocrats\Lead\Models\LeadProxy;
 use AHATechnocrats\Quote\Contracts\Quote as QuoteContract;
 use AHATechnocrats\User\Models\UserProxy;
+use Illuminate\Database\Eloquent\Model;
 
 class Quote extends Model implements QuoteContract
 {

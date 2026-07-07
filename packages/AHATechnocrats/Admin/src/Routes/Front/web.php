@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Home routes.

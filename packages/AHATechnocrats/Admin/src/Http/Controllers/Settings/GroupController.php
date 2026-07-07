@@ -2,14 +2,14 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings;
 
+use AHATechnocrats\Admin\DataGrids\Settings\GroupDataGrid;
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\User\Repositories\GroupRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Event;
 use Illuminate\View\View;
-use AHATechnocrats\Admin\DataGrids\Settings\GroupDataGrid;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\User\Repositories\GroupRepository;
 
 class GroupController extends Controller
 {

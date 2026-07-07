@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use AHATechnocrats\Admin\Http\Controllers\Lead\ActivityController;
 use AHATechnocrats\Admin\Http\Controllers\Lead\EmailController;
 use AHATechnocrats\Admin\Http\Controllers\Lead\LeadController;
 use AHATechnocrats\Admin\Http\Controllers\Lead\QuoteController;
 use AHATechnocrats\Admin\Http\Controllers\Lead\TagController;
+use Illuminate\Support\Facades\Route;
 
 Route::controller(LeadController::class)->prefix('leads')->group(function () {
     Route::get('', 'index')->name('admin.leads.index');
@@ -23,6 +23,8 @@ Route::controller(LeadController::class)->prefix('leads')->group(function () {
     Route::put('edit/{id}', 'update')->name('admin.leads.update');
 
     Route::put('attributes/edit/{id}', 'updateAttributes')->name('admin.leads.attributes.update');
+
+    Route::put('person-profile/edit/{id}', 'updatePersonProfile')->name('admin.leads.person-profile.update');
 
     Route::put('stage/edit/{id}', 'updateStage')->name('admin.leads.stage.update');
 

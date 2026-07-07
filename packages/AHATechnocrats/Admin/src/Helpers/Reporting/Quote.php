@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Admin\Helpers\Reporting;
 
-use Carbon\Carbon;
 use AHATechnocrats\Quote\Repositories\QuoteRepository;
+use Carbon\Carbon;
 
 class Quote extends AbstractReporting
 {

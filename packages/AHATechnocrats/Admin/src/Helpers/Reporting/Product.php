@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Admin\Helpers\Reporting;
 
+use AHATechnocrats\Lead\Repositories\ProductRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use AHATechnocrats\Lead\Repositories\ProductRepository;
 
 class Product extends AbstractReporting
 {

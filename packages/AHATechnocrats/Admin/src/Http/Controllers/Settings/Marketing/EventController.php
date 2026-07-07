@@ -2,14 +2,14 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings\Marketing;
 
-use Exception;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Event;
-use Illuminate\View\View;
 use AHATechnocrats\Admin\DataGrids\Settings\Marketing\EventDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
 use AHATechnocrats\Marketing\Repositories\EventRepository;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Event;
+use Illuminate\View\View;
 
 class EventController extends Controller
 {

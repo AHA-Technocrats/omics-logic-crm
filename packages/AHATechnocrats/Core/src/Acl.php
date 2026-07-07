@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Core;
 
+use AHATechnocrats\Core\Acl\AclItem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use AHATechnocrats\Core\Acl\AclItem;
 
 class Acl
 {

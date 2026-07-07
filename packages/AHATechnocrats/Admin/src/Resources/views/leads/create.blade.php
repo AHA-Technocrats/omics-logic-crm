@@ -159,6 +159,19 @@
                         <div class="w-1/2 max-md:w-full">
                             <!-- Contact Person Component -->
                             @include('admin::leads.common.contact')
+
+                            @include('admin::omics.partials.person-fields', [
+                                'showHeading' => true,
+                                'showContactFields' => true,
+                                'showCrmFields' => true,
+                                'namePrefix' => 'person',
+                                'isNested' => true,
+                            ])
+
+                            @include('admin::omics.partials.organization-fields', [
+                                'namePrefix' => 'person[organization]',
+                                'isNested' => true,
+                            ])
                         </div>
                     </div>
 
@@ -173,11 +186,11 @@
                         >
                         <div class="flex flex-col gap-1">
                             <p class="text-base font-semibold dark:text-white">
-                                @lang('admin::app.leads.create.products')
+                                @lang('admin::app.leads.create.campaigns')
                             </p>
 
                             <p class="text-gray-600 dark:text-white">
-                                @lang('admin::app.leads.create.products-info')
+                                @lang('admin::app.leads.create.campaigns-info')
                             </p>
                         </div>
 
@@ -202,15 +215,26 @@
                     return {
                         activeTab: 'lead-details',
 
+                        person: {
+                            organization: {}
+                        },
+
                         tabs: [
                             { id: 'lead-details', label: "@lang('admin::app.leads.create.details')" },
                             { id: 'contact-person', label: "@lang('admin::app.leads.create.contact-person')" },
-                            { id: 'products', label: "@lang('admin::app.leads.create.products')" }
+                            { id: 'products', label: "@lang('admin::app.leads.create.campaigns')" }
                         ],
                     };
                 },
 
                 methods: {
+                    personSelected(person) {
+                        this.person = person || {};
+                        if (! this.person.organization) {
+                            this.person.organization = {};
+                        }
+                    },
+
                     /**
                      * Scroll to the section.
                      *

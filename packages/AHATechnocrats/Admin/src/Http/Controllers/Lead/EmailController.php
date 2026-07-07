@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Lead;
 
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Event;
 use AHATechnocrats\Admin\Http\Controllers\Mail\EmailController as BaseEmailController;
 use AHATechnocrats\Admin\Http\Resources\ActivityResource;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Event;
 
 class EmailController extends BaseEmailController
 {

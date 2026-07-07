@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers;
 
+use AHATechnocrats\Admin\Helpers\Dashboard;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
-use AHATechnocrats\Admin\Helpers\Dashboard;
 
 class DashboardController extends Controller
 {

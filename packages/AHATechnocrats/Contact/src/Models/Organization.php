@@ -2,29 +2,28 @@
 
 namespace AHATechnocrats\Contact\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use AHATechnocrats\Attribute\Traits\CustomAttribute;
 use AHATechnocrats\Contact\Contracts\Organization as OrganizationContract;
 use AHATechnocrats\User\Models\UserProxy;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Organization extends Model implements OrganizationContract
 {
     use CustomAttribute;
 
-    protected $casts = [
-        'address' => 'array',
-    ];
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'name',
-        'address',
         'user_id',
+        'type',
+        'country_code',
+        'account_owner_id',
+        'normalized_name',
+        'website',
+        'notes',
+        'contacts_count',
+        'engaged_count',
+        'customers_count',
     ];
 
     /**
@@ -43,5 +42,13 @@ class Organization extends Model implements OrganizationContract
     public function user()
     {
         return $this->belongsTo(UserProxy::modelClass());
+    }
+
+    /**
+     * Account owner for institutional sales.
+     */
+    public function accountOwner()
+    {
+        return $this->belongsTo(UserProxy::modelClass(), 'account_owner_id');
     }
 }

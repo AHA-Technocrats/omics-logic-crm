@@ -2,6 +2,14 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Contact\Persons;
 
+use AHATechnocrats\Admin\DataGrids\Contact\PersonDataGrid;
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\Admin\Http\Requests\AttributeForm;
+use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
+use AHATechnocrats\Admin\Http\Resources\PersonResource;
+use AHATechnocrats\Admin\Traits\AuthorizesOwnerAccess;
+use AHATechnocrats\Contact\Repositories\PersonRepository;
+use AHATechnocrats\OmicsLogic\Services\DeletionTimelineService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -9,15 +17,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Event;
 use Illuminate\View\View;
 use Prettus\Repository\Criteria\RequestCriteria;
-use AHATechnocrats\Admin\DataGrids\Contact\PersonDataGrid;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\Admin\Http\Requests\AttributeForm;
-use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
-use AHATechnocrats\Admin\Http\Resources\PersonResource;
-use AHATechnocrats\Contact\Repositories\PersonRepository;
 
 class PersonController extends Controller
 {
+    use AuthorizesOwnerAccess;
+
     /**
      * Create a new class instance.
      *
@@ -74,9 +78,15 @@ class PersonController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $id): View
+    public function show(int $id): View|RedirectResponse
     {
-        $person = $this->personRepository->findOrFail($id);
+        $person = $this->personRepository
+            ->with(['organization.accountOwner', 'user', 'primarySource', 'primaryProduct'])
+            ->findOrFail($id);
+
+        if ($redirect = $this->authorizeOwner($person->user_id, 'admin.contacts.persons.index')) {
+            return $redirect;
+        }
 
         return view('admin::contacts.persons.view', compact('person'));
     }
@@ -84,9 +94,15 @@ class PersonController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(int $id): View
+    public function edit(int $id): View|RedirectResponse
     {
-        $person = $this->personRepository->findOrFail($id);
+        $person = $this->personRepository
+            ->with(['organization.accountOwner', 'user', 'primarySource', 'primaryProduct'])
+            ->findOrFail($id);
+
+        if ($redirect = $this->authorizeOwner($person->user_id, 'admin.contacts.persons.index')) {
+            return $redirect;
+        }
 
         return view('admin::contacts.persons.edit', compact('person'));
     }
@@ -96,6 +112,18 @@ class PersonController extends Controller
      */
     public function update(AttributeForm $request, int $id): RedirectResponse|JsonResponse
     {
+        $person = $this->personRepository->findOrFail($id);
+
+        if ($redirect = $this->authorizeOwner($person->user_id, 'admin.contacts.persons.index')) {
+            if (request()->ajax()) {
+                return response()->json([
+                    'message' => trans('admin::app.errors.401'),
+                ], 401);
+            }
+
+            return $redirect;
+        }
+
         Event::dispatch('contacts.person.update.before', $id);
 
         $person = $this->personRepository->update($request->all(), $id);
@@ -110,6 +138,10 @@ class PersonController extends Controller
         }
 
         session()->flash('success', trans('admin::app.contacts.persons.index.update-success'));
+
+        if (request()->input('_redirect') === 'view') {
+            return redirect()->route('admin.contacts.persons.view', $id);
+        }
 
         return redirect()->route('admin.contacts.persons.index');
     }
@@ -142,25 +174,40 @@ class PersonController extends Controller
     }
 
     /**
+     * Preview what must be deleted before this person can be removed.
+     */
+    public function deletePreview(int $id): JsonResponse
+    {
+        $person = $this->personRepository->findOrFail($id);
+
+        if ($redirect = $this->authorizeOwner($person->user_id, 'admin.contacts.persons.index')) {
+            return response()->json([
+                'message' => trans('admin::app.errors.401'),
+            ], 401);
+        }
+
+        return response()->json(
+            app(DeletionTimelineService::class)->personTimeline($person)
+        );
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(int $id): JsonResponse
     {
         $person = $this->personRepository->findOrFail($id);
 
-        if (
-            $person->leads
-            && $person->leads->count() > 0
-        ) {
+        if ($redirect = $this->authorizeOwner($person->user_id, 'admin.contacts.persons.index')) {
             return response()->json([
-                'message' => trans('admin::app.contacts.persons.index.delete-failed'),
-            ], 400);
+                'message' => trans('admin::app.errors.401'),
+            ], 401);
         }
 
         try {
             Event::dispatch('contacts.person.delete.before', $person);
 
-            $person->delete();
+            $this->personRepository->delete($id);
 
             Event::dispatch('contacts.person.delete.after', $person);
 
@@ -170,7 +217,7 @@ class PersonController extends Controller
 
         } catch (Exception $exception) {
             return response()->json([
-                'message' => trans('admin::app.contacts.persons.index.delete-failed'),
+                'message' => $exception->getMessage() ?: trans('admin::app.contacts.persons.index.delete-failed'),
             ], 400);
         }
     }
@@ -188,22 +235,23 @@ class PersonController extends Controller
             $blockedCount = 0;
 
             foreach ($persons as $person) {
-                if (
-                    $person->leads
-                    && $person->leads->count() > 0
-                ) {
+                if ($this->authorizeOwner($person->user_id, 'admin.contacts.persons.index')) {
                     $blockedCount++;
 
                     continue;
                 }
 
-                Event::dispatch('contact.person.delete.before', $person);
+                try {
+                    Event::dispatch('contacts.person.delete.before', $person);
 
-                $this->personRepository->delete($person->id);
+                    $this->personRepository->delete($person->id);
 
-                Event::dispatch('contact.person.delete.after', $person);
+                    Event::dispatch('contacts.person.delete.after', $person);
 
-                $deletedCount++;
+                    $deletedCount++;
+                } catch (Exception) {
+                    $blockedCount++;
+                }
             }
 
             $statusCode = 200;

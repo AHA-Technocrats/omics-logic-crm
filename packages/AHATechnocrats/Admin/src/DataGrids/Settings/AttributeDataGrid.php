@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\DataGrids\Settings;
 
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\DataGrid\DataGrid;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class AttributeDataGrid extends DataGrid
 {

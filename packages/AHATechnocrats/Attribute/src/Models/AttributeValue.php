@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Attribute\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Activity\Traits\LogsActivity;
 use AHATechnocrats\Attribute\Contracts\AttributeValue as AttributeValueContract;
+use Illuminate\Database\Eloquent\Model;
 
 class AttributeValue extends Model implements AttributeValueContract
 {

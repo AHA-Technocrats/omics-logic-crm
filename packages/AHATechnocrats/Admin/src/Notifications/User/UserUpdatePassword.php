@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\Notifications\User;
 
+use AHATechnocrats\User\Contracts\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use AHATechnocrats\User\Contracts\User;
 
 class UserUpdatePassword extends Mailable
 {

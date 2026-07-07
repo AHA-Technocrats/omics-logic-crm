@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\Email\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Contact\Models\PersonProxy;
 use AHATechnocrats\Email\Contracts\Email as EmailContract;
 use AHATechnocrats\Lead\Models\LeadProxy;
 use AHATechnocrats\Tag\Models\TagProxy;
+use Illuminate\Database\Eloquent\Model;
 
 class Email extends Model implements EmailContract
 {

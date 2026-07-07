@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Attribute\Repositories;
 
-use Illuminate\Container\Container;
-use Illuminate\Support\Str;
 use AHATechnocrats\Attribute\Contracts\Attribute;
 use AHATechnocrats\Core\Eloquent\Repository;
+use Illuminate\Container\Container;
+use Illuminate\Support\Str;
 
 class AttributeRepository extends Repository
 {
@@ -119,6 +119,8 @@ class AttributeRepository extends Repository
     {
         $lookup = config('attribute_lookups.'.$lookup);
 
+        $query = (string) ($query ?? '');
+
         if (! count($columns)) {
             $columns = [($lookup['value_column'] ?? 'id').' as id', ($lookup['label_column'] ?? 'name').' as name'];
         }
@@ -144,9 +146,66 @@ class AttributeRepository extends Repository
             return $userRepository->where('users.name', 'like', '%'.urldecode($query).'%')->get();
         }
 
+        if (Str::contains($lookup['repository'], 'LeadRepository')) {
+            return $this->getOwnerScopedLookupOptions($lookup, $query, $columns, ['user_id']);
+        }
+
+        if (Str::contains($lookup['repository'], 'PersonRepository')) {
+            return $this->getOwnerScopedLookupOptions($lookup, $query, $columns, ['user_id'], function ($queryBuilder) {
+                return $queryBuilder->whereNull('merged_into_id');
+            });
+        }
+
+        if (Str::contains($lookup['repository'], 'OrganizationRepository')) {
+            return $this->getOwnerScopedLookupOptions($lookup, $query, $columns, ['account_owner_id', 'user_id']);
+        }
+
         return app($lookup['repository'])->findWhere([
             [$lookup['label_column'] ?? 'name', 'like', '%'.urldecode($query).'%'],
         ], $columns);
+    }
+
+    /**
+     * Scope lookup results to records the current user is allowed to see.
+     */
+    protected function getOwnerScopedLookupOptions(
+        array $lookup,
+        ?string $query,
+        array $columns,
+        array $ownerColumns,
+        ?callable $additionalScope = null
+    ) {
+        $query = (string) ($query ?? '');
+
+        if (! count($columns)) {
+            $columns = [
+                ($lookup['value_column'] ?? 'id').' as id',
+                ($lookup['label_column'] ?? 'name').' as name',
+            ];
+        }
+
+        $labelColumn = $lookup['label_column'] ?? 'name';
+        $decodedQuery = urldecode($query);
+
+        $queryBuilder = app($lookup['repository'])->makeModel()->newQuery();
+
+        if ($additionalScope) {
+            $queryBuilder = $additionalScope($queryBuilder);
+        }
+
+        if ($decodedQuery !== '') {
+            $queryBuilder->where($labelColumn, 'like', '%'.$decodedQuery.'%');
+        }
+
+        if ($userIds = bouncer()->getAuthorizedUserIds()) {
+            $queryBuilder->where(function ($scope) use ($userIds, $ownerColumns) {
+                foreach ($ownerColumns as $ownerColumn) {
+                    $scope->orWhereIn($ownerColumn, $userIds);
+                }
+            });
+        }
+
+        return $queryBuilder->limit(25)->get($columns);
     }
 
     /**

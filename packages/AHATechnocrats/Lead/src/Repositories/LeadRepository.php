@@ -2,16 +2,17 @@
 
 namespace AHATechnocrats\Lead\Repositories;
 
-use Carbon\Carbon;
-use Illuminate\Container\Container;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\Lead\Contracts\Lead;
+use AHATechnocrats\OmicsLogic\Services\LeadPersonSyncService;
+use Carbon\Carbon;
+use Illuminate\Container\Container;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class LeadRepository extends Repository
 {
@@ -33,6 +34,7 @@ class LeadRepository extends Repository
         'created_at',
         'closed_at',
         'expected_close_date',
+        'products.product.name',
     ];
 
     /**
@@ -117,13 +119,7 @@ class LeadRepository extends Repository
          * If a person is provided, create or update the person and set the `person_id`.
          */
         if (isset($data['person'])) {
-            if (! empty($data['person']['id'])) {
-                $person = $this->personRepository->findOrFail($data['person']['id']);
-            } else {
-                $person = $this->personRepository->create(array_merge($data['person'], [
-                    'entity_type' => 'persons',
-                ]));
-            }
+            $person = $this->persistPerson($data['person']);
 
             $data['person_id'] = $person->id;
         }
@@ -148,7 +144,23 @@ class LeadRepository extends Repository
                     'amount' => $product['price'] * $product['quantity'],
                 ]));
             }
+        } elseif ($lead->person_id) {
+            $person = $this->personRepository->find($lead->person_id);
+
+            if ($person) {
+                $sync = app(LeadPersonSyncService::class);
+
+                if (array_key_exists('user_id', $data) && $data['user_id']) {
+                    $sync->syncOwnerFromLead($lead);
+                } elseif ($person->user_id) {
+                    $lead->update(['user_id' => $person->user_id]);
+                }
+
+                $sync->syncLead($lead->fresh(), $person->fresh());
+            }
         }
+
+        app(LeadPersonSyncService::class)->syncLifecycleStageFromLead($lead->fresh());
 
         return $lead;
     }
@@ -168,13 +180,7 @@ class LeadRepository extends Repository
          * For example, in the lead Kanban section, when switching stages, only the stage will be updated.
          */
         if (isset($data['person'])) {
-            if (! empty($data['person']['id'])) {
-                $person = $this->personRepository->findOrFail($data['person']['id']);
-            } else {
-                $person = $this->personRepository->create(array_merge($data['person'], [
-                    'entity_type' => 'persons',
-                ]));
-            }
+            $person = $this->persistPerson($data['person']);
 
             $data['person_id'] = $person->id;
         }
@@ -221,6 +227,8 @@ class LeadRepository extends Repository
                 'entity_id' => $lead->id,
             ]), $attributes);
 
+            $this->syncPersonSideEffects($lead, $data);
+
             return $lead;
         }
 
@@ -250,6 +258,36 @@ class LeadRepository extends Repository
             $this->productRepository->delete($productId);
         }
 
+        $this->syncPersonSideEffects($lead, $data);
+
         return $lead;
+    }
+
+    /**
+     * Keep the linked person aligned when lead CRM fields change.
+     */
+    protected function syncPersonSideEffects(Lead $lead, array $data): void
+    {
+        if (array_key_exists('user_id', $data)) {
+            app(LeadPersonSyncService::class)->syncOwnerFromLead($lead->fresh());
+        }
+
+        app(LeadPersonSyncService::class)->syncLifecycleStageFromLead($lead->fresh());
+    }
+
+    /**
+     * Create or update the linked person record from lead form data.
+     */
+    protected function persistPerson(array $personData)
+    {
+        $personPayload = array_merge($personData, [
+            'entity_type' => 'persons',
+        ]);
+
+        if (! empty($personData['id'])) {
+            return $this->personRepository->update($personPayload, $personData['id']);
+        }
+
+        return $this->personRepository->create($personPayload);
     }
 }

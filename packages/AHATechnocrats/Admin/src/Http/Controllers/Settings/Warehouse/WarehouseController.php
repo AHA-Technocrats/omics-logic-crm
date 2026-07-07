@@ -2,16 +2,16 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings\Warehouse;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Event;
-use Illuminate\View\View;
-use Prettus\Repository\Criteria\RequestCriteria;
 use AHATechnocrats\Admin\DataGrids\Product\ProductDataGrid;
 use AHATechnocrats\Admin\DataGrids\Settings\WarehouseDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\AttributeForm;
 use AHATechnocrats\Warehouse\Repositories\WarehouseRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Event;
+use Illuminate\View\View;
+use Prettus\Repository\Criteria\RequestCriteria;
 
 class WarehouseController extends Controller
 {

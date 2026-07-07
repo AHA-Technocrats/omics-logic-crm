@@ -2,13 +2,13 @@
 
 namespace AHATechnocrats\Attribute\Repositories;
 
+use AHATechnocrats\Attribute\Contracts\Attribute;
+use AHATechnocrats\Attribute\Contracts\AttributeValue;
+use AHATechnocrats\Core\Eloquent\Repository;
 use Carbon\Carbon;
 use Illuminate\Container\Container;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use AHATechnocrats\Attribute\Contracts\Attribute;
-use AHATechnocrats\Attribute\Contracts\AttributeValue;
-use AHATechnocrats\Core\Eloquent\Repository;
 
 class AttributeValueRepository extends Repository
 {

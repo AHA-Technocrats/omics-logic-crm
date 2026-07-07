@@ -2,6 +2,7 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\User;
 
+use AHATechnocrats\Admin\Http\Controllers\Controller;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Contracts\Auth\PasswordBroker;
@@ -12,7 +13,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
 
 class ResetPasswordController extends Controller
 {

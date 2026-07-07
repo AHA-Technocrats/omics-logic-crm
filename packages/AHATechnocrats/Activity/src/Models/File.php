@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Activity\Models;
 
+use AHATechnocrats\Activity\Contracts\File as FileContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use AHATechnocrats\Activity\Contracts\File as FileContract;
 
 class File extends Model implements FileContract
 {

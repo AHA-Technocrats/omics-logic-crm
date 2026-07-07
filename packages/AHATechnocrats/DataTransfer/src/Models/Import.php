@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\DataTransfer\Models;
 
+use AHATechnocrats\DataTransfer\Contracts\Import as ImportContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use AHATechnocrats\DataTransfer\Contracts\Import as ImportContract;
 
 class Import extends Model implements ImportContract
 {
@@ -17,6 +17,7 @@ class Import extends Model implements ImportContract
         'state',
         'process_in_queue',
         'type',
+        'source_id',
         'action',
         'validation_strategy',
         'validation_strategy',

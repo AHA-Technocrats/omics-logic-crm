@@ -2,15 +2,15 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Configuration;
 
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\Admin\Http\Requests\ConfigurationForm;
+use AHATechnocrats\Core\Repositories\CoreConfigRepository as ConfigurationRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\Admin\Http\Requests\ConfigurationForm;
-use AHATechnocrats\Core\Repositories\CoreConfigRepository as ConfigurationRepository;
 
 class ConfigurationController extends Controller
 {

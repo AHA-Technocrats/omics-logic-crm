@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\Helpers\Reporting;
 
+use AHATechnocrats\Contact\Repositories\PersonRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use AHATechnocrats\Contact\Repositories\PersonRepository;
 
 class Person extends AbstractReporting
 {

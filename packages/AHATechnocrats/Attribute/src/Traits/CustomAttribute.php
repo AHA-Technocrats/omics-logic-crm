@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Attribute\Traits;
 
-use Illuminate\Database\Eloquent\MassAssignmentException;
 use AHATechnocrats\Attribute\Models\AttributeValueProxy;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
+use Illuminate\Database\Eloquent\MassAssignmentException;
 
 trait CustomAttribute
 {

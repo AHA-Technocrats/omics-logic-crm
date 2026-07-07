@@ -2,6 +2,16 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Quote;
 
+use AHATechnocrats\Admin\DataGrids\Quote\QuoteDataGrid;
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\Admin\Http\Requests\AttributeForm;
+use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
+use AHATechnocrats\Admin\Http\Resources\QuoteResource;
+use AHATechnocrats\Admin\Traits\AuthorizesOwnerAccess;
+use AHATechnocrats\Attribute\Repositories\AttributeRepository;
+use AHATechnocrats\Core\Traits\PDFHandler;
+use AHATechnocrats\Lead\Repositories\LeadRepository;
+use AHATechnocrats\Quote\Repositories\QuoteRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -10,19 +20,10 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\View\View;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use AHATechnocrats\Admin\DataGrids\Quote\QuoteDataGrid;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\Admin\Http\Requests\AttributeForm;
-use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
-use AHATechnocrats\Admin\Http\Resources\QuoteResource;
-use AHATechnocrats\Attribute\Repositories\AttributeRepository;
-use AHATechnocrats\Core\Traits\PDFHandler;
-use AHATechnocrats\Lead\Repositories\LeadRepository;
-use AHATechnocrats\Quote\Repositories\QuoteRepository;
 
 class QuoteController extends Controller
 {
-    use PDFHandler;
+    use AuthorizesOwnerAccess, PDFHandler;
 
     /**
      * Create a new controller instance.
@@ -56,7 +57,9 @@ class QuoteController extends Controller
     {
         $leadId = request('lead_id');
 
-        $lead = $leadId ? $this->leadRepository->find($leadId) : null;
+        $lead = $leadId
+            ? $this->leadRepository->with(['products.product'])->find($leadId)
+            : null;
 
         $quote = $this->quoteRepository->getModel();
 
@@ -64,14 +67,19 @@ class QuoteController extends Controller
             $quote->fill([
                 'person_id' => $lead->person_id,
                 'user_id' => $lead->user_id,
-                'billing_address' => $lead->person->organization?->address,
                 'expired_at' => $lead->expected_close_date ?? now()->toDateString(),
             ]);
         }
 
         $leadProducts = $this->getLeadProductsForQuote($lead);
 
-        $lookUpEntityData = $this->attributeRepository->getLookUpEntity('leads', $leadId);
+        $lookUpEntityData = $leadId
+            ? $this->attributeRepository->getLookUpEntity('leads', $leadId)
+            : [];
+
+        if (is_object($lookUpEntityData)) {
+            $lookUpEntityData = $lookUpEntityData->toArray();
+        }
 
         return view('admin::quotes.create', compact('lead', 'quote', 'leadProducts', 'lookUpEntityData'));
     }
@@ -122,7 +130,9 @@ class QuoteController extends Controller
 
         $leadId = old('lead_id') ?? optional($quote->leads->first())->id;
 
-        $linkedLead = $leadId ? $this->leadRepository->find($leadId) : null;
+        $linkedLead = $leadId
+            ? $this->leadRepository->with(['products.product'])->find($leadId)
+            : null;
 
         $initialQuoteItems = $quote->items;
 
@@ -170,9 +180,14 @@ class QuoteController extends Controller
      */
     public function search(): AnonymousResourceCollection
     {
-        $quotes = $this->quoteRepository
-            ->pushCriteria(app(RequestCriteria::class))
-            ->all();
+        $quoteRepository = $this->quoteRepository
+            ->pushCriteria(app(RequestCriteria::class));
+
+        if ($userIds = bouncer()->getAuthorizedUserIds()) {
+            $quotes = $quoteRepository->findWhereIn('user_id', $userIds);
+        } else {
+            $quotes = $quoteRepository->all();
+        }
 
         return QuoteResource::collection($quotes);
     }
@@ -182,10 +197,20 @@ class QuoteController extends Controller
      */
     public function leadProducts(int $leadId): JsonResponse
     {
-        $lead = $this->leadRepository->findOrFail($leadId);
+        $lead = $this->leadRepository->with('person')->findOrFail($leadId);
+
+        if ($this->authorizeOwner($lead->user_id, 'admin.quotes.index')) {
+            return response()->json([
+                'message' => trans('admin::app.errors.401'),
+            ], 401);
+        }
 
         return response()->json([
             'data' => $this->getLeadProductsForQuote($lead),
+            'person' => $lead->person_id ? [
+                'id' => $lead->person_id,
+                'name' => $lead->person?->name,
+            ] : null,
         ]);
     }
 

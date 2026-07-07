@@ -2,13 +2,13 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings;
 
+use AHATechnocrats\Admin\Http\Controllers\Controller;
+use AHATechnocrats\Admin\Http\Requests\AttributeForm;
+use AHATechnocrats\Warehouse\Repositories\LocationRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Event;
 use Prettus\Repository\Criteria\RequestCriteria;
-use AHATechnocrats\Admin\Http\Controllers\Controller;
-use AHATechnocrats\Admin\Http\Requests\AttributeForm;
-use AHATechnocrats\Warehouse\Repositories\LocationRepository;
 
 class LocationController extends Controller
 {

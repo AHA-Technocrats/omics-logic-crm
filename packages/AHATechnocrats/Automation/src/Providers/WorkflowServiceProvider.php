@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Automation\Providers;
 
+use AHATechnocrats\Automation\Listeners\Entity;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use AHATechnocrats\Automation\Listeners\Entity;
 
 class WorkflowServiceProvider extends ServiceProvider
 {

@@ -95,10 +95,10 @@
                 </div>
 
                 @if (
-                    bouncer()->hasPermission('contacts.persons.create')
+                    bouncer()->hasPermission('persons.create')
                     || bouncer()->hasPermission('leads.create')
                     || bouncer()->hasPermission('leads.view')
-                    || bouncer()->hasPermission('contacts.persons.edit')
+                    || bouncer()->hasPermission('persons.edit')
                 )
                     <!-- Email Actions -->
                     <div class="sticky top-4 flex w-[360px] max-w-full flex-col gap-2 max-sm:w-full">
@@ -669,7 +669,7 @@
                             </ul>
 
                             <!-- Add New Contact Button -->
-                            @if (bouncer()->hasPermission('contacts.persons.create'))
+                            @if (bouncer()->hasPermission('persons.create'))
                                 <button
                                     type="button"
                                     class="flex cursor-pointer items-center gap-2 border-t border-gray-300 p-2 text-brandColor transition-colors"
@@ -1163,8 +1163,8 @@
             <div class="flex flex-col gap-4">
                 <!-- Contact Lookup -->
                 @if (
-                    bouncer()->hasPermission('contacts.persons.create')
-                    || bouncer()->hasPermission('contacts.persons.edit')
+                    bouncer()->hasPermission('persons.create')
+                    || bouncer()->hasPermission('persons.edit')
                 )
                     <!-- Link to contact -->
                     <label class="font-semibold text-gray-800 dark:text-gray-300">

@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Admin\DataGrids\Activity;
 
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 use AHATechnocrats\Admin\Traits\ProvideDropdownOptions;
 use AHATechnocrats\DataGrid\DataGrid;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
 use AHATechnocrats\User\Repositories\UserRepository;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class ActivityDataGrid extends DataGrid
 {

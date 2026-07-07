@@ -17,23 +17,23 @@
                     <x-admin::table.thead>
                         <x-admin::table.thead.tr>
                             <x-admin::table.th>
-                                @lang('admin::app.leads.common.products.product-name')
+                                @lang('admin::app.leads.common.campaigns.campaign-name')
                             </x-admin::table.th>
 
                             <x-admin::table.th class="text-center">
-                                @lang('admin::app.leads.common.products.quantity')
+                                @lang('admin::app.leads.common.campaigns.quantity')
                             </x-admin::table.th>
 
                             <x-admin::table.th class="text-center">
-                                @lang('admin::app.leads.common.products.price')
+                                @lang('admin::app.leads.common.campaigns.price')
                             </x-admin::table.th>
 
                             <x-admin::table.th class="text-center">
-                                @lang('admin::app.leads.common.products.amount')
+                                @lang('admin::app.leads.common.campaigns.amount')
                             </x-admin::table.th>
 
                             <x-admin::table.th class="text-right">
-                                @lang('admin::app.leads.common.products.action')
+                                @lang('admin::app.leads.common.campaigns.action')
                             </x-admin::table.th>
                         </x-admin::table.thead.tr>
                     </x-admin::table.thead>
@@ -72,7 +72,7 @@
             >
                 <i class="icon-add text-md !text-brandColor"></i>
 
-                @lang('admin::app.leads.common.products.add-more')
+                @lang('admin::app.leads.common.campaigns.add-more')
             </button>
         </div>
     </script>
@@ -89,7 +89,7 @@
                         ::src="src"
                         ::name="`${inputName}[name]`"
                         :preload="true"
-                        :placeholder="trans('admin::app.leads.common.products.product-name')"
+                        :placeholder="trans('admin::app.leads.common.campaigns.campaign-name')"
                         @on-selected="(product) => addProduct(product)"
                     />
 
@@ -98,8 +98,8 @@
                         ::name="`${inputName}[product_id]`"
                         v-model="product.product_id"
                         rules="required"
-                        :label="trans('admin::app.leads.common.products.product-name')"
-                        :placeholder="trans('admin::app.leads.common.products.product-name')"
+                        :label="trans('admin::app.leads.common.campaigns.campaign-name')"
+                        :placeholder="trans('admin::app.leads.common.campaigns.campaign-name')"
                     />
 
                     <x-admin::form.control-group.error ::name="`${inputName}[product_id]`" />
@@ -114,8 +114,8 @@
                         ::name="`${inputName}[quantity]`"
                         ::value="product.quantity"
                         rules="required|decimal:4"
-                        :label="trans('admin::app.leads.common.products.quantity')"
-                        :placeholder="trans('admin::app.leads.common.products.quantity')"
+                        :label="trans('admin::app.leads.common.campaigns.quantity')"
+                        :placeholder="trans('admin::app.leads.common.campaigns.quantity')"
                         @on-change="(event) => product.quantity = event.value"
                         position="center"
                     />
@@ -130,8 +130,8 @@
                         ::name="`${inputName}[price]`"
                         ::value="product.price"
                         rules="required|decimal:4"
-                        :label="trans('admin::app.leads.common.products.price')"
-                        :placeholder="trans('admin::app.leads.common.products.price')"
+                        :label="trans('admin::app.leads.common.campaigns.price')"
+                        :placeholder="trans('admin::app.leads.common.campaigns.price')"
                         @on-change="(event) => product.price = event.value"
                         ::value-label="$admin.formatPrice(Number(product.price) || 0)"
                         position="center"
@@ -147,8 +147,8 @@
                         ::name="`${inputName}[amount]`"
                         ::value="product.price * product.quantity"
                         rules="required|decimal:4"
-                        :label="trans('admin::app.leads.common.products.total')"
-                        :placeholder="trans('admin::app.leads.common.products.total')"
+                        :label="trans('admin::app.leads.common.campaigns.total')"
+                        :placeholder="trans('admin::app.leads.common.campaigns.total')"
                         ::value-label="$admin.formatPrice((Number(product.price) || 0) * (Number(product.quantity) || 0))"
                         :allowEdit="false"
                         position="center"
@@ -227,7 +227,7 @@
                 },
 
                 src() {
-                    return "{{ route('admin.products.search') }}";
+                    return "{{ route('admin.campaigns.search') }}";
                 },
 
                 params() {

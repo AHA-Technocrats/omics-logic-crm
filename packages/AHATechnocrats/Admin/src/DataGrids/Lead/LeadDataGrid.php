@@ -2,8 +2,6 @@
 
 namespace AHATechnocrats\Admin\DataGrids\Lead;
 
-use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\Contract\Repositories\Pipeline;
 use AHATechnocrats\DataGrid\DataGrid;
@@ -11,8 +9,11 @@ use AHATechnocrats\Lead\Repositories\PipelineRepository;
 use AHATechnocrats\Lead\Repositories\SourceRepository;
 use AHATechnocrats\Lead\Repositories\StageRepository;
 use AHATechnocrats\Lead\Repositories\TypeRepository;
+use AHATechnocrats\Product\Repositories\ProductRepository;
 use AHATechnocrats\Tag\Repositories\TagRepository;
 use AHATechnocrats\User\Repositories\UserRepository;
+use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class LeadDataGrid extends DataGrid
 {
@@ -70,6 +71,7 @@ class LeadDataGrid extends DataGrid
                 'lead_pipelines.rotten_days as pipeline_rotten_days',
                 'lead_pipeline_stages.code as stage_code',
                 DB::raw('CASE WHEN DATEDIFF(NOW(),'.$tablePrefix.'leads.created_at) >='.$tablePrefix.'lead_pipelines.rotten_days THEN 1 ELSE 0 END as rotten_lead'),
+                DB::raw('GROUP_CONCAT(DISTINCT '.$tablePrefix.'products.name) as campaign_name'),
             )
             ->leftJoin('users', 'leads.user_id', '=', 'users.id')
             ->leftJoin('persons', 'leads.person_id', '=', 'persons.id')
@@ -79,6 +81,8 @@ class LeadDataGrid extends DataGrid
             ->leftJoin('lead_pipelines', 'leads.lead_pipeline_id', '=', 'lead_pipelines.id')
             ->leftJoin('lead_tags', 'leads.id', '=', 'lead_tags.lead_id')
             ->leftJoin('tags', 'tags.id', '=', 'lead_tags.tag_id')
+            ->leftJoin('lead_products', 'leads.id', '=', 'lead_products.lead_id')
+            ->leftJoin('products', 'lead_products.product_id', '=', 'products.id')
             ->groupBy('leads.id')
             ->where('leads.lead_pipeline_id', $this->pipeline->id);
 
@@ -99,6 +103,7 @@ class LeadDataGrid extends DataGrid
         $this->addFilter('type', 'lead_pipeline_stages.code');
         $this->addFilter('stage', 'lead_pipeline_stages.id');
         $this->addFilter('tag_name', 'tags.name');
+        $this->addFilter('campaign_name', 'products.name');
         $this->addFilter('expected_close_date', 'leads.expected_close_date');
         $this->addFilter('created_at', 'leads.created_at');
         $this->addFilter('rotten_lead', DB::raw('DATEDIFF(NOW(), '.$tablePrefix.'leads.created_at) >= '.$tablePrefix.'lead_pipelines.rotten_days'));
@@ -187,6 +192,24 @@ class LeadDataGrid extends DataGrid
             'closure' => fn ($row) => $row->tag_name ?? '--',
             'filterable_options' => [
                 'repository' => TagRepository::class,
+                'column' => [
+                    'label' => 'name',
+                    'value' => 'name',
+                ],
+            ],
+        ]);
+
+        $this->addColumn([
+            'index' => 'campaign_name',
+            'label' => trans('omicslogic::app.datagrid.program'),
+            'type' => 'string',
+            'searchable' => false,
+            'sortable' => false,
+            'filterable' => true,
+            'filterable_type' => 'searchable_dropdown',
+            'closure' => fn ($row) => $row->campaign_name ?? '--',
+            'filterable_options' => [
+                'repository' => ProductRepository::class,
                 'column' => [
                     'label' => 'name',
                     'value' => 'name',

@@ -2,9 +2,9 @@
 
 namespace AHATechnocrats\Lead\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Lead\Contracts\Product as ProductContract;
 use AHATechnocrats\Product\Models\ProductProxy;
+use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model implements ProductContract
 {

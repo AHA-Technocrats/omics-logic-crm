@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Contact\Persons;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Event;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Event;
 
 class TagController extends Controller
 {

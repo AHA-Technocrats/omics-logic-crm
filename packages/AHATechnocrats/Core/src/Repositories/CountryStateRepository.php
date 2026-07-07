@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Core\Repositories;
 
-use Prettus\Repository\Traits\CacheableRepository;
 use AHATechnocrats\Core\Eloquent\Repository;
+use Prettus\Repository\Traits\CacheableRepository;
 
 class CountryStateRepository extends Repository
 {

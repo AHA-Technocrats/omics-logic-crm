@@ -21,7 +21,12 @@ require 'mail-routes.php';
 require 'settings-routes.php';
 
 /**
- * Products routes.
+ * Campaigns routes (formerly products).
+ */
+require 'campaigns-routes.php';
+
+/**
+ * Legacy product URL redirects.
  */
 require 'products-routes.php';
 
@@ -29,6 +34,11 @@ require 'products-routes.php';
  * Contacts routes.
  */
 require 'contacts-routes.php';
+
+/**
+ * Web forms routes.
+ */
+require 'web-forms-routes.php';
 
 /**
  * Activities routes.
@@ -46,9 +56,9 @@ require 'quote-routes.php';
 require 'configuration-routes.php';
 
 /**
- * Help routes.
+ * OmicsLogic routes.
  */
-require 'help-routes.php';
+require 'omics-routes.php';
 
 /**
  * Rest routes.

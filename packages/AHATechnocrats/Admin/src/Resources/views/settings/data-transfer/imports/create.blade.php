@@ -81,7 +81,9 @@
 
                         <!-- Source Sample Download Links -->
                         <a
-                            :href="'{{ route('admin.settings.data_transfer.imports.download_sample') }}/' + $refs['importType']?.value"
+                            href="{{ route('admin.settings.data_transfer.imports.download_sample') }}/persons"
+                            data-sample-base="{{ route('admin.settings.data_transfer.imports.download_sample') }}"
+                            data-sample-select="import-type"
                             target="_blank"
                             id="source-sample-link"
                             class="mt-1 cursor-pointer text-sm text-brandColor transition-all hover:underline"
@@ -90,6 +92,33 @@
                         </a>
 
                         <x-admin::form.control-group.error control-name="type" />
+                    </x-admin::form.control-group>
+
+                    <!-- Source (assigned to imported records) -->
+                    <x-admin::form.control-group>
+                        <x-admin::form.control-group.label>
+                            @lang('admin::app.settings.data-transfer.imports.create.source')
+                        </x-admin::form.control-group.label>
+
+                        <x-admin::form.control-group.control
+                            type="select"
+                            name="source_id"
+                            id="source_id"
+                            :value="old('source_id')"
+                            :label="trans('admin::app.settings.data-transfer.imports.create.source')"
+                        >
+                            <option value="">@lang('admin::app.settings.data-transfer.imports.create.source-none')</option>
+
+                            @foreach ($sources as $source)
+                                <option value="{{ $source->id }}">{{ $source->name }}</option>
+                            @endforeach
+                        </x-admin::form.control-group.control>
+
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            @lang('admin::app.settings.data-transfer.imports.create.source-info')
+                        </p>
+
+                        <x-admin::form.control-group.error control-name="source_id" />
                     </x-admin::form.control-group>
 
                     <!-- Images Directory Path -->
@@ -229,4 +258,48 @@
 
         {!! view_render_event('admin.settings.data_transfer.imports.create.create_form_controls.after') !!}
     </x-admin::form>
+
+    @pushOnce('scripts')
+        <script>
+            (function () {
+                var wired = false;
+
+                function wireSampleLink() {
+                    if (wired) {
+                        return;
+                    }
+
+                    var link = document.getElementById('source-sample-link');
+
+                    if (! link) {
+                        return;
+                    }
+
+                    var select = document.getElementById(link.getAttribute('data-sample-select'));
+
+                    if (! select) {
+                        return;
+                    }
+
+                    wired = true;
+
+                    var base = link.getAttribute('data-sample-base');
+
+                    var update = function () {
+                        link.setAttribute('href', base + '/' + (select.value || ''));
+                    };
+
+                    update();
+
+                    select.addEventListener('change', update);
+                }
+
+                window.addEventListener('load', wireSampleLink);
+
+                if (document.readyState === 'complete') {
+                    wireSampleLink();
+                }
+            })();
+        </script>
+    @endpushOnce
 </x-admin::layouts>

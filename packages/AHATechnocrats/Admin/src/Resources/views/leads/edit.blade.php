@@ -144,6 +144,23 @@
                         <div class="w-1/2 max-md:w-full">
                             <!-- Contact Person Component -->
                             @include('admin::leads.common.contact')
+
+                            @if ($lead->person)
+                                @include('admin::omics.partials.person-fields', [
+                                    'record' => $lead->person,
+                                    'showHeading' => true,
+                                    'showContactFields' => false,
+                                    'showCrmFields' => true,
+                                    'namePrefix' => 'person',
+                                    'isNested' => true,
+                                ])
+
+                                @include('admin::omics.partials.organization-fields', [
+                                    'record' => $lead->person?->organization,
+                                    'namePrefix' => 'person[organization]',
+                                    'isNested' => true,
+                                ])
+                            @endif
                         </div>
                     </div>
 
@@ -158,11 +175,11 @@
                     >
                         <div class="flex flex-col gap-1">
                             <p class="text-base font-semibold dark:text-white">
-                                @lang('admin::app.leads.edit.products')
+                                @lang('admin::app.leads.edit.campaigns')
                             </p>
 
                             <p class="text-gray-600 dark:text-white">
-                                @lang('admin::app.leads.edit.products-info')
+                                @lang('admin::app.leads.edit.campaigns-info')
                             </p>
                         </div>
 
@@ -184,22 +201,34 @@
                 template: '#v-lead-edit-template',
 
                 data() {
+                    const person = @json($lead->person) || {};
+                    if (! person.organization) {
+                        person.organization = {};
+                    }
+
                     return {
                         activeTab: 'lead-details',
                         
                         lead:  @json($lead),  
 
-                        person:  @json($lead->person),  
+                        person: person,  
 
                         tabs: [
                             { id: 'lead-details', label: "@lang('admin::app.leads.edit.details')" },
                             { id: 'contact-person', label: "@lang('admin::app.leads.edit.contact-person')" },
-                            { id: 'products', label: "@lang('admin::app.leads.edit.products')" }
+                            { id: 'products', label: "@lang('admin::app.leads.edit.campaigns')" }
                         ],
                     };
                 },
 
                 methods: {
+                    personSelected(person) {
+                        this.person = person || {};
+                        if (! this.person.organization) {
+                            this.person.organization = {};
+                        }
+                    },
+
                     /**
                      * Scroll to the section.
                      * 

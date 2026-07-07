@@ -17,7 +17,7 @@ return [
     ],
 
     'products' => [
-        'name' => 'admin::app.products.index.title',
+        'name' => 'admin::app.campaigns.index.title',
         'repository' => 'AHATechnocrats\Product\Repositories\ProductRepository',
     ],
 

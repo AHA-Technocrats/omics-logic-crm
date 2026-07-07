@@ -2,10 +2,6 @@
 
 namespace AHATechnocrats\DataTransfer\Helpers\Importers\Persons;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Validator;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
@@ -13,6 +9,10 @@ use AHATechnocrats\DataTransfer\Contracts\ImportBatch as ImportBatchContract;
 use AHATechnocrats\DataTransfer\Helpers\Import;
 use AHATechnocrats\DataTransfer\Helpers\Importers\AbstractImporter;
 use AHATechnocrats\DataTransfer\Repositories\ImportBatchRepository;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Validator;
 
 class Importer extends AbstractImporter
 {
@@ -63,6 +63,11 @@ class Importer extends AbstractImporter
      * Permanent entity column.
      */
     protected string $masterAttributeCode = 'unique_id';
+
+    /**
+     * Column that receives the source selected on the import form.
+     */
+    protected ?string $sourceColumn = 'primary_source_id';
 
     /**
      * Emails storage.
@@ -329,6 +334,8 @@ class Importer extends AbstractImporter
      */
     public function preparePersons(array $rowData, array &$persons): void
     {
+        $rowData = $this->applyImportSource($rowData);
+
         $emails = $this->prepareEmail($rowData['emails']);
 
         foreach ($emails as $email) {

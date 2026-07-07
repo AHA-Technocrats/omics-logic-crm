@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Controllers\User\ForgotPasswordController;
 use AHATechnocrats\Admin\Http\Controllers\User\ResetPasswordController;
 use AHATechnocrats\Admin\Http\Controllers\User\SessionController;
+use Illuminate\Support\Facades\Route;
 
 Route::withoutMiddleware(['user'])->group(function () {
     /**

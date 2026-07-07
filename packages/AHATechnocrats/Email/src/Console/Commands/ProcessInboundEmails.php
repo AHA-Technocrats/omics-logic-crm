@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Email\Console\Commands;
 
-use Illuminate\Console\Command;
 use AHATechnocrats\Email\InboundEmailProcessor\Contracts\InboundEmailProcessor;
+use Illuminate\Console\Command;
 
 class ProcessInboundEmails extends Command
 {

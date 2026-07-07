@@ -2,11 +2,17 @@
 
 namespace AHATechnocrats\Contact\Repositories;
 
-use Illuminate\Container\Container;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Contact\Contracts\Person;
 use AHATechnocrats\Core\Eloquent\Repository;
+use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
+use AHATechnocrats\OmicsLogic\Services\LeadPersonSyncService;
+use AHATechnocrats\OmicsLogic\Services\LeadScoreCalculator;
+use AHATechnocrats\OmicsLogic\Services\OrganizationResolver;
+use AHATechnocrats\WebForm\Models\WebFormSubmission;
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\DB;
 
 class PersonRepository extends Repository
 {
@@ -55,13 +61,30 @@ class PersonRepository extends Repository
      */
     public function create(array $data)
     {
+        $data['entity_type'] = $data['entity_type'] ?? 'persons';
+
         $data = $this->sanitizeRequestedPersonData($data);
 
-        if (! empty($data['organization_name'])) {
-            $organization = $this->fetchOrCreateOrganizationByName($data['organization_name']);
+        if (! empty($data['organization_id'])) {
+            if (! empty($data['organization'])) {
+                $this->organizationRepository->update($data['organization'], $data['organization_id']);
+            }
+            unset($data['organization_name']);
+        } elseif (! empty($data['organization_name'])) {
+            $organization = app(OrganizationResolver::class)->resolve(
+                $data['organization_name'],
+                true,
+                $data['country_code'] ?? null,
+            );
 
-            $data['organization_id'] = $organization->id;
+            if ($organization && ! empty($data['organization'])) {
+                $this->organizationRepository->update($data['organization'], $organization->id);
+            }
+
+            $data['organization_id'] = $organization?->id;
         }
+
+        $data = $this->enrichOmicsLogicFields($data);
 
         if (isset($data['user_id'])) {
             $data['user_id'] = $data['user_id'] ?: null;
@@ -69,9 +92,14 @@ class PersonRepository extends Repository
 
         $person = parent::create($data);
 
+        $person->lead_score = app(LeadScoreCalculator::class)->calculate($person);
+        $person->save();
+
         $this->attributeValueRepository->save(array_merge($data, [
             'entity_id' => $person->id,
         ]));
+
+        $this->syncLeadSideEffects($person, $data);
 
         return $person;
     }
@@ -83,19 +111,39 @@ class PersonRepository extends Repository
      */
     public function update(array $data, $id, $attributes = [])
     {
+        $data['entity_type'] = $data['entity_type'] ?? 'persons';
+
         $data = $this->sanitizeRequestedPersonData($data);
 
         $data['user_id'] = empty($data['user_id']) ? null : $data['user_id'];
 
-        if (! empty($data['organization_name'])) {
-            $organization = $this->fetchOrCreateOrganizationByName($data['organization_name']);
+        if (! empty($data['organization_id'])) {
+            if (! empty($data['organization'])) {
+                $this->organizationRepository->update($data['organization'], $data['organization_id']);
+            }
+            unset($data['organization_name']);
+        } elseif (! empty($data['organization_name'])) {
+            $organization = app(OrganizationResolver::class)->resolve(
+                $data['organization_name'],
+                true,
+                $data['country_code'] ?? null,
+            );
 
-            $data['organization_id'] = $organization->id;
+            if ($organization && ! empty($data['organization'])) {
+                $this->organizationRepository->update($data['organization'], $organization->id);
+            }
+
+            $data['organization_id'] = $organization?->id;
 
             unset($data['organization_name']);
         }
 
+        $data = $this->enrichOmicsLogicFields($data, (int) $id);
+
         $person = parent::update($data, $id);
+
+        $person->lead_score = app(LeadScoreCalculator::class)->calculate($person);
+        $person->save();
 
         /**
          * If attributes are provided then only save the provided attributes and return.
@@ -115,6 +163,8 @@ class PersonRepository extends Repository
                 'entity_id' => $person->id,
             ]), $attributes);
 
+            $this->syncLeadSideEffects($person, $data);
+
             return $person;
         }
 
@@ -122,7 +172,28 @@ class PersonRepository extends Repository
             'entity_id' => $person->id,
         ]));
 
+        $this->syncLeadSideEffects($person, $data);
+
         return $person;
+    }
+
+    /**
+     * Keep linked leads aligned when person CRM fields change.
+     */
+    private function syncLeadSideEffects(Person $person, array $data): void
+    {
+        $sync = app(LeadPersonSyncService::class);
+
+        if (array_key_exists('user_id', $data)) {
+            $sync->syncOwnerFromPerson($person->fresh());
+        }
+
+        if (
+            array_key_exists('primary_product_id', $data)
+            || array_key_exists('primary_source_id', $data)
+        ) {
+            $sync->syncPersonLeads($person->fresh());
+        }
     }
 
     /**
@@ -138,19 +209,78 @@ class PersonRepository extends Repository
             ->count();
     }
 
-    /**
-     * Fetch or create an organization.
-     */
     public function fetchOrCreateOrganizationByName(string $organizationName)
     {
-        $organization = $this->organizationRepository->findOneWhere([
-            'name' => $organizationName,
-        ]);
+        return app(OrganizationResolver::class)->resolve($organizationName, true);
+    }
 
-        return $organization ?: $this->organizationRepository->create([
-            'entity_type' => 'organizations',
-            'name' => $organizationName,
-        ]);
+    /**
+     * Normalize OmicsLogic-specific person fields before persistence.
+     */
+    private function enrichOmicsLogicFields(array $data, ?int $personId = null): array
+    {
+        foreach (['primary_product_id', 'primary_source_id', 'user_id', 'organization_id'] as $foreignKey) {
+            if (array_key_exists($foreignKey, $data) && $data[$foreignKey] === '') {
+                $data[$foreignKey] = null;
+            }
+        }
+
+        if (array_key_exists('education_level', $data) && $data['education_level'] === '') {
+            $data['education_level'] = null;
+        }
+
+        if (array_key_exists('is_student', $data)) {
+            $data['is_student'] = (bool) $data['is_student'];
+        }
+
+        if ($organizationId = $data['organization_id'] ?? ($personId ? $this->find($personId)?->organization_id : null)) {
+            if (array_key_exists('country_code', $data)) {
+                DB::table('organizations')
+                    ->where('id', $organizationId)
+                    ->update(['country_code' => $data['country_code']]);
+            }
+        }
+
+        $data = $this->syncCountryFromOrganization($data, $personId);
+
+        $email = $data['emails'][0]['value'] ?? null;
+        $phone = $data['contact_numbers'][0]['value'] ?? null;
+
+        if ($email) {
+            $data['normalized_email'] = strtolower(trim($email));
+        }
+
+        if ($phone) {
+            $data['normalized_phone'] = preg_replace('/\D+/', '', $phone);
+        }
+
+        // Only seed the default lifecycle stage on creation; never overwrite an
+        // existing person's stage on update (the field is no longer edited manually
+        // and stays in sync with the person's leads).
+        if ($personId === null && ($data['lifecycle_stage'] ?? null) === null) {
+            $data['lifecycle_stage'] = LifecycleStage::default()->value;
+        }
+
+        $data['last_activity_at'] = $data['last_activity_at'] ?? now();
+
+        return $data;
+    }
+
+    private function syncCountryFromOrganization(array $data, ?int $personId = null): array
+    {
+        $organizationId = $data['organization_id'] ?? null;
+
+        if (! $organizationId && $personId) {
+            $organizationId = $this->find($personId)?->organization_id;
+        }
+
+        if ($organizationId) {
+            $data['country_code'] = $this->organizationRepository->find($organizationId)?->country_code;
+        } elseif (array_key_exists('organization_id', $data)) {
+            $data['country_code'] = null;
+        }
+
+        return $data;
     }
 
     /**
@@ -174,11 +304,44 @@ class PersonRepository extends Repository
         $data['unique_id'] = implode('|', $uniqueIdParts);
 
         if (isset($data['contact_numbers'])) {
-            $data['contact_numbers'] = collect($data['contact_numbers'])->filter(fn ($number) => ! is_null($number['value']))->toArray();
+            $data['contact_numbers'] = collect($data['contact_numbers'])
+                ->filter(fn ($number) => filled($number['value'] ?? null))
+                ->values()
+                ->toArray();
 
-            $data['unique_id'] .= '|'.$data['contact_numbers'][0]['value'];
+            if (! empty($data['contact_numbers'])) {
+                $data['unique_id'] .= '|'.$data['contact_numbers'][0]['value'];
+            }
         }
 
         return $data;
+    }
+
+    /**
+     * Delete a person and cascade-remove linked records that block deletion.
+     *
+     * @param  int  $id
+     * @return int
+     */
+    public function delete($id)
+    {
+        $person = $this->findOrFail($id);
+
+        if ($person->leads()->exists()) {
+            throw new \RuntimeException(trans('omicslogic::app.delete-timeline.person-has-leads'));
+        }
+
+        return DB::transaction(function () use ($id) {
+            WebFormSubmission::query()
+                ->where('person_id', $id)
+                ->update(['person_id' => null]);
+
+            $this->attributeValueRepository->deleteWhere([
+                'entity_id' => $id,
+                'entity_type' => 'persons',
+            ]);
+
+            return parent::delete($id);
+        });
     }
 }

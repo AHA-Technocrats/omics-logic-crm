@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use AHATechnocrats\Admin\Http\Controllers\DashboardController;
 use AHATechnocrats\Admin\Http\Controllers\DataGrid\SavedFilterController;
 use AHATechnocrats\Admin\Http\Controllers\DataGridController;
 use AHATechnocrats\Admin\Http\Controllers\TinyMCEController;
 use AHATechnocrats\Admin\Http\Controllers\User\AccountController;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Dashboard routes.

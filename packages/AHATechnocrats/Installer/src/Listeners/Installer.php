@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Installer\Listeners;
 
-use GuzzleHttp\Client;
 use AHATechnocrats\User\Repositories\UserRepository;
+use GuzzleHttp\Client;
 
 class Installer
 {

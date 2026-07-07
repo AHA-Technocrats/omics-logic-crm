@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Lead\Repositories;
 
-use Illuminate\Container\Container;
-use Illuminate\Support\Str;
 use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\Lead\Contracts\Pipeline;
+use Illuminate\Container\Container;
+use Illuminate\Support\Str;
 
 class PipelineRepository extends Repository
 {

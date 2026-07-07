@@ -1,5 +1,8 @@
 <?php
 
+use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
+use AHATechnocrats\OmicsLogic\Support\LifecycleStageOptions;
+
 return [
     /**
      * General.
@@ -63,7 +66,7 @@ return [
                 'name' => 'label',
                 'title' => 'admin::app.configuration.index.general.settings.footer.powered-by',
                 'type' => 'editor',
-                'default' => 'Powered by <span style="color: rgb(14, 144, 217);"><a href="http://www.ahatechnocratscrm.com" target="_blank">AHATechnocrats</a></span>, an open-source project by <span style="color: rgb(14, 144, 217);"><a href="https://webkul.com" target="_blank">Webkul</a></span>.',
+                'default' => 'Powered by <span style="color: rgb(14, 144, 217);"><a href="https://ahatechnocratscrm.com" target="_blank">AHATechnocrats</a></span>.',
                 'tinymce' => true,
             ],
         ],
@@ -129,18 +132,18 @@ return [
                 'type' => 'text',
                 'validation' => 'max:20',
             ], [
-                'name' => 'contacts.persons',
+                'name' => 'persons',
                 'title' => 'admin::app.configuration.index.general.settings.menu.persons',
                 'type' => 'text',
                 'validation' => 'max:20',
             ], [
-                'name' => 'contacts.organizations',
+                'name' => 'organizations',
                 'title' => 'admin::app.configuration.index.general.settings.menu.organizations',
                 'type' => 'text',
                 'validation' => 'max:20',
             ], [
-                'name' => 'products',
-                'title' => 'admin::app.configuration.index.general.settings.menu.products',
+                'name' => 'campaigns',
+                'title' => 'admin::app.configuration.index.general.settings.menu.campaigns',
                 'type' => 'text',
                 'validation' => 'max:20',
             ], [
@@ -166,6 +169,21 @@ return [
                 'title' => 'admin::app.configuration.index.general.settings.menu-color.brand-color',
                 'type' => 'color',
                 'default' => '#0E90D9',
+            ],
+        ],
+    ], [
+        'key' => 'general.settings.contacts',
+        'name' => 'admin::app.configuration.index.general.settings.contacts.title',
+        'info' => 'admin::app.configuration.index.general.settings.contacts.info',
+        'sort' => 4,
+        'fields' => [
+            [
+                'name' => 'default_lifecycle_stage',
+                'title' => 'admin::app.configuration.index.general.settings.contacts.default-lifecycle-stage',
+                'info' => 'admin::app.configuration.index.general.settings.contacts.default-lifecycle-stage-info',
+                'type' => 'select',
+                'default' => LifecycleStage::Subscriber->value,
+                'options' => LifecycleStageOptions::class.'@options',
             ],
         ],
     ], [

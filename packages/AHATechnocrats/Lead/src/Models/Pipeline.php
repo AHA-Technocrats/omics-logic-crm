@@ -2,8 +2,8 @@
 
 namespace AHATechnocrats\Lead\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use AHATechnocrats\Lead\Contracts\Pipeline as PipelineContract;
+use Illuminate\Database\Eloquent\Model;
 
 class Pipeline extends Model implements PipelineContract
 {

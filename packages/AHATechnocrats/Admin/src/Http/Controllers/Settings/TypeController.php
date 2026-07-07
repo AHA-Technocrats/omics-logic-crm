@@ -2,12 +2,12 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Event;
-use Illuminate\View\View;
 use AHATechnocrats\Admin\DataGrids\Settings\TypeDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Lead\Repositories\TypeRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Event;
+use Illuminate\View\View;
 
 class TypeController extends Controller
 {

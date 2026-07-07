@@ -2,14 +2,14 @@
 
 namespace AHATechnocrats\Installer\Http\Controllers;
 
+use AHATechnocrats\Installer\Helpers\DatabaseManager;
+use AHATechnocrats\Installer\Helpers\EnvironmentManager;
+use AHATechnocrats\Installer\Helpers\ServerRequirements;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
-use AHATechnocrats\Installer\Helpers\DatabaseManager;
-use AHATechnocrats\Installer\Helpers\EnvironmentManager;
-use AHATechnocrats\Installer\Helpers\ServerRequirements;
 
 class InstallerController extends Controller
 {

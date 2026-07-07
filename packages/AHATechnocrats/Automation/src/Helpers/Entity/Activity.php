@@ -2,8 +2,6 @@
 
 namespace AHATechnocrats\Automation\Helpers\Entity;
 
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Mail;
 use AHATechnocrats\Activity\Contracts\Activity as ContractsActivity;
 use AHATechnocrats\Activity\Repositories\ActivityRepository;
 use AHATechnocrats\Admin\Notifications\Common;
@@ -13,6 +11,8 @@ use AHATechnocrats\Automation\Services\WebhookService;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\EmailTemplate\Repositories\EmailTemplateRepository;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class Activity extends AbstractEntity
 {

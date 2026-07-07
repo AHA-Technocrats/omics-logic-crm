@@ -2,13 +2,6 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\Settings;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\View\View;
-use Prettus\Repository\Criteria\RequestCriteria;
 use AHATechnocrats\Admin\DataGrids\Settings\UserDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
@@ -18,6 +11,13 @@ use AHATechnocrats\Admin\Notifications\User\Create as UserCreatedNotification;
 use AHATechnocrats\User\Repositories\GroupRepository;
 use AHATechnocrats\User\Repositories\RoleRepository;
 use AHATechnocrats\User\Repositories\UserRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\View\View;
+use Prettus\Repository\Criteria\RequestCriteria;
 
 class UserController extends Controller
 {
@@ -41,7 +41,12 @@ class UserController extends Controller
             return datagrid(UserDataGrid::class)->process();
         }
 
-        $roles = $this->roleRepository->all();
+        $roles = $this->roleRepository->all()->map(fn ($role) => [
+            'id' => $role->id,
+            'name' => $role->name,
+            'permission_type' => $role->permission_type,
+            'permissions' => $role->permissions ?? [],
+        ])->values();
 
         $groups = $this->groupRepository->all();
 

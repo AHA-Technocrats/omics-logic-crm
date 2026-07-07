@@ -2,11 +2,11 @@
 
 namespace AHATechnocrats\User\Models;
 
+use AHATechnocrats\User\Contracts\User as UserContract;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
-use AHATechnocrats\User\Contracts\User as UserContract;
 
 class User extends Authenticatable implements UserContract
 {

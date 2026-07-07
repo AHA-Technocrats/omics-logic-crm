@@ -2,12 +2,14 @@
 
 namespace AHATechnocrats\Contact\Repositories;
 
-use Illuminate\Container\Container;
-use Illuminate\Support\Facades\DB;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Contact\Contracts\Organization;
 use AHATechnocrats\Core\Eloquent\Repository;
+use AHATechnocrats\OmicsLogic\Services\LeadPersonSyncService;
+use AHATechnocrats\OmicsLogic\Services\OrganizationNormalizer;
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\DB;
 
 class OrganizationRepository extends Repository
 {
@@ -45,11 +47,25 @@ class OrganizationRepository extends Repository
             $data['user_id'] = $data['user_id'] ?: null;
         }
 
+        if (isset($data['account_owner_id'])) {
+            $data['account_owner_id'] = $data['account_owner_id'] ?: null;
+        }
+
         $organization = parent::create($data);
+
+        if (empty($organization->normalized_name) && ! empty($organization->name)) {
+            $organization->normalized_name = app(OrganizationNormalizer::class)
+                ->normalize($organization->name);
+            $organization->save();
+        }
 
         $this->attributeValueRepository->save(array_merge($data, [
             'entity_id' => $organization->id,
         ]));
+
+        if (array_key_exists('account_owner_id', $data)) {
+            app(LeadPersonSyncService::class)->syncOwnerFromOrganization($organization);
+        }
 
         return $organization;
     }
@@ -67,7 +83,22 @@ class OrganizationRepository extends Repository
             $data['user_id'] = $data['user_id'] ?: null;
         }
 
+        if (isset($data['account_owner_id'])) {
+            $data['account_owner_id'] = $data['account_owner_id'] ?: null;
+        }
+
         $organization = parent::update($data, $id);
+
+        if (array_key_exists('country_code', $data)) {
+            DB::table('persons')
+                ->where('organization_id', $id)
+                ->whereNull('merged_into_id')
+                ->update(['country_code' => $data['country_code']]);
+        }
+
+        if (array_key_exists('account_owner_id', $data)) {
+            app(LeadPersonSyncService::class)->syncOwnerFromOrganization($organization->fresh());
+        }
 
         /**
          * If attributes are provided then only save the provided attributes and return.
@@ -90,9 +121,11 @@ class OrganizationRepository extends Repository
             return $organization;
         }
 
-        $this->attributeValueRepository->save(array_merge($data, [
-            'entity_id' => $organization->id,
-        ]));
+        if (! empty($data['entity_type'])) {
+            $this->attributeValueRepository->save(array_merge($data, [
+                'entity_id' => $organization->id,
+            ]));
+        }
 
         return $organization;
     }

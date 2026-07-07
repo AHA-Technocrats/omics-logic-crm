@@ -2,10 +2,10 @@
 
 namespace AHATechnocrats\Quote\Repositories;
 
-use Illuminate\Container\Container;
 use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\Product\Repositories\ProductRepository;
 use AHATechnocrats\Quote\Contracts\QuoteItem;
+use Illuminate\Container\Container;
 
 class QuoteItemRepository extends Repository
 {
