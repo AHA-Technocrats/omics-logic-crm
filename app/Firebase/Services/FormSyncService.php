@@ -17,7 +17,6 @@ use AHATechnocrats\WebForm\Repositories\WebFormRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
 
 class FormSyncService
 {
@@ -39,25 +38,19 @@ class FormSyncService
     public function sync(?int $webFormId = null, ?int $batchSize = null): array
     {
         if (! config('firebase.sync.enabled', true)) {
-            return ['synced' => 0, 'skipped' => 0, 'failed' => 0];
+            throw new \RuntimeException('Firebase form sync is disabled.');
         }
 
         $webFormId = $webFormId ?: (int) config('firebase.sync.default_web_form_id');
 
         if ($webFormId <= 0) {
-            Log::warning('Firebase form sync skipped: no web form is configured.');
-
-            return ['synced' => 0, 'skipped' => 0, 'failed' => 0];
+            throw new \RuntimeException('No web form is configured for Firebase sync. Open Connectors → OmicsLogic Portal and select a CRM web form mapping.');
         }
 
         $webForm = $this->webFormRepository->find($webFormId);
 
         if (! $webForm) {
-            Log::warning('Firebase form sync skipped: configured web form was not found.', [
-                'web_form_id' => $webFormId,
-            ]);
-
-            return ['synced' => 0, 'skipped' => 0, 'failed' => 0];
+            throw new \RuntimeException("Configured web form #{$webFormId} was not found. Open Connectors → OmicsLogic Portal and select a valid CRM web form mapping.");
         }
 
         $batchSize = $batchSize ?: (int) config('firebase.sync.batch_size', 50);
@@ -69,7 +62,7 @@ class FormSyncService
             $result = $this->formService->getFormsSince(null, $batchSize, $cursor);
 
             if (isset($result['success']) && $result['success'] === false) {
-                break;
+                throw new \RuntimeException($result['message'] ?? 'Unable to fetch Firestore forms.');
             }
 
             foreach ($result['items'] as $document) {

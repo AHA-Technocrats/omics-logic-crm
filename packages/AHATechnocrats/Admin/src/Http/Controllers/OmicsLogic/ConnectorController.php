@@ -34,6 +34,11 @@ class ConnectorController extends Controller
     {
         $connector = Connector::query()->findOrFail($id);
 
+        if ($connector->type === 'portal_api') {
+            $firebaseSyncService->ensureWebFormMapping($connector);
+            $connector->refresh();
+        }
+
         $webForms = $webFormRepository->all(['id', 'title']);
 
         $firebaseConfigured = $firebaseSyncService->isFirebaseConfigured();
@@ -105,6 +110,7 @@ class ConnectorController extends Controller
                 'rows' => $run->rows_total,
                 'new' => $run->rows_new,
                 'skipped' => $run->rows_merged,
+                'failed' => $run->rows_failed,
             ]));
         } catch (\Throwable $exception) {
             session()->flash('error', trans('omicslogic::app.connectors.sync-failed', [

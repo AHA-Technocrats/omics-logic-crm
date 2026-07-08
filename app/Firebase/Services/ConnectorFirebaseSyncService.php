@@ -4,10 +4,13 @@ namespace App\Firebase\Services;
 
 use AHATechnocrats\OmicsLogic\Enums\ConnectorType;
 use AHATechnocrats\OmicsLogic\Models\Connector;
+use AHATechnocrats\WebForm\Models\WebForm;
 use App\Firebase\FirebaseManager;
 
 class ConnectorFirebaseSyncService
 {
+    public const PORTAL_WEB_FORM_ID = 'firebase-portal-sync';
+
     public function __construct(
         protected FormSyncService $formSyncService,
         protected FirebaseManager $firebaseManager,
@@ -28,12 +31,7 @@ class ConnectorFirebaseSyncService
 
         $this->ensureFirebaseConfigured();
 
-        $webFormId = (int) ($connector->config['web_form_id'] ?? config('firebase.sync.default_web_form_id'));
-
-        if ($webFormId <= 0) {
-            throw new \RuntimeException('Select a web form to map Firestore submissions into CRM leads.');
-        }
-
+        $webFormId = $this->ensureWebFormMapping($connector);
         $batchSize = (int) ($connector->config['batch_size'] ?? config('firebase.sync.batch_size', 50));
 
         $stats = $this->formSyncService->sync($webFormId, $batchSize);
@@ -64,15 +62,67 @@ class ConnectorFirebaseSyncService
             ->where('type', ConnectorType::PortalApi->value)
             ->first();
 
-        $webFormId = (int) ($connector?->config['web_form_id'] ?? 0);
-
-        if ($webFormId > 0) {
-            return $webFormId;
+        if ($connector) {
+            return $this->ensureWebFormMapping($connector);
         }
 
         $fallback = (int) config('firebase.sync.default_web_form_id');
 
-        return $fallback > 0 ? $fallback : null;
+        return $fallback > 0 ? $fallback : $this->resolveOrCreatePortalWebForm()->id;
+    }
+
+    /**
+     * Resolve a valid CRM web form for Firestore imports, creating the
+     * dedicated portal mapping form when needed, and persist it on the connector.
+     */
+    public function ensureWebFormMapping(Connector $connector): int
+    {
+        $configuredId = (int) ($connector->config['web_form_id'] ?? 0);
+
+        $webForm = $configuredId > 0
+            ? WebForm::query()->find($configuredId)
+            : null;
+
+        if (! $webForm) {
+            $fallback = (int) config('firebase.sync.default_web_form_id');
+            $webForm = $fallback > 0 ? WebForm::query()->find($fallback) : null;
+        }
+
+        if (! $webForm) {
+            $webForm = $this->resolveOrCreatePortalWebForm();
+        }
+
+        $config = $connector->config ?? [];
+
+        if ((int) ($config['web_form_id'] ?? 0) !== (int) $webForm->id) {
+            $config['web_form_id'] = (int) $webForm->id;
+            $connector->update(['config' => $config]);
+        }
+
+        return (int) $webForm->id;
+    }
+
+    public function resolveOrCreatePortalWebForm(): WebForm
+    {
+        return WebForm::query()->firstOrCreate(
+            ['form_id' => self::PORTAL_WEB_FORM_ID],
+            [
+                'title' => 'OmicsLogic Portal (Firebase)',
+                'description' => 'Internal mapping form for Firestore portal submissions synced into CRM leads.',
+                'submit_button_label' => 'Submit',
+                'submit_success_action' => 'message',
+                'submit_success_content' => 'Thank you',
+                'create_lead' => true,
+                'is_active' => true,
+                'allow_org_create' => true,
+                'organization_field' => 'optional',
+                'background_color' => '#ffffff',
+                'form_background_color' => '#ffffff',
+                'form_title_color' => '#000000',
+                'form_submit_button_color' => '#0E9F6E',
+                'attribute_label_color' => '#000000',
+            ],
+        );
     }
 
     public function shouldRunScheduledSync(Connector $connector): bool
