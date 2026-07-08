@@ -334,7 +334,7 @@ return [
         ],
         'layouts' => [
             'powered-by' => [
-                'description' => 'Powered by :ahatechnocrats.',
+                'description' => 'made with love by :ahatechnocrats',
             ],
             'header' => [
                 'mega-search' => [
