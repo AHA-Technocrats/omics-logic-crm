@@ -74,13 +74,15 @@ return [
         ],
         'forget-password' => [
             'create' => [
-                'email' => 'Registered Email',
+                'email' => 'Email Address',
                 'email-not-exist' => 'Email Not Exists',
-                'page-title' => 'Forget Password',
+                'email-placeholder' => 'Enter your registered email',
+                'page-title' => 'Forgot Password',
                 'reset-link-sent' => 'Reset Password link sent',
-                'sign-in-link' => 'Back to Sign In ?',
-                'submit-btn' => 'Reset',
-                'title' => 'Recover Password',
+                'sign-in-link' => 'Back to Sign In',
+                'submit-btn' => 'Send Reset Link',
+                'subtitle' => 'Enter your registered email and we will send you a link to reset your password.',
+                'title' => 'Forgot your password?',
             ],
         ],
         'reset-password' => [
