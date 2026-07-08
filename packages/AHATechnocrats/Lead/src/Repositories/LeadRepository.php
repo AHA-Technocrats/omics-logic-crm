@@ -4,10 +4,12 @@ namespace AHATechnocrats\Lead\Repositories;
 
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
+use AHATechnocrats\Contact\Models\Organization;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\Lead\Contracts\Lead;
 use AHATechnocrats\OmicsLogic\Services\LeadPersonSyncService;
+use AHATechnocrats\OmicsLogic\Services\OrganizationAssigneeResolver;
 use Carbon\Carbon;
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Collection;
@@ -123,6 +125,8 @@ class LeadRepository extends Repository
 
             $data['person_id'] = $person->id;
         }
+
+        $data['user_id'] = $this->resolveLeadOwnerId($data);
 
         if (empty($data['expected_close_date'])) {
             $data['expected_close_date'] = null;
@@ -289,5 +293,37 @@ class LeadRepository extends Repository
         }
 
         return $this->personRepository->create($personPayload);
+    }
+
+    /**
+     * Assign every new lead to an owner: explicit value, linked contact,
+     * organization account owner, or the super admin — never leave unassigned.
+     */
+    protected function resolveLeadOwnerId(array $data): ?int
+    {
+        if (! empty($data['user_id'])) {
+            return (int) $data['user_id'];
+        }
+
+        $person = ! empty($data['person_id'])
+            ? $this->personRepository->find($data['person_id'])
+            : null;
+
+        if ($person?->user_id) {
+            return (int) $person->user_id;
+        }
+
+        $organization = $person?->organization_id
+            ? Organization::query()->find($person->organization_id)
+            : null;
+
+        $ownerId = app(OrganizationAssigneeResolver::class)->resolve($organization);
+
+        if ($organization && empty($organization->account_owner_id) && $ownerId) {
+            $organization->account_owner_id = $ownerId;
+            $organization->save();
+        }
+
+        return $ownerId;
     }
 }

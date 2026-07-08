@@ -4,7 +4,6 @@
         : ($person->country_code
             ? app(\AHATechnocrats\OmicsLogic\Services\CountryLabelResolver::class)->resolve($person->country_code)
             : null);
-    $stage = \AHATechnocrats\OmicsLogic\Enums\LifecycleStage::tryFrom($person->lifecycle_stage ?? '');
 @endphp
 
 {!! view_render_event('admin.contacts.persons.view.profile.before', ['person' => $person]) !!}
@@ -60,28 +59,8 @@
         </div>
 
         <div class="flex justify-between gap-4">
-            <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.lifecycle-stage')</dt>
-            <dd class="text-right font-medium dark:text-white">{{ $stage?->label() ?? ucfirst($person->lifecycle_stage ?? '—') }}</dd>
-        </div>
-
-        <div class="flex justify-between gap-4">
             <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.education')</dt>
             <dd class="text-right font-medium dark:text-white">{{ $person->education_level ?? '—' }}</dd>
-        </div>
-
-        <div class="flex justify-between gap-4">
-            <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.inquiry-details')</dt>
-            <dd class="text-right font-medium dark:text-white">{{ $person->inquiry_details ?? '—' }}</dd>
-        </div>
-
-        <div class="flex justify-between gap-4">
-            <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.campaign')</dt>
-            <dd class="text-right font-medium dark:text-white">{{ $person->primaryProduct?->name ?? '—' }}</dd>
-        </div>
-
-        <div class="flex justify-between gap-4">
-            <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.source')</dt>
-            <dd class="text-right font-medium dark:text-white">{{ $person->primarySource?->name ?? '—' }}</dd>
         </div>
 
         <div class="flex justify-between gap-4">
@@ -111,7 +90,12 @@
                 <input type="hidden" name="contact_numbers[0][label]" value="{{ $person->contact_numbers[0]['label'] ?? 'work' }}" />
             @endif
 
-            @include('admin::omics.partials.person-fields', ['record' => $person, 'showHeading' => false, 'showCrmFields' => true])
+            @include('admin::omics.partials.person-fields', [
+                'record' => $person,
+                'showHeading' => false,
+                'showCrmFields' => false,
+                'showInquiryField' => false,
+            ])
 
             <div class="mt-4 flex justify-end">
                 <button type="submit" class="primary-button">

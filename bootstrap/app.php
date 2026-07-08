@@ -29,6 +29,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             EnsureFrontendRequestsAreStateful::class,
         ]);
+
+        $middleware->alias([
+            'firebase.api' => \App\Http\Middleware\VerifyFirebaseApiKey::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

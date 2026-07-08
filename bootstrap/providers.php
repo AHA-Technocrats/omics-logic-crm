@@ -21,6 +21,7 @@ use AHATechnocrats\User\Providers\UserServiceProvider;
 use AHATechnocrats\Warehouse\Providers\WarehouseServiceProvider;
 use AHATechnocrats\WebForm\Providers\WebFormServiceProvider;
 use App\Providers\AppServiceProvider;
+use App\Providers\FirebaseServiceProvider;
 use Barryvdh\DomPDF\ServiceProvider;
 use Konekt\Concord\ConcordServiceProvider;
 use Prettus\Repository\Providers\RepositoryServiceProvider;
@@ -37,6 +38,7 @@ return [
      * Application Service Providers...
      */
     AppServiceProvider::class,
+    FirebaseServiceProvider::class,
 
     /*
      * Webkul Service Providers...

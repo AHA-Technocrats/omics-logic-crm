@@ -14,6 +14,7 @@ Route::prefix('omics')->group(function () {
         Route::get('edit/{id}', 'edit')->name('admin.omics.connectors.edit');
         Route::put('edit/{id}', 'update')->name('admin.omics.connectors.update');
         Route::post('{id}/sync', 'sync')->name('admin.omics.connectors.sync');
+        Route::post('{id}/reset-sync', 'resetSync')->name('admin.omics.connectors.reset-sync');
     });
 
     Route::controller(SegmentController::class)->prefix('segments')->group(function () {

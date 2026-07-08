@@ -41,6 +41,7 @@ class Importer extends AbstractImporter
         'education_level',
         'inquiry_details',
         'timestamp',
+        'campaign',
         'source',
         'lead_type',
         'pipeline',
@@ -78,7 +79,9 @@ class Importer extends AbstractImporter
         'anyotherdetailsqueriesyouwishtomention' => 'inquiry_details',
         'otherdetails' => 'inquiry_details',
         'queries' => 'inquiry_details',
-        'product' => 'product',
+        'campaign' => 'campaign',
+        'campaignname' => 'campaign',
+        'product' => 'campaign',
         'jobtitle' => 'job_title',
     ];
 

@@ -115,7 +115,9 @@ class PersonRepository extends Repository
 
         $data = $this->sanitizeRequestedPersonData($data);
 
-        $data['user_id'] = empty($data['user_id']) ? null : $data['user_id'];
+        if (array_key_exists('user_id', $data)) {
+            $data['user_id'] = empty($data['user_id']) ? null : $data['user_id'];
+        }
 
         if (! empty($data['organization_id'])) {
             if (! empty($data['organization'])) {

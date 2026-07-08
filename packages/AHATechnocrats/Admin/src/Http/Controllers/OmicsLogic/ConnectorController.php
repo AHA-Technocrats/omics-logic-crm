@@ -6,6 +6,9 @@ use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\OmicsLogic\Models\Connector;
 use AHATechnocrats\OmicsLogic\Models\ConnectorSyncRun;
 use AHATechnocrats\OmicsLogic\Services\ConnectorSyncService;
+use AHATechnocrats\WebForm\Repositories\WebFormRepository;
+use App\Firebase\Services\ConnectorFirebaseSyncService;
+use App\Firebase\Services\FormSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,38 +30,62 @@ class ConnectorController extends Controller
         return view('admin::omics.connectors.index', compact('connectors', 'recentRuns'));
     }
 
-    public function edit(int $id): View
+    public function edit(int $id, WebFormRepository $webFormRepository, ConnectorFirebaseSyncService $firebaseSyncService): View
     {
         $connector = Connector::query()->findOrFail($id);
 
-        return view('admin::omics.connectors.edit', compact('connector'));
+        $webForms = $webFormRepository->all(['id', 'title']);
+
+        $firebaseConfigured = $firebaseSyncService->isFirebaseConfigured();
+
+        $firebaseProjectId = config('firebase.project_id')
+            ?: (is_readable((string) config('firebase.credentials'))
+                ? (json_decode((string) file_get_contents((string) config('firebase.credentials')), true)['project_id'] ?? null)
+                : null);
+
+        return view('admin::omics.connectors.edit', compact(
+            'connector',
+            'webForms',
+            'firebaseConfigured',
+            'firebaseProjectId',
+        ));
     }
 
     public function update(Request $request, int $id, ConnectorSyncService $syncService): RedirectResponse
     {
         $connector = Connector::query()->findOrFail($id);
 
-        $data = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'status' => 'required|in:connected,disabled,error',
-            'api_url' => 'nullable|url|max:500',
-            'api_token' => 'nullable|string|max:500',
             'sync_schedule' => 'nullable|in:manual,hourly,daily,weekly',
-        ]);
+        ];
+
+        if ($connector->type === 'portal_api') {
+            $rules['web_form_id'] = 'required|integer|exists:web_forms,id';
+        } else {
+            $rules['web_form_id'] = 'nullable|integer|exists:web_forms,id';
+        }
+
+        $data = $request->validate($rules);
+
+        $config = [
+            'sync_schedule' => $data['sync_schedule'] ?? ($connector->config['sync_schedule'] ?? 'manual'),
+        ];
+
+        if (! empty($data['web_form_id'])) {
+            $config['web_form_id'] = (int) $data['web_form_id'];
+        }
 
         $syncService->updateConfig($connector, [
             'name' => $data['name'],
             'status' => $data['status'],
-            'config' => array_filter([
-                'api_url' => $data['api_url'] ?? null,
-                'api_token' => $data['api_token'] ?? null,
-                'sync_schedule' => $data['sync_schedule'] ?? 'manual',
-            ], fn ($value) => $value !== null && $value !== ''),
+            'config' => array_merge($connector->config ?? [], $config),
         ]);
 
         session()->flash('success', trans('omicslogic::app.connectors.update-success'));
 
-        return redirect()->route('admin.omics.connectors.index');
+        return redirect()->route('admin.omics.connectors.edit', $connector->id);
     }
 
     public function sync(int $id, ConnectorSyncService $syncService): RedirectResponse
@@ -77,6 +104,7 @@ class ConnectorController extends Controller
             session()->flash('success', trans('omicslogic::app.connectors.sync-success', [
                 'rows' => $run->rows_total,
                 'new' => $run->rows_new,
+                'skipped' => $run->rows_merged,
             ]));
         } catch (\Throwable $exception) {
             session()->flash('error', trans('omicslogic::app.connectors.sync-failed', [
@@ -85,6 +113,29 @@ class ConnectorController extends Controller
         }
 
         return redirect()->route('admin.omics.connectors.index');
+    }
+
+    public function resetSync(int $id, FormSyncService $formSyncService): RedirectResponse
+    {
+        $connector = Connector::query()->findOrFail($id);
+
+        if ($connector->type !== 'portal_api') {
+            session()->flash('error', trans('omicslogic::app.connectors.sync-not-allowed'));
+
+            return redirect()->route('admin.omics.connectors.edit', $connector->id);
+        }
+
+        $stats = $formSyncService->resetSyncState();
+
+        session()->flash('success', trans('omicslogic::app.connectors.reset-sync-success', [
+            'submissions' => $stats['submissions'],
+            'leads' => $stats['leads'],
+            'persons' => $stats['persons'],
+            'merge_pairs' => $stats['merge_pairs'],
+            'organizations' => $stats['organizations'],
+        ]));
+
+        return redirect()->route('admin.omics.connectors.edit', $connector->id);
     }
 
     protected function ensureDefaultConnectors(): void

@@ -1,6 +1,6 @@
-Timestamp,Email Address,Full Name:,Phone number:,Country:,Company/Organization/University:,Level of Education:,Any other details/queries you wish to mention:
-6/10/2026 20:13:48,dummyemail1@gmail.com,Dummy Name 1,1234567891,Italy,ASL mediocampidano,Doctorate (Ph.D.),none
-6/11/2026 0:25:44,dummyemail2@gmail.com,Dummy Name 2,1234567892,India,Indian Academy Degree College Autonomous,Graduate (Masters),
-6/11/2026 0:28:01,dummyemail3@gmail.com,Dummy Name 3,1234567893,Egypt,cairo university / facualty of science,Undergraduate (Bachelors - B.Sc. or B.A.),
-6/11/2026 5:59:53,dummyemail4@gmail.com,Dummy Name 4,1234567894,Pakistan,Hamdard University,Faculty ( In a University or any other institution),
-6/11/2026 7:21:15,dummyemail5@gmail.com,Dummy Name 5,1234567895,India,Iiser bhopal,Doctorate (Ph.D.),kr
+Timestamp,Email Address,Full Name:,Phone number:,Country:,Company/Organization/University:,Level of Education:,Campaign:,Any other details/queries you wish to mention:
+6/10/2026 20:13:48,dummyemail1@gmail.com,Dummy Name 1,1234567891,Italy,ASL mediocampidano,Doctorate (Ph.D.),RNA-Seq Data Analysis,none
+6/11/2026 0:25:44,dummyemail2@gmail.com,Dummy Name 2,1234567892,India,Indian Academy Degree College Autonomous,Graduate (Masters),AI in Drug Discovery,
+6/11/2026 0:28:01,dummyemail3@gmail.com,Dummy Name 3,1234567893,Egypt,cairo university / facualty of science,Undergraduate (Bachelors - B.Sc. or B.A.),Clinical Genomics & Mutation Analysis,
+6/11/2026 5:59:53,dummyemail4@gmail.com,Dummy Name 4,1234567894,Pakistan,Hamdard University,Faculty ( In a University or any other institution),Single-Cell RNA-Seq,
+6/11/2026 7:21:15,dummyemail5@gmail.com,Dummy Name 5,1234567895,India,Iiser bhopal,Doctorate (Ph.D.),From Sample to Sequencer (NGS),kr

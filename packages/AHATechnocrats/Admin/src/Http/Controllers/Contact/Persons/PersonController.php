@@ -81,7 +81,10 @@ class PersonController extends Controller
     public function show(int $id): View|RedirectResponse
     {
         $person = $this->personRepository
-            ->with(['organization.accountOwner', 'user', 'primarySource', 'primaryProduct'])
+            ->with([
+                'organization.accountOwner',
+                'user',
+            ])
             ->findOrFail($id);
 
         if ($redirect = $this->authorizeOwner($person->user_id, 'admin.contacts.persons.index')) {

@@ -5,12 +5,12 @@ namespace AHATechnocrats\OmicsLogic\Services;
 use AHATechnocrats\OmicsLogic\Enums\ConnectorType;
 use AHATechnocrats\OmicsLogic\Models\Connector;
 use AHATechnocrats\OmicsLogic\Models\ConnectorSyncRun;
-use AHATechnocrats\OmicsLogic\Services\Portal\PortalLeadSyncService;
+use App\Firebase\Services\ConnectorFirebaseSyncService;
 
 class ConnectorSyncService
 {
     public function __construct(
-        protected PortalLeadSyncService $portalLeadSyncService,
+        protected ConnectorFirebaseSyncService $connectorFirebaseSyncService,
     ) {}
 
     public function sync(Connector $connector): ConnectorSyncRun
@@ -76,7 +76,7 @@ class ConnectorSyncService
     protected function runSync(Connector $connector): array
     {
         return match ($connector->type) {
-            ConnectorType::PortalApi->value => $this->portalLeadSyncService->sync($connector),
+            ConnectorType::PortalApi->value => $this->connectorFirebaseSyncService->sync($connector),
             default => throw new \RuntimeException('This connector type cannot be synced manually.'),
         };
     }

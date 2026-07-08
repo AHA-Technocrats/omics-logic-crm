@@ -4,6 +4,9 @@
     </x-slot>
 
     <!-- Content -->
+    @include('admin::contacts.persons.view.portal-host')
+    @include('admin::contacts.persons.view.portal-panel')
+
     <div class="flex gap-4 max-lg:flex-wrap">
         <!-- Left Panel -->
         {!! view_render_event('admin.contact.persons.view.left.before', ['person' => $person]) !!}
@@ -93,8 +96,7 @@
         <div class="flex w-full flex-col gap-4 rounded-lg">
             {!! view_render_event('admin.contact.persons.view.right.before', ['person' => $person]) !!}
 
-            <!-- Stages Navigation -->
-            <x-admin::activities :endpoint="route('admin.contacts.persons.activities.index', $person->id)" />
+            @include('admin::contacts.persons.view.portal-sections')
 
             {!! view_render_event('admin.contact.persons.view.right.after', ['person' => $person]) !!}
         </div>

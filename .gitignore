@@ -24,6 +24,8 @@ package-lock.json
 /lang/vendor
 /storage/*.key
 /storage/dcc-data/
+/storage/app/private/firebase/service-account.json
+!/storage/app/cacert.pem
 /vendor
 yarn.lock
 yarn-error.log

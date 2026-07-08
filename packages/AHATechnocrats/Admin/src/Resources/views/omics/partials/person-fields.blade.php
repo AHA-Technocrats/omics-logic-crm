@@ -20,6 +20,7 @@
     $showHeading = $showHeading ?? true;
     $showCrmFields = $showCrmFields ?? true;
     $showContactFields = $showContactFields ?? true;
+    $showInquiryField = $showInquiryField ?? true;
 @endphp
 
 @if ($showHeading)
@@ -69,6 +70,7 @@
                 </x-admin::form.control-group.control>
             </x-admin::form.control-group>
 
+            @if ($showInquiryField)
             <x-admin::form.control-group class="md:col-span-2">
                 <x-admin::form.control-group.label>
                     @lang('omicslogic::app.fields.inquiry-details')
@@ -81,6 +83,7 @@
                     ::disabled="$isNested ? 'person.id ? true : false' : null"
                 />
             </x-admin::form.control-group>
+            @endif
         </div>
     @endif
 

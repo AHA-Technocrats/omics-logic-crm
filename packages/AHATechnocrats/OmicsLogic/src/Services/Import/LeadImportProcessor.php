@@ -8,12 +8,13 @@ use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\Lead\Models\Lead;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
 use AHATechnocrats\Lead\Repositories\PipelineRepository;
+use AHATechnocrats\Lead\Repositories\ProductRepository as LeadProductRepository;
 use AHATechnocrats\Lead\Repositories\SourceRepository;
 use AHATechnocrats\Lead\Repositories\TypeRepository;
 use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use AHATechnocrats\OmicsLogic\Services\OrganizationAssigneeResolver;
 use AHATechnocrats\OmicsLogic\Services\OrganizationResolver;
-use AHATechnocrats\Product\Repositories\ProductRepository;
+use AHATechnocrats\Product\Models\Product;
 use AHATechnocrats\User\Repositories\UserRepository;
 use AHATechnocrats\WebForm\Models\WebForm;
 use AHATechnocrats\WebForm\Models\WebFormSubmission;
@@ -48,7 +49,7 @@ class LeadImportProcessor
         protected SourceRepository $sourceRepository,
         protected TypeRepository $typeRepository,
         protected PipelineRepository $pipelineRepository,
-        protected ProductRepository $productRepository,
+        protected LeadProductRepository $leadProductRepository,
         protected UserRepository $userRepository,
         protected PersonRepository $personRepository,
         protected OrganizationResolver $organizationResolver,
@@ -79,6 +80,8 @@ class LeadImportProcessor
         $rawEducation = $this->clean($row['education_level'] ?? null);
         $educationLevel = $this->normalizeEducation($rawEducation);
         $submittedAt = $this->parseTimestamp($this->clean($row['timestamp'] ?? null));
+        $campaignName = $this->clean($row['campaign'] ?? null) ?: $this->clean($row['product'] ?? null);
+        $campaignProductId = $this->resolveCampaignProductId($campaignName);
 
         $organization = $this->organizationResolver->resolve(
             $organizationName,
@@ -139,21 +142,20 @@ class LeadImportProcessor
             'expected_close_date' => $this->clean($row['expected_close_date'] ?? null),
         ], fn ($value) => $value !== null);
 
-        if ($products = $this->resolveProducts($this->clean($row['product'] ?? null))) {
-            $data['products'] = $products;
-        }
-
         if ($existingPerson) {
             $this->fillPersonBlanks($existingPerson, $phone, $jobTitle, $organization, $educationLevel, $country);
+            $this->seedPersonPrimaryCampaign($existingPerson, $campaignProductId);
 
             $data['person_id'] = $existingPerson->id;
-        } elseif ($person = $this->buildPersonPayload($name, $email, $phone, $jobTitle, $organization, $ownerId, $sourceId, $country, $educationLevel)) {
+        } elseif ($person = $this->buildPersonPayload($name, $email, $phone, $jobTitle, $organization, $ownerId, $sourceId, $country, $educationLevel, $campaignProductId)) {
             $data['person'] = $person;
         }
 
         Event::dispatch('lead.create.before');
 
         $lead = $this->leadRepository->create($data);
+
+        $this->mapCampaignToLead($lead, $campaignProductId);
 
         Event::dispatch('lead.create.after', $lead);
 
@@ -182,6 +184,7 @@ class LeadImportProcessor
                 $rawEducation,
                 $this->clean($row['inquiry_details'] ?? null),
                 $title,
+                $campaignName,
                 $row['_raw_submission'] ?? null,
                 $submittedAt,
             );
@@ -287,6 +290,7 @@ class LeadImportProcessor
         ?int $sourceId,
         ?string $country,
         ?string $educationLevel,
+        ?int $campaignProductId = null,
     ): ?array {
         if (! $name && ! $email && ! $phone) {
             return null;
@@ -301,9 +305,55 @@ class LeadImportProcessor
             'country_code' => $organization?->country_code ?: $country,
             'education_level' => $educationLevel,
             'primary_source_id' => $sourceId,
+            'primary_product_id' => $campaignProductId,
             'user_id' => $ownerId,
             'lifecycle_stage' => LifecycleStage::Lead->value,
         ], fn ($value) => $value !== null && $value !== '');
+    }
+
+    /**
+     * Seed the contact's primary campaign when it is still empty.
+     * Uses a direct update so we do not trigger lead-wide campaign resyncs.
+     */
+    protected function seedPersonPrimaryCampaign(Person $person, ?int $campaignProductId): void
+    {
+        if (! $campaignProductId || $person->primary_product_id) {
+            return;
+        }
+
+        DB::table('persons')
+            ->where('id', $person->id)
+            ->update(['primary_product_id' => $campaignProductId]);
+    }
+
+    /**
+     * Attach a resolved campaign to the lead record.
+     */
+    protected function mapCampaignToLead(Lead $lead, ?int $campaignProductId): void
+    {
+        if (! $campaignProductId) {
+            return;
+        }
+
+        if ($lead->products()->where('product_id', $campaignProductId)->exists()) {
+            return;
+        }
+
+        $product = Product::query()->find($campaignProductId);
+
+        if (! $product) {
+            return;
+        }
+
+        $price = (float) ($product->price ?? 0);
+
+        $this->leadProductRepository->create([
+            'lead_id' => $lead->id,
+            'product_id' => $campaignProductId,
+            'price' => $price,
+            'quantity' => 1,
+            'amount' => $price,
+        ]);
     }
 
     /**
@@ -320,6 +370,7 @@ class LeadImportProcessor
         ?string $rawEducation,
         ?string $inquiry,
         ?string $title,
+        ?string $campaignName,
         ?array $rawRow,
         ?Carbon $submittedAt,
     ): void {
@@ -331,6 +382,7 @@ class LeadImportProcessor
             'country_code' => $country,
             'education_level' => $rawEducation,
             'inquiry_details' => $inquiry,
+            'program_interest' => $campaignName,
         ], fn ($value) => $value !== null && $value !== '');
 
         $leads = array_filter([
@@ -508,35 +560,30 @@ class LeadImportProcessor
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * Resolve a campaign name to an existing product id (case-insensitive).
+     * Unmatched names are ignored — campaigns are never created during import.
      */
-    protected function resolveProducts(?string $name): array
+    protected function resolveCampaignProductId(?string $name): ?int
     {
         if (! $name) {
-            return [];
+            return null;
         }
 
-        $product = $this->productRepository->findOneByField('name', $name);
+        $normalized = strtolower(trim($name));
 
-        if (! $product) {
-            $aliasProductId = DB::table('omics_product_aliases')
-                ->where('alias_name', $name)
-                ->value('product_id');
+        $productId = Product::query()
+            ->whereRaw('LOWER(name) = ?', [$normalized])
+            ->value('id');
 
-            $product = $aliasProductId ? $this->productRepository->find($aliasProductId) : null;
+        if ($productId) {
+            return (int) $productId;
         }
 
-        if (! $product) {
-            return [];
-        }
+        $aliasProductId = DB::table('omics_product_aliases')
+            ->whereRaw('LOWER(alias_name) = ?', [$normalized])
+            ->value('product_id');
 
-        $price = (float) ($product->price ?? 0);
-
-        return [[
-            'product_id' => $product->id,
-            'price' => $price,
-            'quantity' => 1,
-        ]];
+        return $aliasProductId ? (int) $aliasProductId : null;
     }
 
     protected function clean(mixed $value): ?string
