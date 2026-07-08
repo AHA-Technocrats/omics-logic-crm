@@ -66,7 +66,7 @@ return [
                 'name' => 'label',
                 'title' => 'admin::app.configuration.index.general.settings.footer.powered-by',
                 'type' => 'editor',
-                'default' => 'made with love by <span style="color: rgb(14, 144, 217);"><a href="https://ahatechnocratscrm.com" target="_blank">Aha technocrats</a></span>',
+                'default' => '&copy; Copyright ' . date('Y') . ' . Made with ❤️ by <span style="color: rgb(14, 144, 217);"><a href="https://ahatechnocratscrm.com" target="_blank">AHA Technocrats</a></span>',
                 'tinymce' => true,
             ],
         ],

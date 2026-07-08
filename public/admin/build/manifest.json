@@ -264,7 +264,7 @@
     "isDynamicEntry": true
   },
   "src/Resources/assets/css/app.css": {
-    "file": "assets/app-BvLhLMO0.css",
+    "file": "assets/app-BJfQXL0K.css",
     "src": "src/Resources/assets/css/app.css",
     "isEntry": true
   },
@@ -352,6 +352,18 @@
     "file": "assets/favicon-BtbgZBji.ico",
     "src": "src/Resources/assets/images/favicon.ico"
   },
+  "src/Resources/assets/images/login-hero-bg.png": {
+    "file": "assets/login-hero-bg-DsaiQtdS.png",
+    "src": "src/Resources/assets/images/login-hero-bg.png"
+  },
+  "src/Resources/assets/images/login-hero-logo.png": {
+    "file": "assets/login-hero-logo-BftKZkRV.png",
+    "src": "src/Resources/assets/images/login-hero-logo.png"
+  },
+  "src/Resources/assets/images/login-hero-panel.png": {
+    "file": "assets/login-hero-panel-iZv_rx5e.png",
+    "src": "src/Resources/assets/images/login-hero-panel.png"
+  },
   "src/Resources/assets/images/logo.svg": {
     "file": "assets/logo-Bjh7YAuF.svg",
     "src": "src/Resources/assets/images/logo.svg"
@@ -364,8 +376,12 @@
     "file": "assets/mobile-light-logo-CjoobCkl.svg",
     "src": "src/Resources/assets/images/mobile-light-logo.svg"
   },
+  "src/Resources/assets/images/omics-logic-logo.png": {
+    "file": "assets/omics-logic-logo-Cl_hWBLK.png",
+    "src": "src/Resources/assets/images/omics-logic-logo.png"
+  },
   "src/Resources/assets/js/app.js": {
-    "file": "assets/app-BNXXPcc9.js",
+    "file": "assets/app-9y4PYYam.js",
     "name": "app",
     "src": "src/Resources/assets/js/app.js",
     "isEntry": true,

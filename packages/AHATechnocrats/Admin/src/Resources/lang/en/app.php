@@ -54,11 +54,23 @@ return [
         'login-error' => 'The credentials do not match our records.',
         'not-permission' => 'You do not have permission to access the admin panel.',
         'login' => [
+            'contact-admin' => 'AHATechnocrats',
             'email' => 'Email Address',
-            'forget-password-link' => 'Forget Password ?',
+            'email-placeholder' => 'Enter your email',
+            'forget-password-link' => 'Forgot password?',
+            'google-sign-in' => 'Sign in with Google',
+            'hero-description' => 'Omics Logic CRM helps organizations in the omics, genomics, and life sciences ecosystem connect, collaborate, and grow. Streamline customer relationships, automate workflows, manage leads, and drive innovation with a CRM built for modern research and business.',
+            'hero-heading-highlight' => 'Omics.',
+            'hero-heading-line-1' => 'Empowering Relationships.',
+            'hero-heading-line-2' => 'Advancing',
+            'new-user' => 'Powered By',
+            'or-divider' => 'or',
             'password' => 'Password',
+            'password-placeholder' => 'Enter your password',
             'submit-btn' => 'Sign In',
             'title' => 'Sign In',
+            'welcome-subtitle' => 'Sign in to access your Omics Logic CRM',
+            'welcome-title' => 'Welcome back!',
         ],
         'forget-password' => [
             'create' => [
@@ -334,7 +346,7 @@ return [
         ],
         'layouts' => [
             'powered-by' => [
-                'description' => 'made with love by :ahatechnocrats',
+                'description' => '&copy; Copyright ' . date('Y') . ' . Made with ❤️ by :ahatechnocrats',
             ],
             'header' => [
                 'mega-search' => [
