@@ -72,7 +72,7 @@ return [
             // 'privacy-link' => 'Privacy Policy',
             'social-hint' => 'Sign in to access your Omics Logic CRM',
             'submit-btn' => 'Sign In',
-            'terms-link' => 'AHATechnocrats',
+            'terms-link' => 'AHA Technocrats',
             'terms-text' => 'Powered By',
             'title' => 'Sign In',
             'welcome-subtitle' => 'Sign in to access your Omics Logic CRM',
