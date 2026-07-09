@@ -1,47 +1,66 @@
-name: Deploy to Production
+name: Deploy Omics (live)
 
 on:
   push:
     branches:
       - live
-  workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy to VPS
-    runs-on: [self-hosted, linux, ahatech-vps]
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy on server
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Deploy to Virtualmin VPS
         run: |
-          set -euo pipefail
+          ssh -o StrictHostKeyChecking=no \
+          ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
 
-          DEPLOY_PATH="/home/ahatech1/domains/omics.ahatech1.com/public_html"
+            set -e
 
-          cd "$DEPLOY_PATH"
+            echo "🚀 Deploy started (live)"
 
-          git fetch origin live
-          git reset --hard origin/live
+            cd /home/ahatech1/domains/omics.ahatech1.com/public_html
 
-          composer install \
-            --no-dev \
-            --optimize-autoloader \
-            --no-interaction \
-            --ignore-platform-req=ext-grpc
+            echo "📥 Pulling latest code"
+            git pull origin live
 
-          if [ -f package.json ]; then
-            npm install
-            npm run build
-          fi
+            echo "📦 Composer install"
+            if [ -f composer.json ]; then
+              composer install \
+                --no-dev \
+                --optimize-autoloader \
+                --no-interaction \
+                --ignore-platform-req=ext-grpc
+            fi
 
-          php artisan migrate --force
-          php artisan storage:link || true
-          php artisan optimize:clear
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-          php artisan optimize
+            echo "📦 Frontend build"
+            if [ -f package.json ]; then
+              npm install
+              npm run build
+            fi
 
-          chmod -R ug+rwx storage bootstrap/cache
+            echo "🧹 Laravel cleanup"
+            if [ -f artisan ]; then
+              php artisan migrate --force || true
+              php artisan storage:link || true
+              php artisan optimize:clear
+              php artisan config:cache
+              php artisan route:cache
+              php artisan view:cache
+              php artisan optimize
+            fi
 
-          echo "Deployment completed successfully."
+            echo "🔒 Setting permissions"
+            chmod -R ug+rwx storage bootstrap/cache
+
+            echo "✅ Deploy finished successfully"
+
+          EOF
