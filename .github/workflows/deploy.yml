@@ -4,50 +4,44 @@ on:
   push:
     branches:
       - live
+  workflow_dispatch:
 
 jobs:
   deploy:
     name: Deploy to VPS
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, ahatech-vps]
 
     steps:
-      - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script_stop: true
-          command_timeout: 30m
-          script: |
-            set -euo pipefail
+      - name: Deploy on server
+        run: |
+          set -euo pipefail
 
-            DEPLOY_PATH="/home/ahatech1/domains/omics.ahatech1.com/public_html"
+          DEPLOY_PATH="/home/ahatech1/domains/omics.ahatech1.com/public_html"
 
-            cd "$DEPLOY_PATH"
+          cd "$DEPLOY_PATH"
 
-            git fetch origin live
-            git reset --hard origin/live
+          git fetch origin live
+          git reset --hard origin/live
 
-            composer install \
-              --no-dev \
-              --optimize-autoloader \
-              --no-interaction \
-              --ignore-platform-req=ext-grpc
+          composer install \
+            --no-dev \
+            --optimize-autoloader \
+            --no-interaction \
+            --ignore-platform-req=ext-grpc
 
-            if [ -f package.json ]; then
-              npm install
-              npm run build
-            fi
+          if [ -f package.json ]; then
+            npm install
+            npm run build
+          fi
 
-            php artisan migrate --force
-            php artisan storage:link || true
-            php artisan optimize:clear
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan optimize
+          php artisan migrate --force
+          php artisan storage:link || true
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          php artisan optimize
 
-            chmod -R ug+rwx storage bootstrap/cache
+          chmod -R ug+rwx storage bootstrap/cache
 
-            echo "Deployment completed successfully."
+          echo "Deployment completed successfully."
