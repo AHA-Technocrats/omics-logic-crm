@@ -150,6 +150,11 @@ Breadcrumbs::for('omics.segments.edit', function (BreadcrumbTrail $trail, $segme
     $trail->push(trans('omicslogic::app.segments.edit-title'), route('admin.omics.segments.edit', $segment->id));
 });
 
+Breadcrumbs::for('omics.segments.view', function (BreadcrumbTrail $trail, $segment) {
+    $trail->parent('omics.segments');
+    $trail->push($segment->name, route('admin.omics.segments.view', $segment->id));
+});
+
 // OmicsLogic > Connectors
 Breadcrumbs::for('omics.connectors', function (BreadcrumbTrail $trail) {
     $trail->parent('dashboard');

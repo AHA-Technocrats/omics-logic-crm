@@ -247,20 +247,30 @@ return [
         'route' => 'admin.omics.segments.index',
         'sort' => 9,
     ], [
+        'key' => 'segments.view',
+        'name' => 'admin::app.acl.view',
+        'route' => [
+            'admin.omics.segments.view',
+            'admin.omics.segments.view.persons',
+            'admin.omics.segments.view.leads',
+            'admin.omics.segments.view.refresh',
+        ],
+        'sort' => 1,
+    ], [
         'key' => 'segments.create',
         'name' => 'admin::app.acl.create',
         'route' => ['admin.omics.segments.create', 'admin.omics.segments.store'],
-        'sort' => 1,
+        'sort' => 2,
     ], [
         'key' => 'segments.edit',
         'name' => 'admin::app.acl.edit',
         'route' => ['admin.omics.segments.edit', 'admin.omics.segments.update'],
-        'sort' => 2,
+        'sort' => 3,
     ], [
         'key' => 'segments.delete',
         'name' => 'admin::app.acl.delete',
         'route' => ['admin.omics.segments.delete', 'admin.omics.segments.mass_delete'],
-        'sort' => 3,
+        'sort' => 4,
     ], [
         'key' => 'reports',
         'name' => 'omicslogic::app.menu.reports',

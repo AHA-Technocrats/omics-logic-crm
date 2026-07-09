@@ -39,6 +39,15 @@ class SegmentDataGrid extends DataGrid
             'sortable' => true,
             'searchable' => true,
             'filterable' => true,
+            'closure' => function ($row) {
+                if (! bouncer()->hasPermission('segments.view')) {
+                    return e($row->name);
+                }
+
+                $url = route('admin.omics.segments.view', $row->id);
+
+                return '<a href="'.$url.'" class="font-medium text-brandColor hover:underline dark:text-blue-400">'.e($row->name).'</a>';
+            },
         ]);
 
         $this->addColumn([
@@ -70,6 +79,15 @@ class SegmentDataGrid extends DataGrid
 
     public function prepareActions(): void
     {
+        if (bouncer()->hasPermission('segments.view')) {
+            $this->addAction([
+                'icon' => 'icon-eye',
+                'title' => trans('admin::app.acl.view'),
+                'method' => 'GET',
+                'url' => fn ($row) => route('admin.omics.segments.view', $row->id),
+            ]);
+        }
+
         if (bouncer()->hasPermission('segments.edit')) {
             $this->addAction([
                 'icon' => 'icon-edit',

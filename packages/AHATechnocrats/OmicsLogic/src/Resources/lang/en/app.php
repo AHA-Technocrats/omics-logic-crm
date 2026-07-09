@@ -184,6 +184,18 @@ return [
         'refresh-manual' => 'Manual',
         'refresh-daily' => 'Daily (auto)',
         'refresh-weekly' => 'Weekly (auto)',
+        'view-title' => 'View Segment',
+        'view-subtitle' => ':count contacts · Last refreshed :date',
+        'view-subtitle-never' => ':count contacts · Not refreshed yet',
+        'refresh-count' => 'Refresh count',
+        'refresh-success' => 'Segment contact count refreshed.',
+        'active-filters' => 'Active filters',
+        'no-filters' => 'No filters — all contacts are included.',
+        'tabs' => [
+            'persons' => 'Persons',
+            'leads' => 'Leads',
+        ],
+        'pipeline' => 'Pipeline',
     ],
 
     'merge' => [

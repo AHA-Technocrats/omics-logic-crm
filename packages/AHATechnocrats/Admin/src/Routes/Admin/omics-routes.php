@@ -21,6 +21,10 @@ Route::prefix('omics')->group(function () {
         Route::get('', 'index')->name('admin.omics.segments.index');
         Route::get('create', 'create')->name('admin.omics.segments.create');
         Route::post('create', 'store')->name('admin.omics.segments.store');
+        Route::get('view/{id}', 'show')->name('admin.omics.segments.view');
+        Route::get('view/{id}/persons', 'persons')->name('admin.omics.segments.view.persons');
+        Route::get('view/{id}/leads', 'leads')->name('admin.omics.segments.view.leads');
+        Route::post('view/{id}/refresh', 'refresh')->name('admin.omics.segments.view.refresh');
         Route::get('edit/{id}', 'edit')->name('admin.omics.segments.edit');
         Route::put('edit/{id}', 'update')->name('admin.omics.segments.update');
         Route::delete('{id}', 'destroy')->name('admin.omics.segments.delete');

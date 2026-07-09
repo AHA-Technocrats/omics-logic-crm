@@ -3,6 +3,8 @@
 namespace AHATechnocrats\Admin\Http\Controllers\OmicsLogic;
 
 use AHATechnocrats\Admin\DataGrids\OmicsLogic\SegmentDataGrid;
+use AHATechnocrats\Admin\DataGrids\OmicsLogic\SegmentLeadDataGrid;
+use AHATechnocrats\Admin\DataGrids\OmicsLogic\SegmentPersonDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
 use AHATechnocrats\OmicsLogic\Models\Segment;
@@ -54,6 +56,59 @@ class SegmentController extends Controller
         session()->flash('success', trans('omicslogic::app.segments.create-success'));
 
         return redirect()->route('admin.omics.segments.index');
+    }
+
+    public function show(int $id, SegmentFilterCounter $counter): View
+    {
+        $segment = Segment::findOrFail($id);
+        $filters = $segment->filter_query ?? [];
+        $personCount = (int) ($segment->contact_count_cached ?? 0);
+        $leadCount = $counter->countLeadsForFilters($filters);
+        $filterLabels = $counter->describeFilters($filters);
+
+        return view('admin::omics.segments.view', compact(
+            'segment',
+            'personCount',
+            'leadCount',
+            'filterLabels',
+        ));
+    }
+
+    public function persons(int $id): View|JsonResponse
+    {
+        Segment::findOrFail($id);
+
+        if (request()->ajax()) {
+            request()->merge(['segment_id' => $id]);
+
+            return datagrid(SegmentPersonDataGrid::class)->process();
+        }
+
+        return redirect()->route('admin.omics.segments.view', $id);
+    }
+
+    public function leads(int $id): View|JsonResponse
+    {
+        Segment::findOrFail($id);
+
+        if (request()->ajax()) {
+            request()->merge(['segment_id' => $id]);
+
+            return datagrid(SegmentLeadDataGrid::class)->process();
+        }
+
+        return redirect()->route('admin.omics.segments.view', ['id' => $id, 'tab' => 'leads']);
+    }
+
+    public function refresh(int $id, SegmentFilterCounter $counter): RedirectResponse
+    {
+        $segment = Segment::findOrFail($id);
+
+        $counter->refreshSegment($segment);
+
+        session()->flash('success', trans('omicslogic::app.segments.refresh-success'));
+
+        return redirect()->route('admin.omics.segments.view', $id);
     }
 
     public function edit(int $id): View
