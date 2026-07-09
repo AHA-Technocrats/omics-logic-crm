@@ -264,7 +264,7 @@
     "isDynamicEntry": true
   },
   "src/Resources/assets/css/app.css": {
-    "file": "assets/app-BJfQXL0K.css",
+    "file": "assets/app-DUSQ59wa.css",
     "src": "src/Resources/assets/css/app.css",
     "isEntry": true
   },
@@ -363,6 +363,10 @@
   "src/Resources/assets/images/login-hero-panel.png": {
     "file": "assets/login-hero-panel-iZv_rx5e.png",
     "src": "src/Resources/assets/images/login-hero-panel.png"
+  },
+  "src/Resources/assets/images/login-panel-bg.png": {
+    "file": "assets/login-panel-bg-ceikt7Mj.png",
+    "src": "src/Resources/assets/images/login-panel-bg.png"
   },
   "src/Resources/assets/images/logo.svg": {
     "file": "assets/logo-Bjh7YAuF.svg",

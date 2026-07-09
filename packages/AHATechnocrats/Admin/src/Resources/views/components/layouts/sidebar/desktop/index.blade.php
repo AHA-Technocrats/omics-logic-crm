@@ -1,10 +1,11 @@
 <div
     ref="sidebar"
-    class="duration-80 fixed top-[60px] z-[10002] h-full w-[200px] border-gray-300 bg-white pt-4 transition-all group-[.sidebar-collapsed]/container:w-[70px] dark:border-gray-800 dark:bg-gray-900 max-lg:hidden ltr:border-r rtl:border-l"
+    class="duration-80 fixed top-[3.75rem] sidebar-scroll z-[10002] h-full w-[12.5rem] border-gray-300 bg-white pt-4 transition-all group-[.sidebar-collapsed]/container:w-[4.375rem] dark:border-gray-800 dark:bg-gray-900 max-lg:hidden ltr:border-r rtl:border-l"
     @mouseover="handleMouseOver"
     @mouseleave="handleMouseLeave"
+    style="height: calc(100vh - 67px); overflow-y: auto; overflow-x: clip;"
 >
-    <div class="journal-scroll h-[calc(100vh-100px)] overflow-hidden group-[.sidebar-collapsed]/container:overflow-visible">
+    <div class="journal-scroll h-[calc(100vh-6.25rem)] overflow-hidden group-[.sidebar-collapsed]/container:overflow-visible">
         <nav class="sidebar-rounded grid w-full gap-2">
             @foreach (menu()->getItems('admin') as $menuItem)
                 <div class="px-4 group/item {{ $menuItem->isActive() ? 'active' : 'inactive' }}">

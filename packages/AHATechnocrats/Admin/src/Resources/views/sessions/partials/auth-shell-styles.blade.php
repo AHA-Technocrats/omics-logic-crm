@@ -20,7 +20,7 @@
     }
 
     .omics-login__hero-overlay {
-        background: linear-gradient(115deg, rgb(12 43 109 / 92%) 0%, rgb(12 30 69 / 72%) 40%, rgba(7, 18, 42, 0.45) 70%, rgba(7, 18, 42, 0.2) 100%);
+        background: linear-gradient(115deg, rgb(16 63 161 / 92%) 0%, rgb(18 44 102 / 72%) 40%, rgb(12 36 88 / 45%) 70%, rgb(3 18 51 / 20%) 100%);
         inset: 0;
         position: absolute;
         z-index: 1;

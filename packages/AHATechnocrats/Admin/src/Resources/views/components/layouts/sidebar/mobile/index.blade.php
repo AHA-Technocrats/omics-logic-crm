@@ -33,8 +33,8 @@
                 @endif
             </x-slot>
 
-            <x-slot:content class="p-4">
-                <div class="journal-scroll h-[calc(100vh-100px)] overflow-auto">
+            <x-slot:content class="!p-0">
+                <div class="admin-sidebar-scroll journal-scroll p-4">
                     <nav class="grid w-full gap-2">
                         @foreach (menu()->getItems('admin') as $menuItem)
                             <div class="menu-item relative" data-menu-key="{{ $menuItem->getKey() }}">

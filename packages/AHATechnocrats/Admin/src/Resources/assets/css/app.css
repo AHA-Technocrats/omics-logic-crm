@@ -41,7 +41,7 @@
     .icon-image:before {
         content: "\e956";
     }
-      
+
     .icon-bookmark:before {
         content: "\e92c";
     }
@@ -600,6 +600,39 @@
         border-radius: 12px;
         border: 3px solid transparent;
         background-clip: content-box;
+    }
+
+    @media (max-width: 991px) {
+        .admin-sidebar-scroll {
+            -webkit-overflow-scrolling: touch;
+            max-height: calc(100vh - 88px);
+            overflow-y: auto;
+        }
+
+        .admin-sidebar-scroll::-webkit-scrollbar {
+            display: block;
+            width: 6px;
+        }
+
+        .admin-sidebar-scroll::-webkit-scrollbar-track {
+            background-color: transparent;
+            border: none;
+        }
+
+        .admin-sidebar-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border: none;
+            border-radius: 9999px;
+        }
+
+        .dark .admin-sidebar-scroll::-webkit-scrollbar-thumb {
+            background-color: #475569;
+        }
+
+        .admin-drawer-scroll {
+            -webkit-overflow-scrolling: touch;
+            overflow-y: auto;
+        }
     }
 
     .custom-select {
