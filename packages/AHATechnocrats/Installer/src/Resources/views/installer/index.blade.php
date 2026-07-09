@@ -256,7 +256,7 @@
                         <p class="mb-6 w-full place-self-end text-left">
                             <a
                                 class="bg-white text-brandColor underline"
-                                href="https://ahatechnocratscrm.com/"
+                                href="https://ahatechnocrats.com/"
                                 target="_blank"
                             >
                                 @lang('installer::app.installer.index.ahatechnocrats')
@@ -1020,14 +1020,14 @@
 
                     <div class="flex items-center justify-between px-4 py-2.5">
                         <a
-                            href="https://forums.ahatechnocratscrm.com/"
+                            href="https://forums.ahatechnocrats.com/"
                             class="cursor-pointer text-xs font-semibold text-brandColor"
                         >
                             @lang('installer::app.installer.index.installation-completed.ahatechnocrats-forums')
                         </a>
 
                         <a
-                            href="https://ahatechnocratscrm.com/extensions/"
+                            href="https://ahatechnocrats.com/extensions/"
                             class="cursor-pointer rounded-md border border-brandColor bg-white px-3 py-1.5 font-semibold text-brandColor hover:opacity-90"
                         >
                             @lang('installer::app.installer.index.installation-completed.explore-ahatechnocrats-extensions')

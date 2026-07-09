@@ -12,7 +12,7 @@ class Installer
      *
      * @var string
      */
-    protected const API_ENDPOINT = 'https://updates.ahatechnocratscrm.com/api/updates';
+    protected const API_ENDPOINT = 'https://updates.ahatechnocrats.com/api/updates';
 
     /**
      * Create a new listener instance.

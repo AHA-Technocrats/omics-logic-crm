@@ -20,7 +20,7 @@ class ImageCacheController
      *
      * @var string
      */
-    const KRAYIN_LOGO = 'https://updates.ahatechnocratscrm.com/ahatechnocrats.png';
+    const KRAYIN_LOGO = 'https://updates.ahatechnocrats.com/ahatechnocrats.png';
 
     /**
      * Get HTTP response of template applied image file

@@ -38,7 +38,7 @@ class ComposerEvents
             ['cost-effective managed hosting that scales on demand.', 'fg=#ffffff'],
             ['Launch in minutes, without the infrastructure overhead.', 'fg=#ffffff'],
             ['', 'fg=#ffffff'],
-            ['→ https://ahatechnocratscrm.com/crm-cloud-hosting/', 'fg=#bae6fd;options=bold'],
+            ['→ https://ahatechnocrats.com/crm-cloud-hosting/', 'fg=#bae6fd;options=bold'],
         ];
 
         $blankRow = "<bg={$background}>".str_repeat(' ', $width).'</>';

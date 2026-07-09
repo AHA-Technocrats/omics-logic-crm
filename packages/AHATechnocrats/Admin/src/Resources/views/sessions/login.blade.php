@@ -235,7 +235,7 @@
                 <p class="omics-login__legal">
                     @lang('admin::app.users.login.terms-text')
 
-                    <a class="omics-login__legal-link" href="https://ahatechnocratscrm.com/">
+                    <a class="omics-login__legal-link" href="https://ahatechnocrats.com/">
                         @lang('admin::app.users.login.terms-link')
                     </a>
 
