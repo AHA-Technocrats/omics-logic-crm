@@ -122,6 +122,11 @@ return [
         'route' => ['admin.mail.delete', 'admin.mail.mass_delete'],
         'sort' => 9,
     ], [
+        'key' => 'activities',
+        'name' => 'admin::app.acl.activities',
+        'route' => 'admin.activities.index',
+        'sort' => 5,
+    ], [
         'key' => 'activities.create',
         'name' => 'admin::app.acl.create',
         'route' => ['admin.activities.create', 'admin.activities.store'],
