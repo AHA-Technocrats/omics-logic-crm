@@ -548,9 +548,13 @@ return [
                     'interested-title' => 'Interested Campaigns',
                     'tab-profile' => 'Profile',
                     'tab-activity' => 'Activity',
+                    'tab-purchases' => 'Purchase History',
                     'not-found' => 'This person is not on the portal. Verify or update their email in the CRM if they should have a portal account.',
                     'loading' => 'Loading portal data...',
                     'timeline-empty' => 'No portal activity yet.',
+                    'purchases-empty' => 'No purchase history found for this user.',
+                    'purchase-order' => 'Order',
+                    'purchase-status-unknown' => 'Unknown',
                     'profile-empty' => 'No additional profile details available.',
                     'events' => 'events',
                     'stats' => [

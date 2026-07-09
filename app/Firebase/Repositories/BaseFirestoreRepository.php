@@ -92,4 +92,9 @@ abstract class BaseFirestoreRepository
     {
         return (string) config('firebase.collections.forms', 'Forms');
     }
+
+    protected function purchasesCollection(): string
+    {
+        return (string) config('firebase.collections.purchases', 'Purchases');
+    }
 }

@@ -62,6 +62,7 @@ return [
         'users' => env('FIREBASE_USERS_COLLECTION', 'Users'),
         'achievements' => env('FIREBASE_ACHIEVEMENTS_COLLECTION', 'Achievements'),
         'forms' => env('FIREBASE_FORMS_COLLECTION', 'Forms'),
+        'purchases' => env('FIREBASE_PURCHASES_COLLECTION', 'Purchases'),
     ],
 
     'pagination' => [
@@ -96,6 +97,22 @@ return [
             'purchase' => ['icon' => 'icon-cart', 'icon_class' => 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300'],
             'registration' => ['icon' => 'icon-activity', 'icon_class' => 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300'],
             'default' => ['icon' => 'icon-activity', 'icon_class' => 'bg-gray-100 text-gray-800 dark:bg-gray-900/40 dark:text-gray-300'],
+        ],
+    ],
+
+    'purchases' => [
+        'order_field' => env('FIREBASE_PURCHASES_ORDER_FIELD', 'purchasedAt'),
+        'order_direction' => env('FIREBASE_PURCHASES_ORDER_DIRECTION', 'desc'),
+        'timestamp_fields' => ['purchasedAt', 'purchaseDate', 'paidAt', 'timeStamp', 'createdAt', 'updatedAt', 'occurredAt'],
+        'amount_fields' => ['amount', 'price', 'total', 'amountPaid', 'totalAmount'],
+        'title_fields' => ['productName', 'product', 'name', 'title', 'courseName', 'course', 'programName', 'program', 'achievementTitle'],
+        'status_fields' => ['status', 'paymentStatus', 'payment_status'],
+        'currency_fields' => ['currency', 'currencyCode', 'currency_code'],
+        'achievement_types' => ['purchase', 'course'],
+        'achievement_title_patterns' => [
+            '/^Completed\s*\(/i',
+            '/^Enrolled\s+in\s+/i',
+            '/^Purchased\s+/i',
         ],
     ],
 

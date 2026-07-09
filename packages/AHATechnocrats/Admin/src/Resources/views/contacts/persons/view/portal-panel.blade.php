@@ -117,6 +117,12 @@
                         >
                             @{{ timeline.length }}
                         </span>
+                        <span
+                            v-if="tab.name === 'purchases' && purchaseHistory.length"
+                            class="ml-1 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                        >
+                            @{{ purchaseHistory.length }}
+                        </span>
                     </button>
                 </div>
 
@@ -214,6 +220,67 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Purchase history tab -->
+                <div v-show="selectedTab === 'purchases'" class="p-4">
+                    <div v-if="! purchaseHistory.length" class="text-sm text-gray-500 dark:text-gray-400">
+                        @lang('admin::app.contacts.persons.view.portal.purchases-empty')
+                    </div>
+
+                    <div v-else class="flex max-h-[420px] flex-col gap-3 overflow-y-auto pr-1">
+                        <div
+                            v-for="(purchase, index) in purchaseHistory"
+                            :key="purchase.id || index"
+                            class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-950"
+                        >
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="icon-cart text-lg text-teal-600 dark:text-teal-400"></span>
+                                        <p class="truncate text-sm font-semibold dark:text-white">
+                                            @{{ purchase.title }}
+                                        </p>
+                                    </div>
+
+                                    <p
+                                        v-if="purchase.detail"
+                                        class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                    >
+                                        @{{ purchase.detail }}
+                                    </p>
+
+                                    <p
+                                        v-if="purchase.order_id"
+                                        class="mt-1 text-xs text-gray-400 dark:text-gray-500"
+                                    >
+                                        @lang('admin::app.contacts.persons.view.portal.purchase-order'):
+                                        @{{ purchase.order_id }}
+                                    </p>
+                                </div>
+
+                                <div class="shrink-0 text-right">
+                                    <p
+                                        v-if="purchase.amount_label"
+                                        class="text-sm font-bold text-brandColor"
+                                    >
+                                        @{{ purchase.amount_label }}
+                                    </p>
+
+                                    <span
+                                        class="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
+                                        :class="purchaseStatusClass(purchase.status)"
+                                    >
+                                        @{{ formatPurchaseStatus(purchase.status) }}
+                                    </span>
+
+                                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                        @{{ purchase.relative || purchase.absolute }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </template>
         </div>
     </script>
@@ -249,6 +316,10 @@
                             name: 'activity',
                             label: @json(trans('admin::app.contacts.persons.view.portal.tab-activity')),
                         },
+                        {
+                            name: 'purchases',
+                            label: @json(trans('admin::app.contacts.persons.view.portal.tab-purchases')),
+                        },
                     ],
                     profileFieldMap: [
                         { key: 'occupation', label: @json(trans('admin::app.contacts.persons.view.portal.fields.occupation')) },
@@ -278,6 +349,10 @@
 
                 timeline() {
                     return this.portalData?.data?.timeline ?? [];
+                },
+
+                purchaseHistory() {
+                    return this.portalData?.data?.purchase_history ?? [];
                 },
 
                 displayName() {
@@ -409,6 +484,32 @@
                     } catch (error) {
                         return url;
                     }
+                },
+
+                formatPurchaseStatus(status) {
+                    if (! status) {
+                        return @json(trans('admin::app.contacts.persons.view.portal.purchase-status-unknown'));
+                    }
+
+                    return status.replace(/_/g, ' ');
+                },
+
+                purchaseStatusClass(status) {
+                    const normalized = String(status || '').toLowerCase();
+
+                    if (['completed', 'paid', 'success', 'successful'].includes(normalized)) {
+                        return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
+                    }
+
+                    if (['pending', 'processing', 'in_progress'].includes(normalized)) {
+                        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
+                    }
+
+                    if (['failed', 'cancelled', 'canceled', 'refunded', 'declined'].includes(normalized)) {
+                        return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
+                    }
+
+                    return 'bg-gray-100 text-gray-800 dark:bg-gray-900/40 dark:text-gray-300';
                 },
             },
         });
