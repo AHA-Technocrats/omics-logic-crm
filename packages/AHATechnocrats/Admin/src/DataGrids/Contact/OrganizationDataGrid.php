@@ -4,7 +4,6 @@ namespace AHATechnocrats\Admin\DataGrids\Contact;
 
 use AHATechnocrats\DataGrid\DataGrid;
 use AHATechnocrats\OmicsLogic\Services\CountryLabelResolver;
-use AHATechnocrats\Product\Repositories\ProductRepository;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -18,24 +17,18 @@ class OrganizationDataGrid extends DataGrid
 
     public function prepareQueryBuilder(): Builder
     {
-        $tablePrefix = DB::getTablePrefix();
-
         $queryBuilder = DB::table('organizations')
             ->leftJoin('users as account_owners', 'organizations.account_owner_id', '=', 'account_owners.id')
-            ->leftJoin('persons', 'organizations.id', '=', 'persons.organization_id')
-            ->leftJoin('products', 'persons.primary_product_id', '=', 'products.id')
             ->select(
                 'organizations.id',
                 'organizations.name',
                 'organizations.type',
                 'organizations.country_code',
                 'account_owners.name as account_owner_name',
-                DB::raw('GROUP_CONCAT(DISTINCT '.$tablePrefix.'products.name SEPARATOR ", ") as campaign_name'),
             )
             ->selectRaw('(SELECT COUNT(*) FROM persons WHERE persons.organization_id = organizations.id) as contacts_count')
             ->selectRaw("(SELECT COUNT(*) FROM persons WHERE persons.organization_id = organizations.id AND persons.lifecycle_stage = 'engaged') as engaged_count")
-            ->selectRaw("(SELECT COUNT(*) FROM persons WHERE persons.organization_id = organizations.id AND persons.lifecycle_stage = 'customer') as customers_count")
-            ->groupBy('organizations.id');
+            ->selectRaw("(SELECT COUNT(*) FROM persons WHERE persons.organization_id = organizations.id AND persons.lifecycle_stage = 'customer') as customers_count");
 
         if ($userIds = bouncer()->getAuthorizedUserIds()) {
             $queryBuilder->where(function ($query) use ($userIds) {
@@ -47,7 +40,6 @@ class OrganizationDataGrid extends DataGrid
         $this->addFilter('id', 'organizations.id');
         $this->addFilter('name', 'organizations.name');
         $this->addFilter('country_code', 'organizations.country_code');
-        $this->addFilter('campaign_name', 'products.name');
         $this->addFilter('account_owner_name', 'account_owners.name');
 
         return $queryBuilder;
@@ -72,23 +64,6 @@ class OrganizationDataGrid extends DataGrid
             'filterable' => true,
             'searchable' => true,
             'closure' => fn ($row) => $this->countryBadge($row->country_code),
-        ]);
-
-        $this->addColumn([
-            'index' => 'campaign_name',
-            'label' => trans('omicslogic::app.datagrid.program'),
-            'type' => 'string',
-            'sortable' => false,
-            'filterable' => true,
-            'filterable_type' => 'searchable_dropdown',
-            'filterable_options' => [
-                'repository' => ProductRepository::class,
-                'column' => [
-                    'label' => 'name',
-                    'value' => 'name',
-                ],
-            ],
-            'closure' => fn ($row) => $row->campaign_name ?? '—',
         ]);
 
         $this->addColumn([
