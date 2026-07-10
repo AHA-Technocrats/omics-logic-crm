@@ -5,6 +5,7 @@ namespace AHATechnocrats\Admin\DataGrids\Contact;
 use AHATechnocrats\Contact\Repositories\OrganizationRepository;
 use AHATechnocrats\DataGrid\DataGrid;
 use AHATechnocrats\OmicsLogic\Services\CountryLabelResolver;
+use AHATechnocrats\OmicsLogic\Support\PersonOwnerCell;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -31,6 +32,7 @@ class PersonDataGrid extends DataGrid
                 'organizations.name as organization',
                 'organizations.id as organization_id',
                 'users.name as owner_name',
+                'users.image as owner_image',
             )
             ->selectRaw('(SELECT COUNT(*) FROM '.$tablePrefix.'leads WHERE '.$tablePrefix.'leads.person_id = '.$tablePrefix.'persons.id) as leads_count')
             ->selectRaw('COALESCE(organizations.country_code, persons.country_code) as country_code')
@@ -99,7 +101,7 @@ class PersonDataGrid extends DataGrid
                 if ($row->organization_id) {
                     $url = route('admin.contacts.organizations.view', $row->organization_id);
 
-                    return '<a class="text-brandColor hover:underline" href="'.$url.'">'.e($row->organization).'</a>';
+                    return '<a href="'.e($url).'" style="color:#172230;text-decoration:none;">'.e($row->organization).'</a>';
                 }
 
                 return e($row->organization);
@@ -145,7 +147,7 @@ class PersonDataGrid extends DataGrid
             'label' => trans('omicslogic::app.datagrid.lessons'),
             'type' => 'integer',
             'sortable' => true,
-            'closure' => fn ($row) => (int) ($row->engagement_lessons ?? 0),
+            'closure' => fn ($row) => $this->lessonsCell((int) ($row->engagement_lessons ?? 0)),
         ]);
 
         $this->addColumn([
@@ -155,9 +157,11 @@ class PersonDataGrid extends DataGrid
             'sortable' => true,
             'filterable' => true,
             'searchable' => true,
-            'closure' => fn ($row) => $row->owner_name
-                ? e($row->owner_name)
-                : '<span class="text-gray-400">'.e(trans('omicslogic::app.fields.unassigned')).'</span>',
+            'closure' => fn ($row) => PersonOwnerCell::cell(
+                $row->owner_name,
+                $row->owner_image ?? null,
+                (int) $row->id,
+            ),
         ]);
 
         $this->addColumn([
@@ -239,6 +243,14 @@ class PersonDataGrid extends DataGrid
         return e($initials ?: '?');
     }
 
+    protected function lessonsCell(int $count): string
+    {
+        return '<span style="display:inline-flex;align-items:center;gap:6px;color:#6b7280;">'
+            .'<i class="fa fa-book-open" style="font-size:13px;"></i>'
+            .'<span>'.$count.'</span>'
+            .'</span>';
+    }
+
     protected function countryBadge(?string $country): string
     {
         $country = $this->countryLabelResolver->resolve($country);
@@ -247,21 +259,6 @@ class PersonDataGrid extends DataGrid
             return '—';
         }
 
-        $label = e($country);
-
-        $palette = [
-            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100',
-            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100',
-            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100',
-            'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100',
-            'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-100',
-            'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-100',
-            'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-100',
-            'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-100',
-        ];
-
-        $class = $palette[abs(crc32(strtolower($country))) % count($palette)];
-
-        return '<span class="rounded-full px-2 py-0.5 text-xs font-semibold '.$class.'">'.$label.'</span>';
+        return '<span style="color:#172230;">'.e($country).'</span>';
     }
 }

@@ -66,6 +66,7 @@ class UserController extends Controller
             'role_id' => 'required',
             'status' => 'boolean|in:0,1',
             'view_permission' => 'string|in:global,group,individual',
+            'image.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
         ]);
 
         $data = request()->all();
@@ -82,6 +83,11 @@ class UserController extends Controller
         $admin = $this->userRepository->create($data);
 
         $admin->groups()->sync($data['groups'] ?? []);
+
+        if ($file = $this->userRepository->profileImageFromRequest('image')) {
+            $this->userRepository->updateProfileImage($admin->id, $file);
+            $admin = $admin->fresh();
+        }
 
         try {
             Mail::queue(new UserCreatedNotification($admin));
@@ -122,6 +128,7 @@ class UserController extends Controller
             'role_id' => 'required|integer|exists:roles,id',
             'status' => 'nullable|boolean|in:0,1',
             'view_permission' => 'required|string|in:global,group,individual',
+            'image.*' => 'nullable|mimes:bmp,jpeg,jpg,png,webp',
         ]);
 
         $data = request()->all();
@@ -143,6 +150,11 @@ class UserController extends Controller
         $admin = $this->userRepository->update($data, $id);
 
         $admin->groups()->sync($data['groups'] ?? []);
+
+        $file = $this->userRepository->profileImageFromRequest('image');
+        $removeWhenMissing = ! request()->has('image') && ! $file;
+        $this->userRepository->updateProfileImage($id, $file, $removeWhenMissing);
+        $admin = $admin->fresh();
 
         Event::dispatch('settings.user.update.after', $admin);
 

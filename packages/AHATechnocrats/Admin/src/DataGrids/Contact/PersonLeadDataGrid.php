@@ -3,6 +3,9 @@
 namespace AHATechnocrats\Admin\DataGrids\Contact;
 
 use AHATechnocrats\Admin\DataGrids\Lead\LeadDataGrid;
+use AHATechnocrats\OmicsLogic\Support\LeadOwnerCell;
+use AHATechnocrats\OmicsLogic\Support\LeadSourceIcon;
+use AHATechnocrats\OmicsLogic\Support\LeadStageBadge;
 use AHATechnocrats\Product\Repositories\ProductRepository;
 use AHATechnocrats\User\Repositories\UserRepository;
 use Illuminate\Contracts\Database\Query\Builder;
@@ -29,6 +32,7 @@ class PersonLeadDataGrid extends LeadDataGrid
                 'lead_pipeline_stages.code as stage_code',
                 'users.id as user_id',
                 'users.name as sales_person',
+                'users.image as sales_person_image',
                 'persons.id as person_id',
                 'persons.lead_score',
                 DB::raw('GROUP_CONCAT(DISTINCT '.$tablePrefix.'products.name SEPARATOR ", ") as campaign_name'),
@@ -112,7 +116,7 @@ class PersonLeadDataGrid extends LeadDataGrid
             'filterable' => true,
             'filterable_type' => 'dropdown',
             'filterable_options' => $this->sourceRepository->all(['name as label', 'id as value'])->toArray(),
-            'closure' => fn ($row) => $row->lead_source_name ? e($row->lead_source_name) : '—',
+            'closure' => fn ($row) => LeadSourceIcon::cell($row->lead_source_name),
         ]);
 
         $this->addColumn([
@@ -133,7 +137,7 @@ class PersonLeadDataGrid extends LeadDataGrid
             'filterable' => true,
             'filterable_type' => 'dropdown',
             'filterable_options' => $this->stageRepository->all(['name as label', 'id as value'])->toArray(),
-            'closure' => fn ($row) => $row->stage ? e($row->stage) : '—',
+            'closure' => fn ($row) => LeadStageBadge::cell($row->stage, $row->stage_code ?? null),
         ]);
 
         $this->addColumn([
@@ -151,9 +155,12 @@ class PersonLeadDataGrid extends LeadDataGrid
                     'value' => 'name',
                 ],
             ],
-            'closure' => fn ($row) => $row->sales_person
-                ? e($row->sales_person)
-                : '<span class="text-gray-400">'.e(trans('omicslogic::app.fields.unassigned')).'</span>',
+            'closure' => fn ($row) => LeadOwnerCell::cell(
+                $row->sales_person,
+                $row->sales_person_image ?? null,
+                (int) $row->id,
+                $this->resolvePersonId() ?: null,
+            ),
         ]);
 
         $this->addColumn([

@@ -5,7 +5,7 @@
     $fieldName = fn (string $field) => $namePrefix ? "{$namePrefix}[{$field}]" : $field;
     $campaigns = app(\AHATechnocrats\Product\Repositories\ProductRepository::class)->all(['id', 'name']);
     $sources = app(\AHATechnocrats\Lead\Repositories\SourceRepository::class)->all(['id', 'name']);
-    $owners = app(\AHATechnocrats\User\Repositories\UserRepository::class)->all(['id', 'name']);
+    $owners = app(\AHATechnocrats\User\Repositories\UserRepository::class)->all(['id', 'name', 'image']);
     $countries = config('omicslogic.countries', []);
     $educationLevels = ['Undergraduate', 'Masters', 'PhD', 'Faculty', 'Industry'];
     $selectedCountry = old(
@@ -16,6 +16,10 @@
     $selectedProduct = old($fieldName('primary_product_id'), $record?->primary_product_id);
     $selectedSource = old($fieldName('primary_source_id'), $record?->primary_source_id);
     $selectedOwner = old($fieldName('user_id'), $record?->user_id);
+    $selectedOwnerUser = $record?->user ?? $owners->firstWhere('id', (int) $selectedOwner);
+    $ownerProfileImages = $selectedOwnerUser?->image
+        ? [['id' => 'image', 'url' => $selectedOwnerUser->image_url]]
+        : [];
     $selectedInquiry = old($fieldName('inquiry_details'), $record?->inquiry_details);
     $showHeading = $showHeading ?? true;
     $showCrmFields = $showCrmFields ?? true;
@@ -145,6 +149,23 @@
                     @endforeach
                 </x-admin::form.control-group.control>
             </x-admin::form.control-group>
+
+            @if (! $isNested)
+                <x-admin::form.control-group class="md:col-span-2">
+                    <x-admin::form.control-group.label>
+                        @lang('omicslogic::app.fields.owner-profile')
+                    </x-admin::form.control-group.label>
+
+                    <x-admin::media.images
+                        name="owner_profile_image"
+                        :uploaded-images="$ownerProfileImages"
+                    />
+
+                    <p class="mt-2 text-xs text-gray-600 dark:text-gray-300">
+                        @lang('omicslogic::app.fields.person-owner-profile-help')
+                    </p>
+                </x-admin::form.control-group>
+            @endif
         </div>
     @endif
 </div>

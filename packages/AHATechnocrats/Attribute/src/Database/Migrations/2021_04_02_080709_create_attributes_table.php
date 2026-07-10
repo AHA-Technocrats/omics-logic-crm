@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('attributes', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('code');
+            $table->string('code', 120);
             $table->string('name');
             $table->string('type');
             $table->string('lookup_type')->nullable();
-            $table->string('entity_type');
+            $table->string('entity_type', 120);
             $table->integer('sort_order')->nullable();
             $table->string('validation')->nullable();
             $table->boolean('is_required')->default(0);

@@ -10,6 +10,7 @@ use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use AHATechnocrats\OmicsLogic\Services\LeadPersonSyncService;
 use AHATechnocrats\OmicsLogic\Services\LeadScoreCalculator;
 use AHATechnocrats\OmicsLogic\Services\OrganizationResolver;
+use AHATechnocrats\OmicsLogic\Services\OwnerProfileImageService;
 use AHATechnocrats\WebForm\Models\WebFormSubmission;
 use Illuminate\Container\Container;
 use Illuminate\Support\Facades\DB;
@@ -101,6 +102,8 @@ class PersonRepository extends Repository
 
         $this->syncLeadSideEffects($person, $data);
 
+        $this->syncOwnerProfileImage($data);
+
         return $person;
     }
 
@@ -167,6 +170,8 @@ class PersonRepository extends Repository
 
             $this->syncLeadSideEffects($person, $data);
 
+            $this->syncOwnerProfileImage($data, $person);
+
             return $person;
         }
 
@@ -176,7 +181,23 @@ class PersonRepository extends Repository
 
         $this->syncLeadSideEffects($person, $data);
 
+        $this->syncOwnerProfileImage($data, $person);
+
         return $person;
+    }
+
+    protected function syncOwnerProfileImage(array $data, ?Person $person = null): void
+    {
+        $ownerId = (int) ($data['user_id'] ?? $person?->user_id ?? 0);
+
+        app(OwnerProfileImageService::class)->syncFromRequest(
+            'owner_profile_image',
+            $ownerId,
+            request()->isMethod('put')
+                && ! request()->has('owner_profile_image')
+                && ! request()->file('owner_profile_image'),
+            ['persons.edit'],
+        );
     }
 
     /**

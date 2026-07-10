@@ -232,6 +232,7 @@ class LeadController extends Controller
             ->get();
 
         $lead = $this->leadRepository->with([
+            'user',
             'person.primaryProduct',
             'person.primarySource',
             'person.user',
@@ -309,6 +310,13 @@ class LeadController extends Controller
         }
 
         session()->flash('success', trans('admin::app.leads.update-success'));
+
+        if (request()->input('return') === 'person-leads' && request()->filled('person_id')) {
+            return redirect()->route('admin.contacts.persons.leads.index', [
+                'id' => request()->input('person_id'),
+                'person_id' => request()->input('person_id'),
+            ]);
+        }
 
         if (request()->has('closed_at')) {
             return redirect()->back();

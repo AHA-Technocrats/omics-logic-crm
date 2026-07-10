@@ -198,12 +198,12 @@
 
                                 <!-- Columns -->
                                 <template v-for="column in available.columns">
-                                    <p
+                                    <div
                                         class="break-words"
                                         v-html="record[column.index]"
                                         v-if="column.visibility"
                                     >
-                                    </p>
+                                    </div>
                                 </template>
 
                                 <!-- Actions -->

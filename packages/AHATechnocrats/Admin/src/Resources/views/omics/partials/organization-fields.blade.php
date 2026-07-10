@@ -3,7 +3,7 @@
     $namePrefix = $namePrefix ?? null;
     $isNested = $isNested ?? false;
     $fieldName = fn (string $field) => $namePrefix ? "{$namePrefix}[{$field}]" : $field;
-    $owners = app(\AHATechnocrats\User\Repositories\UserRepository::class)->all(['id', 'name']);
+    $owners = app(\AHATechnocrats\User\Repositories\UserRepository::class)->all(['id', 'name', 'image']);
     $countries = config('omicslogic.countries', []);
     $types = \AHATechnocrats\OmicsLogic\Enums\OrganizationType::cases();
     $selectedType = old($fieldName('type'), $record?->type);
@@ -13,6 +13,11 @@
     $selectedOwner = old($fieldName('account_owner_id'), $record?->account_owner_id);
     $selectedWebsite = old($fieldName('website'), $record?->website);
     $selectedNotes = old($fieldName('notes'), $record?->notes);
+    $selectedOwnerUser = $record?->accountOwner
+        ?? $owners->firstWhere('id', (int) $selectedOwner);
+    $ownerProfileImages = $selectedOwnerUser?->image
+        ? [['id' => 'image', 'url' => $selectedOwnerUser->image_url]]
+        : [];
 @endphp
 
 <div class="mt-4 border-t border-gray-200 pt-4 dark:border-gray-800">
@@ -74,6 +79,23 @@
                 @endforeach
             </x-admin::form.control-group.control>
         </x-admin::form.control-group>
+
+        @if (! $isNested)
+            <x-admin::form.control-group class="md:col-span-2">
+                <x-admin::form.control-group.label>
+                    @lang('omicslogic::app.fields.owner-profile')
+                </x-admin::form.control-group.label>
+
+                <x-admin::media.images
+                    name="account_owner_image"
+                    :uploaded-images="$ownerProfileImages"
+                />
+
+                <p class="mt-2 text-xs text-gray-600 dark:text-gray-300">
+                    @lang('omicslogic::app.fields.owner-profile-help')
+                </p>
+            </x-admin::form.control-group>
+        @endif
 
         <x-admin::form.control-group>
             <x-admin::form.control-group.label>

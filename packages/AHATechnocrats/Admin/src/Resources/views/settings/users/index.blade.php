@@ -244,6 +244,22 @@
 
                             {!! view_render_event('admin.settings.users.index.form.name.before') !!}
 
+                            <!-- Profile Image -->
+                            <x-admin::form.control-group>
+                                <x-admin::form.control-group.label>
+                                    @lang('admin::app.account.edit.general')
+                                </x-admin::form.control-group.label>
+
+                                <x-admin::media.images
+                                    name="image"
+                                    ::uploaded-images="user.image_url ? [{ id: 'image', url: user.image_url }] : []"
+                                />
+
+                                <p class="mt-2 text-xs text-gray-600 dark:text-gray-300">
+                                    @lang('admin::app.account.edit.upload-image-info')
+                                </p>
+                            </x-admin::form.control-group>
+
                             <!-- Name -->
                             <x-admin::form.control-group>
                                 <x-admin::form.control-group.label class="required">

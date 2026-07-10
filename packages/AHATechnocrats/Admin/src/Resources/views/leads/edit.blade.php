@@ -10,6 +10,7 @@
     <x-admin::form         
         :action="route('admin.leads.update', $lead->id)"
         method="PUT"
+        enctype="multipart/form-data"
     >
         <div class="flex flex-col gap-4">
             <div class="scroll-reactive-sticky sticky top-[60px] z-[1000] flex items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
@@ -46,6 +47,11 @@
             </div>
 
             <input type="hidden" id="lead_pipeline_stage_id" name="lead_pipeline_stage_id" value="{{ $lead->lead_pipeline_stage_id }}" />
+
+            @if (request('return') === 'person-leads' && request()->filled('person_id'))
+                <input type="hidden" name="return" value="person-leads" />
+                <input type="hidden" name="person_id" value="{{ request('person_id') }}" />
+            @endif
 
             <!-- Lead Edit Component -->
             <v-lead-edit :lead="{{ json_encode($lead) }}">
@@ -119,6 +125,8 @@
                             </div>
 
                             {!! view_render_event('admin.leads.edit.lead_details.attributes.after', ['lead' => $lead]) !!}
+
+                            @include('admin::omics.partials.lead-owner-profile', ['lead' => $lead])
                         </div>
                     </div>
 

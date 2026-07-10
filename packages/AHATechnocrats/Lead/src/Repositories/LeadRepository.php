@@ -10,6 +10,7 @@ use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\Lead\Contracts\Lead;
 use AHATechnocrats\OmicsLogic\Services\LeadPersonSyncService;
 use AHATechnocrats\OmicsLogic\Services\OrganizationAssigneeResolver;
+use AHATechnocrats\OmicsLogic\Services\OwnerProfileImageService;
 use Carbon\Carbon;
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Collection;
@@ -264,7 +265,23 @@ class LeadRepository extends Repository
 
         $this->syncPersonSideEffects($lead, $data);
 
+        $this->syncLeadOwnerProfileImage($data, $lead);
+
         return $lead;
+    }
+
+    protected function syncLeadOwnerProfileImage(array $data, Lead $lead): void
+    {
+        $ownerId = (int) ($data['user_id'] ?? $lead->user_id ?? 0);
+
+        app(OwnerProfileImageService::class)->syncFromRequest(
+            'lead_owner_image',
+            $ownerId,
+            request()->isMethod('put')
+                && ! request()->has('lead_owner_image')
+                && ! request()->file('lead_owner_image'),
+            ['leads.edit'],
+        );
     }
 
     /**

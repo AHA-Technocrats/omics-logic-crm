@@ -10,6 +10,7 @@
     <x-admin::form
         :action="route('admin.contacts.organizations.store')"
         method="POST"
+        enctype="multipart/form-data"
     >
     
         <div class="flex flex-col gap-4">

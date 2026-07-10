@@ -67,7 +67,15 @@
                                 <span class="icon-user text-base"></span>
                                 @lang('omicslogic::app.fields.account-owner'):
                                 @if ($organization->accountOwner)
-                                    <x-admin::avatar :name="$organization->accountOwner->name" class="h-6 w-6" />
+                                    @if ($organization->accountOwner->image)
+                                        <img
+                                            src="{{ $organization->accountOwner->image_url }}"
+                                            alt="{{ $organization->accountOwner->name }}"
+                                            class="h-6 w-6 shrink-0 rounded-full object-cover"
+                                        />
+                                    @else
+                                        <x-admin::avatar :name="$organization->accountOwner->name" class="h-6 w-6" />
+                                    @endif
                                     <span>{{ $organization->accountOwner->name }}</span>
                                 @else
                                     <span class="text-gray-400">@lang('omicslogic::app.fields.unassigned')</span>
