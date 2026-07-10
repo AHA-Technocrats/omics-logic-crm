@@ -123,6 +123,8 @@ return [
     'connectors' => [
         'title' => 'Connectors',
         'subtitle' => 'Where contact data comes from — web forms, Firebase portal, and imports.',
+        'general' => 'General',
+        'general-info' => 'Configure basic details for this connector.',
         'manage-forms' => 'Manage Web Forms',
         'manage-imports' => 'Manage Imports',
         'configure' => 'Configure',

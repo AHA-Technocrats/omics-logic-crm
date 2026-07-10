@@ -34,7 +34,12 @@ class ConnectorFirebaseSyncService
         $webFormId = $this->ensureWebFormMapping($connector);
         $batchSize = (int) ($connector->config['batch_size'] ?? config('firebase.sync.batch_size', 50));
 
-        $stats = $this->formSyncService->sync($webFormId, $batchSize);
+        $since = $connector->last_sync_at;
+        if (! $since && ! empty($connector->config['sync_from_date'])) {
+            $since = \Carbon\Carbon::parse($connector->config['sync_from_date'])->startOfDay();
+        }
+
+        $stats = $this->formSyncService->sync($webFormId, $batchSize, $since);
 
         return [
             'rows_total' => $stats['synced'] + $stats['skipped'] + $stats['failed'],

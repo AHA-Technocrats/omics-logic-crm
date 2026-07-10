@@ -64,6 +64,7 @@ class ConnectorController extends Controller
             'name' => 'required|string|max:255',
             'status' => 'required|in:connected,disabled,error',
             'sync_schedule' => 'nullable|in:manual,hourly,daily,weekly',
+            'sync_from_date' => 'nullable|date',
         ];
 
         if ($connector->type === 'portal_api') {
@@ -76,6 +77,7 @@ class ConnectorController extends Controller
 
         $config = [
             'sync_schedule' => $data['sync_schedule'] ?? ($connector->config['sync_schedule'] ?? 'manual'),
+            'sync_from_date' => $data['sync_from_date'] ?? ($connector->config['sync_from_date'] ?? null),
         ];
 
         if (! empty($data['web_form_id'])) {
@@ -132,6 +134,11 @@ class ConnectorController extends Controller
         }
 
         $stats = $formSyncService->resetSyncState();
+
+        $connector->update([
+            'last_sync_at' => null,
+            'last_sync_status' => null,
+        ]);
 
         session()->flash('success', trans('omicslogic::app.connectors.reset-sync-success', [
             'submissions' => $stats['submissions'],

@@ -35,7 +35,7 @@ class FormSyncService
     /**
      * @return array{synced: int, skipped: int, failed: int}
      */
-    public function sync(?int $webFormId = null, ?int $batchSize = null): array
+    public function sync(?int $webFormId = null, ?int $batchSize = null, ?Carbon $since = null): array
     {
         if (! config('firebase.sync.enabled', true)) {
             throw new \RuntimeException('Firebase form sync is disabled.');
@@ -59,7 +59,7 @@ class FormSyncService
         $fetched = 0;
 
         do {
-            $result = $this->formService->getFormsSince(null, $batchSize, $cursor);
+            $result = $this->formService->getFormsSince($since, $batchSize, $cursor);
 
             if (isset($result['success']) && $result['success'] === false) {
                 throw new \RuntimeException($result['message'] ?? 'Unable to fetch Firestore forms.');
