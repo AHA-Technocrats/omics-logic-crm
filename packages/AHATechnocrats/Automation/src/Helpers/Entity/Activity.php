@@ -5,6 +5,7 @@ namespace AHATechnocrats\Automation\Helpers\Entity;
 use AHATechnocrats\Activity\Contracts\Activity as ContractsActivity;
 use AHATechnocrats\Activity\Repositories\ActivityRepository;
 use AHATechnocrats\Admin\Notifications\Common;
+use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Automation\Repositories\WebhookRepository;
 use AHATechnocrats\Automation\Services\WebhookService;
@@ -12,7 +13,6 @@ use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\EmailTemplate\Repositories\EmailTemplateRepository;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Mail;
 
 class Activity extends AbstractEntity
 {
@@ -222,21 +222,18 @@ class Activity extends AbstractEntity
                         break;
                     }
 
-                    try {
-                        Mail::queue(new Common([
-                            'to' => $activity->user->email,
-                            'subject' => $this->replacePlaceholders($activity, $emailTemplate->subject),
-                            'body' => $this->replacePlaceholders($activity, $emailTemplate->content),
-                            'attachments' => [
-                                [
-                                    'name' => 'invite.ics',
-                                    'mime' => 'text/calendar',
-                                    'content' => $this->getICSContent($activity),
-                                ],
+                    app(SafeMailDispatcher::class)->dispatch(new Common([
+                        'to' => $activity->user->email,
+                        'subject' => $this->replacePlaceholders($activity, $emailTemplate->subject),
+                        'body' => $this->replacePlaceholders($activity, $emailTemplate->content),
+                        'attachments' => [
+                            [
+                                'name' => 'invite.ics',
+                                'mime' => 'text/calendar',
+                                'content' => $this->getICSContent($activity),
                             ],
-                        ]));
-                    } catch (\Exception $e) {
-                    }
+                        ],
+                    ]));
 
                     break;
 
@@ -247,24 +244,21 @@ class Activity extends AbstractEntity
                         break;
                     }
 
-                    try {
-                        foreach ($activity->participants as $participant) {
-                            Mail::queue(new Common([
-                                'to' => $participant->user
-                                    ? $participant->user->email
-                                    : data_get($participant->person->emails, '*.value'),
-                                'subject' => $this->replacePlaceholders($activity, $emailTemplate->subject),
-                                'body' => $this->replacePlaceholders($activity, $emailTemplate->content),
-                                'attachments' => [
-                                    [
-                                        'name' => 'invite.ics',
-                                        'mime' => 'text/calendar',
-                                        'content' => $this->getICSContent($activity),
-                                    ],
+                    foreach ($activity->participants as $participant) {
+                        app(SafeMailDispatcher::class)->dispatch(new Common([
+                            'to' => $participant->user
+                                ? $participant->user->email
+                                : data_get($participant->person->emails, '*.value'),
+                            'subject' => $this->replacePlaceholders($activity, $emailTemplate->subject),
+                            'body' => $this->replacePlaceholders($activity, $emailTemplate->content),
+                            'attachments' => [
+                                [
+                                    'name' => 'invite.ics',
+                                    'mime' => 'text/calendar',
+                                    'content' => $this->getICSContent($activity),
                                 ],
-                            ]));
-                        }
-                    } catch (\Exception $e) {
+                            ],
+                        ]));
                     }
 
                     break;

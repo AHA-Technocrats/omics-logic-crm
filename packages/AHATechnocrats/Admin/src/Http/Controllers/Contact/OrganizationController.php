@@ -143,6 +143,18 @@ class OrganizationController extends Controller
     }
 
     /**
+     * Search organization results.
+     */
+    public function search(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $results = $this->organizationRepository->findWhere([
+            ['name', 'like', '%' . urldecode(request()->input('query')) . '%'],
+        ]);
+
+        return \Illuminate\Http\Resources\Json\JsonResource::collection($results);
+    }
+
+    /**
      * Preview what must be deleted before this organization can be removed.
      */
     public function deletePreview(int $id): JsonResponse

@@ -35,7 +35,7 @@ Route::prefix('omics')->group(function () {
     Route::post('merge-review/{id}/resolve', [MergeReviewController::class, 'resolve'])->name('admin.omics.merge.resolve');
 
     Route::post('merge-review/organizations/{id}/resolve', [OrganizationMergeReviewController::class, 'resolve'])->name('admin.omics.merge_organizations.resolve');
-
+    Route::post('merge-review/organizations/manual', [OrganizationMergeReviewController::class, 'manualMerge'])->name('admin.omics.merge_organizations.manual');
     Route::get('reports', [ReportController::class, 'index'])->name('admin.omics.reports.index');
     Route::get('reports/export', [ReportController::class, 'export'])->name('admin.omics.reports.export');
 

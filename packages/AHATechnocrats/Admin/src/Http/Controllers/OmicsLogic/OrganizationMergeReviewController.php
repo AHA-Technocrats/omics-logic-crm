@@ -36,4 +36,22 @@ class OrganizationMergeReviewController extends Controller
 
         return redirect()->route('admin.omics.merge.index', ['tab' => 'organizations']);
     }
+
+    public function manualMerge(Request $request, OrganizationMergeReviewService $mergeReviewService): RedirectResponse
+    {
+        $request->validate([
+            'from_id' => 'required|integer|exists:organizations,id',
+            'to_id' => 'required|integer|exists:organizations,id|different:from_id',
+        ]);
+
+        $mergeReviewService->manualMerge(
+            (int) $request->input('from_id'),
+            (int) $request->input('to_id'),
+            (int) auth()->guard('user')->id(),
+        );
+
+        session()->flash('success', trans('omicslogic::app.merge-organizations.manual-merge-success') ?? 'Organizations merged successfully');
+
+        return redirect()->route('admin.omics.merge.index', ['tab' => 'organizations']);
+    }
 }

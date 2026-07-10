@@ -2,14 +2,16 @@
 
 namespace AHATechnocrats\WebForm\Services;
 
+use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use AHATechnocrats\EmailTemplate\Models\EmailTemplate;
 use AHATechnocrats\WebForm\Contracts\WebForm as WebFormContract;
 use AHATechnocrats\WebForm\Mail\WebFormSubmitterMail;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Mail;
 
 class WebFormSubmitterMailer
 {
+    public function __construct(protected SafeMailDispatcher $safeMailDispatcher) {}
+
     public function sendIfConfigured(WebFormContract $webForm, array $submissionPayload): void
     {
         if (! $webForm->send_submitter_email || ! $webForm->email_template_id) {
@@ -30,7 +32,10 @@ class WebFormSubmitterMailer
 
         $replacements = $this->buildReplacements($submissionPayload, $webForm);
 
-        Mail::to($email)->queue(new WebFormSubmitterMail($template, $replacements));
+        $this->safeMailDispatcher->dispatch(
+            new WebFormSubmitterMail($template, $replacements),
+            $email,
+        );
     }
 
     protected function resolveSubmitterEmail(array $payload): ?string

@@ -83,6 +83,8 @@ Route::prefix('contacts')->group(function () {
         Route::get('edit/{id?}', 'edit')->name('admin.contacts.organizations.edit');
 
         Route::put('edit/{id}', 'update')->name('admin.contacts.organizations.update');
+        
+        Route::get('search', 'search')->name('admin.contacts.organizations.search');
 
         Route::get('delete-preview/{id}', 'deletePreview')->name('admin.contacts.organizations.delete-preview');
 

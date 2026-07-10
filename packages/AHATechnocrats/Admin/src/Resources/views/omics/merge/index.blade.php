@@ -189,6 +189,51 @@
                         </div>
                     </div>
 
+                    {{-- Manual Merge Section --}}
+                    <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold dark:text-white">{{ trans('omicslogic::app.merge-organizations.manual-merge-title') === 'omicslogic::app.merge-organizations.manual-merge-title' ? 'Manual Merge' : trans('omicslogic::app.merge-organizations.manual-merge-title') }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                {{ trans('omicslogic::app.merge-organizations.manual-merge-hint') === 'omicslogic::app.merge-organizations.manual-merge-hint' ? 'Select the duplicate organization to move all its contacts and data to the target survivor organization. The duplicate will be deleted.' : trans('omicslogic::app.merge-organizations.manual-merge-hint') }}
+                            </p>
+                        </div>
+
+                        <form method="POST" action="{{ route('admin.omics.merge_organizations.manual') }}" onsubmit="return confirm('Are you sure you want to merge these organizations? The duplicate organization will be permanently deleted and all contacts will be moved to the survivor.');">
+                            @csrf
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                {{-- From (Duplicate) --}}
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium dark:text-gray-300">
+                                        {{ trans('omicslogic::app.merge-organizations.from-org') === 'omicslogic::app.merge-organizations.from-org' ? 'From (Duplicate)' : trans('omicslogic::app.merge-organizations.from-org') }}
+                                    </label>
+                                    <x-admin::lookup
+                                        src="{{ route('admin.contacts.organizations.search') }}"
+                                        name="from_id"
+                                        placeholder="Search Organization"
+                                    />
+                                </div>
+
+                                {{-- To (Survivor) --}}
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium dark:text-gray-300">
+                                        {{ trans('omicslogic::app.merge-organizations.to-org') === 'omicslogic::app.merge-organizations.to-org' ? 'To (Survivor)' : trans('omicslogic::app.merge-organizations.to-org') }}
+                                    </label>
+                                    <x-admin::lookup
+                                        src="{{ route('admin.contacts.organizations.search') }}"
+                                        name="to_id"
+                                        placeholder="Search Organization"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex justify-end">
+                                <button type="submit" class="primary-button">
+                                    {{ trans('omicslogic::app.merge-organizations.manual-merge-btn') === 'omicslogic::app.merge-organizations.manual-merge-btn' ? 'Merge Organizations' : trans('omicslogic::app.merge-organizations.manual-merge-btn') }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                     @if ($organizationPairs->isEmpty())
                         <div class="flex min-h-[280px] flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center dark:border-gray-800 dark:bg-gray-900">
                             <span class="icon-organization mb-3 text-5xl text-gray-300 dark:text-gray-600"></span>

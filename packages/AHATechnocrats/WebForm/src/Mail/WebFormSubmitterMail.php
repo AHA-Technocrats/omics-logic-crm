@@ -4,13 +4,12 @@ namespace AHATechnocrats\WebForm\Mail;
 
 use AHATechnocrats\EmailTemplate\Models\EmailTemplate;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class WebFormSubmitterMail extends Mailable implements ShouldQueue
+class WebFormSubmitterMail extends Mailable
 {
     use Queueable, SerializesModels;
 

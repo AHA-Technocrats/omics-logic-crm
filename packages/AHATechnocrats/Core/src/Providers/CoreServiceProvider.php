@@ -10,6 +10,7 @@ use AHATechnocrats\Core\Facades\Core as CoreFacade;
 use AHATechnocrats\Core\Facades\Menu as MenuFacade;
 use AHATechnocrats\Core\Facades\SystemConfig as SystemConfigFacade;
 use AHATechnocrats\Core\Menu;
+use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use AHATechnocrats\Core\SystemConfig;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Foundation\AliasLoader;
@@ -75,6 +76,8 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->singleton('system_config', fn () => app()->make(SystemConfig::class));
 
         $this->app->singleton('menu', fn () => app()->make(Menu::class));
+
+        $this->app->singleton(SafeMailDispatcher::class);
     }
 
     /**
