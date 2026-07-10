@@ -102,6 +102,67 @@ class OrganizationMergeReviewService
         });
     }
 
+    public function manualMerge(int $fromId, int $toId, int $userId): void
+    {
+        DB::transaction(function () use ($fromId, $toId, $userId) {
+            $duplicate = Organization::query()->findOrFail($fromId);
+            $survivor = Organization::query()->findOrFail($toId);
+
+            $duplicateBefore = $duplicate->only(['id', 'name', 'country_code']);
+
+            $this->absorbOrganizationData($survivor, $duplicate);
+
+            /**
+             * Move every contact and alias to the survivor before removing the duplicate.
+             */
+            Person::query()
+                ->where('organization_id', $duplicate->id)
+                ->update([
+                    'organization_id' => $survivor->id,
+                    'country_code' => $survivor->country_code,
+                ]);
+
+            DB::table('omics_organization_aliases')
+                ->where('organization_id', $duplicate->id)
+                ->update(['organization_id' => $survivor->id]);
+
+            $this->registerAlias($survivor, $duplicate->name);
+
+            $survivor->contacts_count = Person::query()
+                ->where('organization_id', $survivor->id)
+                ->whereNull('merged_into_id')
+                ->count();
+            $survivor->save();
+
+            $duplicate->delete();
+
+            // Dismiss any pending review pairs that involved the duplicate
+            OrganizationMergeReviewPair::query()
+                ->where('status', 'pending')
+                ->where(function ($query) use ($duplicate) {
+                    $query->where('organization_a_id', $duplicate->id)
+                          ->orWhere('organization_b_id', $duplicate->id);
+                })
+                ->update([
+                    'status' => 'dismissed',
+                    'resolved_by' => $userId,
+                    'resolved_at' => now(),
+                ]);
+
+            AuditLogger::log(
+                action: 'manual_merge_organizations',
+                entityType: 'organization',
+                entityId: $survivor->id,
+                before: ['duplicate' => $duplicateBefore, 'survivor_id' => $survivor->id],
+                after: [
+                    'duplicate_organization_id' => $duplicate->id,
+                    'survivor_organization_id' => $survivor->id,
+                    'survivor_name' => $survivor->name,
+                ],
+            );
+        });
+    }
+
     protected function resolveWithoutMerge(OrganizationMergeReviewPair $pair, string $status, int $userId): OrganizationMergeReviewPair
     {
         $pair->update([

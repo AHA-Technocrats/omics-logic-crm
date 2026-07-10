@@ -3,6 +3,7 @@
 namespace AHATechnocrats\Automation\Helpers\Entity;
 
 use AHATechnocrats\Admin\Notifications\Common;
+use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Automation\Contracts\Workflow;
 use AHATechnocrats\Automation\Repositories\WebhookRepository;
@@ -11,7 +12,6 @@ use AHATechnocrats\Contact\Contracts\Person as PersonContract;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\EmailTemplate\Repositories\EmailTemplateRepository;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
-use Illuminate\Support\Facades\Mail;
 
 class Person extends AbstractEntity
 {
@@ -114,15 +114,11 @@ class Person extends AbstractEntity
                         break;
                     }
 
-                    try {
-                        Mail::queue(new Common([
-                            'to' => data_get($person->emails, '*.value'),
-                            'subject' => $this->replacePlaceholders($person, $emailTemplate->subject),
-                            'body' => $this->replacePlaceholders($person, $emailTemplate->content),
-                        ]));
-                    } catch (\Exception $e) {
-                        report($e);
-                    }
+                    app(SafeMailDispatcher::class)->dispatch(new Common([
+                        'to' => data_get($person->emails, '*.value'),
+                        'subject' => $this->replacePlaceholders($person, $emailTemplate->subject),
+                        'body' => $this->replacePlaceholders($person, $emailTemplate->content),
+                    ]));
 
                     break;
 

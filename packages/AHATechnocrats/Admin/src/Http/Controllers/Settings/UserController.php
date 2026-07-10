@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Mail;
+use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use Illuminate\View\View;
 use Prettus\Repository\Criteria\RequestCriteria;
 
@@ -89,11 +89,7 @@ class UserController extends Controller
             $admin = $admin->fresh();
         }
 
-        try {
-            Mail::queue(new UserCreatedNotification($admin));
-        } catch (\Exception $e) {
-            report($e);
-        }
+        app(SafeMailDispatcher::class)->dispatch(new UserCreatedNotification($admin));
 
         Event::dispatch('settings.user.create.after', $admin);
 

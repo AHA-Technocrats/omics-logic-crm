@@ -3,11 +3,11 @@
 namespace AHATechnocrats\Marketing\Helpers;
 
 use AHATechnocrats\Contact\Repositories\PersonRepository;
+use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use AHATechnocrats\Marketing\Mail\CampaignMail;
 use AHATechnocrats\Marketing\Repositories\CampaignRepository;
 use AHATechnocrats\Marketing\Repositories\EventRepository;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Mail;
 
 class Campaign
 {
@@ -40,7 +40,9 @@ class Campaign
             ->get();
 
         collect($campaigns)->each(function ($campaign) {
-            collect($this->getPersonsEmails())->each(fn ($email) => Mail::queue(new CampaignMail($email, $campaign)));
+            collect($this->getPersonsEmails())->each(
+                fn ($email) => app(SafeMailDispatcher::class)->dispatch(new CampaignMail($email, $campaign))
+            );
         });
     }
 

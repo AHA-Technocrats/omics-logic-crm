@@ -4,6 +4,7 @@ namespace AHATechnocrats\Automation\Helpers\Entity;
 
 use AHATechnocrats\Activity\Repositories\ActivityRepository;
 use AHATechnocrats\Admin\Notifications\Common;
+use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Automation\Repositories\WebhookRepository;
 use AHATechnocrats\Automation\Services\WebhookService;
@@ -12,7 +13,6 @@ use AHATechnocrats\EmailTemplate\Repositories\EmailTemplateRepository;
 use AHATechnocrats\Lead\Contracts\Lead as ContractsLead;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
 use AHATechnocrats\Tag\Repositories\TagRepository;
-use Illuminate\Support\Facades\Mail;
 
 class Lead extends AbstractEntity
 {
@@ -131,14 +131,11 @@ class Lead extends AbstractEntity
                         break;
                     }
 
-                    try {
-                        Mail::queue(new Common([
-                            'to' => data_get($lead->person->emails, '*.value'),
-                            'subject' => $this->replacePlaceholders($lead, $emailTemplate->subject),
-                            'body' => $this->replacePlaceholders($lead, $emailTemplate->content),
-                        ]));
-                    } catch (\Exception $e) {
-                    }
+                    app(SafeMailDispatcher::class)->dispatch(new Common([
+                        'to' => data_get($lead->person->emails, '*.value'),
+                        'subject' => $this->replacePlaceholders($lead, $emailTemplate->subject),
+                        'body' => $this->replacePlaceholders($lead, $emailTemplate->content),
+                    ]));
 
                     break;
 
@@ -149,14 +146,11 @@ class Lead extends AbstractEntity
                         break;
                     }
 
-                    try {
-                        Mail::queue(new Common([
-                            'to' => $lead->user->email,
-                            'subject' => $this->replacePlaceholders($lead, $emailTemplate->subject),
-                            'body' => $this->replacePlaceholders($lead, $emailTemplate->content),
-                        ]));
-                    } catch (\Exception $e) {
-                    }
+                    app(SafeMailDispatcher::class)->dispatch(new Common([
+                        'to' => $lead->user->email,
+                        'subject' => $this->replacePlaceholders($lead, $emailTemplate->subject),
+                        'body' => $this->replacePlaceholders($lead, $emailTemplate->content),
+                    ]));
 
                     break;
 
