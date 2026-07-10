@@ -2,7 +2,7 @@
 
 @include('admin::contacts.persons.view.campaign-interests')
 
-<div class="rounded-lg border border-gray-300 bg-white dark:border-gray-800 dark:bg-gray-900">
+<div id="person-leads" class="rounded-lg border border-gray-300 bg-white dark:border-gray-800 dark:bg-gray-900">
     <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-800">
         <h3 class="flex items-center gap-2 font-semibold dark:text-white">
             <span class="icon-product text-xl"></span>

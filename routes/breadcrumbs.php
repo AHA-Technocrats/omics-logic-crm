@@ -110,6 +110,13 @@ Breadcrumbs::for('contacts.persons.view', function (BreadcrumbTrail $trail, $per
     $trail->push('#'.$person->id, route('admin.contacts.persons.index'));
 });
 
+// Dashboard > Contacts > Persons > Leads
+Breadcrumbs::for('contacts.persons.leads', function (BreadcrumbTrail $trail, $person) {
+    $trail->parent('contacts.persons');
+    $trail->push(strip_tags($person->name), route('admin.contacts.persons.view', $person->id));
+    $trail->push(trans('admin::app.layouts.leads'), route('admin.contacts.persons.leads.index', $person->id));
+});
+
 // Dashboard > Contacts > Organizations
 Breadcrumbs::for('contacts.organizations', function (BreadcrumbTrail $trail) {
     $trail->parent('contacts');

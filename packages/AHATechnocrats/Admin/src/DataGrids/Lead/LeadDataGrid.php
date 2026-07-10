@@ -67,6 +67,7 @@ class LeadDataGrid extends DataGrid
                 'users.name as sales_person',
                 'persons.id as person_id',
                 'persons.name as person_name',
+                'persons.lead_score',
                 'tags.name as tag_name',
                 'lead_pipelines.rotten_days as pipeline_rotten_days',
                 'lead_pipeline_stages.code as stage_code',
@@ -104,6 +105,7 @@ class LeadDataGrid extends DataGrid
         $this->addFilter('stage', 'lead_pipeline_stages.id');
         $this->addFilter('tag_name', 'tags.name');
         $this->addFilter('campaign_name', 'products.name');
+        $this->addFilter('lead_score', 'persons.lead_score');
         $this->addFilter('expected_close_date', 'leads.expected_close_date');
         $this->addFilter('created_at', 'leads.created_at');
         $this->addFilter('rotten_lead', DB::raw('DATEDIFF(NOW(), '.$tablePrefix.'leads.created_at) >= '.$tablePrefix.'lead_pipelines.rotten_days'));
@@ -215,6 +217,15 @@ class LeadDataGrid extends DataGrid
                     'value' => 'name',
                 ],
             ],
+        ]);
+
+        $this->addColumn([
+            'index' => 'lead_score',
+            'label' => trans('omicslogic::app.datagrid.score'),
+            'type' => 'integer',
+            'sortable' => true,
+            'filterable' => true,
+            'closure' => fn ($row) => $this->scoreBadge((int) ($row->lead_score ?? 0)),
         ]);
 
         $this->addColumn([
@@ -351,5 +362,16 @@ class LeadDataGrid extends DataGrid
                 'value' => $stage->id,
             ])->toArray(),
         ]);
+    }
+
+    protected function scoreBadge(int $score): string
+    {
+        $class = match (true) {
+            $score >= 75 => 'font-semibold text-green-600 dark:text-green-400',
+            $score >= 50 => 'font-semibold text-amber-600 dark:text-amber-400',
+            default => 'font-semibold text-gray-500 dark:text-gray-400',
+        };
+
+        return '<span class="'.$class.'">'.$score.'</span>';
     }
 }

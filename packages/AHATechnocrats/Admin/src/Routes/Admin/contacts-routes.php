@@ -4,6 +4,7 @@ use AHATechnocrats\Admin\Http\Controllers\Contact\OrganizationController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\ActivityController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\PersonCampaignController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\PersonController;
+use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\PersonLeadController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\PersonPortalController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\TagController;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,10 @@ Route::prefix('contacts')->group(function () {
 
         Route::controller(PersonPortalController::class)->prefix('{id}/portal')->group(function () {
             Route::get('', 'show')->name('admin.contacts.persons.portal');
+        });
+
+        Route::controller(PersonLeadController::class)->prefix('{id}/leads')->group(function () {
+            Route::get('', 'index')->name('admin.contacts.persons.leads.index');
         });
 
         Route::controller(PersonCampaignController::class)->prefix('{id}/campaigns')->group(function () {

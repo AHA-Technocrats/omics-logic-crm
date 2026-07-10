@@ -159,7 +159,7 @@ return [
     ], [
         'key' => 'persons.view',
         'name' => 'admin::app.acl.view',
-        'route' => 'admin.contacts.persons.view',
+        'route' => ['admin.contacts.persons.view', 'admin.contacts.persons.leads.index'],
         'sort' => 2,
     ], [
         'key' => 'persons.edit',

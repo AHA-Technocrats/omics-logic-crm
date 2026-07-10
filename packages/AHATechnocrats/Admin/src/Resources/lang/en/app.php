@@ -539,6 +539,11 @@ return [
                     'organization-name' => 'Organization Name',
                 ],
             ],
+            'leads' => [
+                'title' => 'Leads for :name',
+                'subtitle' => 'All leads linked to this contact, including campaign, source, score, and stage.',
+                'back-btn' => 'Back to contact',
+            ],
             'view' => [
                 'title' => ':name',
                 'about-person' => 'About Person',

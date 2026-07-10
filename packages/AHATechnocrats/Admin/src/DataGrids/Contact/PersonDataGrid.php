@@ -5,7 +5,6 @@ namespace AHATechnocrats\Admin\DataGrids\Contact;
 use AHATechnocrats\Contact\Repositories\OrganizationRepository;
 use AHATechnocrats\DataGrid\DataGrid;
 use AHATechnocrats\OmicsLogic\Services\CountryLabelResolver;
-use AHATechnocrats\Product\Repositories\ProductRepository;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -28,27 +27,14 @@ class PersonDataGrid extends DataGrid
                 'persons.emails',
                 'persons.education_level',
                 'persons.engagement_lessons',
-                'persons.lead_score',
                 'persons.last_activity_at',
                 'organizations.name as organization',
                 'organizations.id as organization_id',
-                'products.name as program_interest',
-                'lead_sources.name as source_name',
                 'users.name as owner_name',
             )
+            ->selectRaw('(SELECT COUNT(*) FROM '.$tablePrefix.'leads WHERE '.$tablePrefix.'leads.person_id = '.$tablePrefix.'persons.id) as leads_count')
             ->selectRaw('COALESCE(organizations.country_code, persons.country_code) as country_code')
-            ->selectRaw(
-                '(SELECT '.$tablePrefix.'lead_pipeline_stages.name'
-                .' FROM '.$tablePrefix.'leads'
-                .' LEFT JOIN '.$tablePrefix.'lead_pipeline_stages'
-                .' ON '.$tablePrefix.'leads.lead_pipeline_stage_id = '.$tablePrefix.'lead_pipeline_stages.id'
-                .' WHERE '.$tablePrefix.'leads.person_id = '.$tablePrefix.'persons.id'
-                .' ORDER BY '.$tablePrefix.'leads.id DESC'
-                .' LIMIT 1) as lead_stage'
-            )
             ->leftJoin('organizations', 'persons.organization_id', '=', 'organizations.id')
-            ->leftJoin('products', 'persons.primary_product_id', '=', 'products.id')
-            ->leftJoin('lead_sources', 'persons.primary_source_id', '=', 'lead_sources.id')
             ->leftJoin('users', 'persons.user_id', '=', 'users.id')
             ->whereNull('persons.merged_into_id');
 
@@ -61,8 +47,6 @@ class PersonDataGrid extends DataGrid
         $this->addFilter('organization', 'organizations.name');
         $this->addFilter('country_code', 'organizations.country_code');
         $this->addFilter('education_level', 'persons.education_level');
-        $this->addFilter('program_interest', 'products.name');
-        $this->addFilter('source_name', 'lead_sources.name');
         $this->addFilter('owner_name', 'users.name');
 
         return $queryBuilder;
@@ -138,39 +122,22 @@ class PersonDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'lead_stage',
-            'label' => trans('omicslogic::app.datagrid.stage'),
-            'type' => 'string',
+            'index' => 'leads_count',
+            'label' => trans('omicslogic::app.datagrid.leads'),
+            'type' => 'integer',
             'sortable' => true,
-            'closure' => fn ($row) => $this->stageBadge($row->lead_stage),
-        ]);
+            'closure' => function ($row) {
+                $count = (int) ($row->leads_count ?? 0);
 
-        $this->addColumn([
-            'index' => 'program_interest',
-            'label' => trans('omicslogic::app.datagrid.program'),
-            'type' => 'string',
-            'sortable' => true,
-            'filterable' => true,
-            'filterable_type' => 'searchable_dropdown',
-            'filterable_options' => [
-                'repository' => ProductRepository::class,
-                'column' => [
-                    'label' => 'name',
-                    'value' => 'name',
-                ],
-            ],
-            'searchable' => true,
-            'closure' => fn ($row) => $row->program_interest ? e($row->program_interest) : '—',
-        ]);
+                if ($count === 0) {
+                    return '0';
+                }
 
-        $this->addColumn([
-            'index' => 'source_name',
-            'label' => trans('omicslogic::app.datagrid.source'),
-            'type' => 'string',
-            'sortable' => true,
-            'filterable' => true,
-            'searchable' => true,
-            'closure' => fn ($row) => $row->source_name ? e($row->source_name) : '—',
+                $url = route('admin.contacts.persons.leads.index', $row->id);
+                $label = trans('omicslogic::app.delete-timeline.leads-count', ['count' => $count]);
+
+                return '<a class="text-brandColor hover:underline" href="'.e($url).'">'.e($label).'</a>';
+            },
         ]);
 
         $this->addColumn([
@@ -179,14 +146,6 @@ class PersonDataGrid extends DataGrid
             'type' => 'integer',
             'sortable' => true,
             'closure' => fn ($row) => (int) ($row->engagement_lessons ?? 0),
-        ]);
-
-        $this->addColumn([
-            'index' => 'lead_score',
-            'label' => trans('omicslogic::app.datagrid.score'),
-            'type' => 'integer',
-            'sortable' => true,
-            'closure' => fn ($row) => $this->scoreBadge((int) ($row->lead_score ?? 0)),
         ]);
 
         $this->addColumn([
@@ -280,28 +239,6 @@ class PersonDataGrid extends DataGrid
         return e($initials ?: '?');
     }
 
-    protected function stageBadge(?string $stage): string
-    {
-        $stage = trim((string) $stage);
-
-        if ($stage === '') {
-            return '—';
-        }
-
-        $palette = [
-            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100',
-            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100',
-            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100',
-            'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100',
-            'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-100',
-            'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-100',
-        ];
-
-        $class = $palette[abs(crc32(strtolower($stage))) % count($palette)];
-
-        return '<span class="rounded-full px-2 py-0.5 text-xs font-semibold '.$class.'">'.e($stage).'</span>';
-    }
-
     protected function countryBadge(?string $country): string
     {
         $country = $this->countryLabelResolver->resolve($country);
@@ -326,16 +263,5 @@ class PersonDataGrid extends DataGrid
         $class = $palette[abs(crc32(strtolower($country))) % count($palette)];
 
         return '<span class="rounded-full px-2 py-0.5 text-xs font-semibold '.$class.'">'.$label.'</span>';
-    }
-
-    protected function scoreBadge(int $score): string
-    {
-        $class = match (true) {
-            $score >= 75 => 'font-semibold text-green-600 dark:text-green-400',
-            $score >= 50 => 'font-semibold text-amber-600 dark:text-amber-400',
-            default => 'font-semibold text-gray-500 dark:text-gray-400',
-        };
-
-        return '<span class="'.$class.'">'.$score.'</span>';
     }
 }
