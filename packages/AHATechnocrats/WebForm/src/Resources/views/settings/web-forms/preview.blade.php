@@ -174,45 +174,54 @@
 
                         {!! view_render_event('web_forms.web_forms.form_controls.before', ['webForm' => $webForm]) !!}
 
-                        <x-web_form::form
-                            v-slot="{ meta, values, errors, handleSubmit }"
-                            as="div"
-                            ref="modalForm"
-                        >
-                            <form
-                                @submit="handleSubmit($event, create)"
-                                ref="webForm"
+                        <template v-if="!hasSubmitted">
+                            <x-web_form::form
+                                v-slot="{ meta, values, errors, handleSubmit }"
+                                as="div"
+                                ref="modalForm"
                             >
-                                @include('web_form::settings.web-forms.controls')
+                                <form
+                                    @submit="handleSubmit($event, create)"
+                                    ref="webForm"
+                                >
+                                    @include('web_form::settings.web-forms.controls')
 
-                                <input type="hidden" name="_form_token" value="{{ $formToken ?? '' }}" />
+                                    <input type="hidden" name="_form_token" value="{{ $formToken ?? '' }}" />
 
-                                <input
-                                    type="text"
-                                    name="{{ config('omicslogic.anti_spam.honeypot_field', '_website_url') }}"
-                                    tabindex="-1"
-                                    autocomplete="off"
-                                    style="position:absolute;left:-9999px;height:0;width:0;opacity:0"
-                                />
-
-                                @if ($webForm->turnstile_enabled && config('omicslogic.turnstile.site_key'))
-                                    <div
-                                        class="cf-turnstile mb-3"
-                                        data-sitekey="{{ config('omicslogic.turnstile.site_key') }}"
-                                    ></div>
-                                @endif
-
-                                <div class="webform-actions">
-                                    <x-web_form::button
-                                        class="primary-button rounded text-white font-semibold transition-all hover:opacity-90"
-                                        :title="$webForm->submit_button_label"
-                                        ::loading="isStoring"
-                                        ::disabled="isStoring"
-                                        style="background-color: {{ $webForm->form_submit_button_color }} !important"
+                                    <input
+                                        type="text"
+                                        name="{{ config('omicslogic.anti_spam.honeypot_field', '_website_url') }}"
+                                        tabindex="-1"
+                                        autocomplete="off"
+                                        style="position:absolute;left:-9999px;height:0;width:0;opacity:0"
                                     />
-                                </div>
-                            </form>
-                        </x-web_form::form>
+
+                                    @if ($webForm->turnstile_enabled && config('omicslogic.turnstile.site_key'))
+                                        <div
+                                            class="cf-turnstile mb-3"
+                                            data-sitekey="{{ config('omicslogic.turnstile.site_key') }}"
+                                        ></div>
+                                    @endif
+
+                                    <div class="webform-actions">
+                                        <x-web_form::button
+                                            class="primary-button rounded text-white font-semibold transition-all hover:opacity-90"
+                                            :title="$webForm->submit_button_label"
+                                            ::loading="isStoring"
+                                            ::disabled="isStoring"
+                                            style="background-color: {{ $webForm->form_submit_button_color }} !important"
+                                        />
+                                    </div>
+                                </form>
+                            </x-web_form::form>
+                        </template>
+                        <template v-else>
+                            <div class="webform-description">
+                                <p style="font-size: 16px; font-weight: 500; color: #374151;">
+                                    You have already filled this form.
+                                </p>
+                            </div>
+                        </template>
 
                         {!! view_render_event('web_forms.web_forms.form_controls.after', ['webForm' => $webForm]) !!}
                     </div>
@@ -226,6 +235,7 @@
 
                 data() {
                     return {
+                        hasSubmitted: false,
                         isStoring: false,
                         programInterest: '',
                         organizationSuggestions: [],
@@ -233,6 +243,12 @@
                         selectedOrganizationId: '',
                         organizationSearchTimer: null,
                     };
+                },
+
+                mounted() {
+                    if (localStorage.getItem('webform_submitted_{{ $webForm->form_id }}')) {
+                        this.hasSubmitted = true;
+                    }
                 },
 
                 methods: {
@@ -317,6 +333,9 @@
                                 },
                             })
                             .then(response => {
+                                localStorage.setItem('webform_submitted_{{ $webForm->form_id }}', 'true');
+                                this.hasSubmitted = true;
+
                                 resetForm();
 
                                 this.$refs.webForm.reset();
@@ -329,6 +348,12 @@
                                 this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
                             })
                             .catch(error => {
+                                if (error.response && error.response.status === 422 && error.response.data.message === 'You have already filled this form.') {
+                                    localStorage.setItem('webform_submitted_{{ $webForm->form_id }}', 'true');
+                                    this.hasSubmitted = true;
+                                    return;
+                                }
+
                                 if (error.response.data.redirect) {
                                     window.location.href = error.response.data.redirect;
 

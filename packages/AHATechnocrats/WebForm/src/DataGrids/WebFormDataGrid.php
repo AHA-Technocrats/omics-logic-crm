@@ -19,6 +19,7 @@ class WebFormDataGrid extends DataGrid
             ->leftJoin('email_templates', 'web_forms.email_template_id', '=', 'email_templates.id')
             ->addSelect(
                 'web_forms.id',
+                'web_forms.form_id',
                 'web_forms.title',
                 'web_forms.is_active',
                 'web_forms.create_lead',
@@ -30,6 +31,7 @@ class WebFormDataGrid extends DataGrid
             ->selectRaw('MAX(web_form_submissions.created_at) as last_submission_at')
             ->groupBy(
                 'web_forms.id',
+                'web_forms.form_id',
                 'web_forms.title',
                 'web_forms.is_active',
                 'web_forms.create_lead',
@@ -119,6 +121,15 @@ class WebFormDataGrid extends DataGrid
     {
         if (bouncer()->hasPermission('web_forms.view')) {
             $this->addAction([
+                'index' => 'preview',
+                'icon' => 'icon-eye',
+                'title' => trans('admin::app.settings.webforms.edit.preview'),
+                'method' => 'GET',
+                'url' => fn ($row) => route('admin.settings.web_forms.preview', $row->form_id),
+                'target' => '_blank',
+            ]);
+
+            $this->addAction([
                 'index' => 'responses',
                 'icon' => 'icon-stats-up',
                 'title' => trans('admin::app.settings.webforms.index.datagrid.responses'),
@@ -126,6 +137,13 @@ class WebFormDataGrid extends DataGrid
                 'url' => fn ($row) => route('admin.web_forms.responses.index', $row->id),
             ]);
 
+            $this->addAction([
+                'index' => 'embed',
+                'icon' => 'icon-code',
+                'title' => trans('admin::app.settings.webforms.edit.embed'),
+                'method' => 'GET',
+                'url' => fn ($row) => "javascript:window.openWebFormEmbedModal('".route('admin.settings.web_forms.preview', $row->form_id)."', '".route('admin.settings.web_forms.form_js', $row->form_id)."')",
+            ]);
         }
 
         if (bouncer()->hasPermission('web_forms.edit')) {

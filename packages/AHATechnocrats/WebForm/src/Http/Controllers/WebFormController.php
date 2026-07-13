@@ -59,6 +59,12 @@ class WebFormController extends Controller
             abort(404);
         }
 
+        if (WebFormSubmission::query()->where('web_form_id', $webForm->id)->where('ip_address', request()->ip())->exists()) {
+            return response()->json([
+                'message' => 'You have already filled this form.',
+            ], 422);
+        }
+
         $mapped = $this->submissionMapper->map(request()->all(), $webForm);
 
         request()->merge([

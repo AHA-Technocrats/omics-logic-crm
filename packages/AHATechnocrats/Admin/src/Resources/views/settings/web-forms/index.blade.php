@@ -105,6 +105,63 @@
                 </x-admin::datagrid>
 
                 {!! view_render_event('admin.settings.web_forms.index.datagrid.after') !!}
+
+                <!-- Embed Modal -->
+                <x-admin::modal ref="embed">
+                    <x-slot:header>
+                        <p class="text-lg font-bold text-gray-800 dark:text-white">
+                            @lang('admin::app.settings.webforms.edit.preview')
+                        </p>
+                    </x-slot>
+
+                    <x-slot:content class="!border-b-0">
+                        <x-admin::form.control-group>
+                            <x-admin::form.control-group.label class="required">
+                                @lang('admin::app.settings.webforms.edit.public-url')
+                            </x-admin::form.control-group.label>
+
+                            <x-admin::form.control-group.control
+                                type="text"
+                                id="publicUrl"
+                                name="publicUrl"
+                                rules="required"
+                                ::value="previewUrl"
+                                :label="trans('admin::app.settings.webforms.edit.public-url')"
+                                :placeholder="trans('admin::app.settings.webforms.edit.public-url')"
+                            />
+
+                            <span
+                                id="publicUrlBtn"
+                                class="cursor-pointer text-xs font-normal text-brandColor hover:text-sky-600 hover:underline"
+                                @click="copyToClipboard('#publicUrl','#publicUrlBtn')"
+                            >
+                                @lang('admin::app.settings.webforms.edit.copy')
+                            </span>
+                        </x-admin::form.control-group>
+
+                        <x-admin::form.control-group>
+                            <x-admin::form.control-group.label class="required">
+                                @lang('admin::app.settings.webforms.edit.code-snippet')
+                            </x-admin::form.control-group.label>
+
+                            <input
+                                type="text"
+                                id="codeSnippet"
+                                name="codeSnippet"
+                                class="w-full rounded border border-gray-300 px-2.5 py-2 text-sm font-normal text-gray-800 transition-all hover:border-gray-400 focus:border-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-gray-400 dark:focus:border-gray-400"
+                                :value="generatedScriptTag"
+                            />
+
+                            <span
+                                id="coeSnippt"
+                                class="cursor-pointer text-xs font-normal text-brandColor hover:text-sky-600 hover:underline"
+                                @click="copyToClipboard('#codeSnippet','#coeSnippt')"
+                            >
+                                @lang('admin::app.settings.webforms.edit.copy')
+                            </span>
+                        </x-admin::form.control-group>
+                    </x-slot>
+                </x-admin::modal>
             </div>
         </script>
 
@@ -112,8 +169,34 @@
             app.component('v-webform', {
                 template: '#v-webform-template',
                 data() {
-                    return {};
+                    return {
+                        previewUrl: '',
+                        scriptUrl: ''
+                    };
                 },
+                computed: {
+                    generatedScriptTag() {
+                        if (!this.scriptUrl) return '';
+                        return '<script src="' + this.scriptUrl + '"><\/script>';
+                    }
+                },
+                mounted() {
+                    window.openWebFormEmbedModal = (previewUrl, scriptUrl) => {
+                        this.previewUrl = previewUrl;
+                        this.scriptUrl = scriptUrl;
+                        this.$refs.embed.toggle();
+                    };
+                },
+                methods: {
+                    copyToClipboard(elementId, btnId) {
+                        const inputElement = this.$el.querySelector(elementId);
+                        const btnElement = this.$el.querySelector(btnId);
+                        inputElement.select();
+                        document.execCommand("copy");
+                        btnElement.textContent = "@lang('admin::app.settings.webforms.edit.copied')!";
+                        setTimeout(() => btnElement.textContent = "Copy", 1000);
+                    }
+                }
             });
         </script>
     @endPushOnce
