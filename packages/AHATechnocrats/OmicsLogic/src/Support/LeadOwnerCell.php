@@ -25,7 +25,7 @@ class LeadOwnerCell
     ): string {
         $content = '<div style="display:flex;align-items:center;gap:8px;">'
             .UserProfileAvatar::html($name, $image)
-            .'<span style="color:#1f2937;font-size:14px;">'.e($name).'</span>'
+            .'<span style="font-size:14px;" class="text-gray-800 dark:text-white">'.e($name).'</span>'
             .'</div>';
 
         if (! bouncer()->hasPermission('leads.edit')) {

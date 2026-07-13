@@ -244,7 +244,7 @@ class OrganizationDataGrid extends DataGrid
 
         $content = '<div style="display:flex;align-items:center;gap:8px;">'
             .UserProfileAvatar::html($row->account_owner_name, $row->account_owner_image ?? null)
-            .'<span style="color:#1f2937;">'.e($row->account_owner_name).'</span>'
+            .'<span class="text-gray-800 dark:text-white">'.e($row->account_owner_name).'</span>'
             .'</div>';
 
         if (! bouncer()->hasPermission('organizations.edit')) {

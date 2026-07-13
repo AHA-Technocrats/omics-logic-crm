@@ -101,7 +101,7 @@ class PersonDataGrid extends DataGrid
                 if ($row->organization_id) {
                     $url = route('admin.contacts.organizations.view', $row->organization_id);
 
-                    return '<a href="'.e($url).'" style="color:#172230;text-decoration:none;">'.e($row->organization).'</a>';
+                    return '<a href="'.e($url).'" style="text-decoration:none;" class="text-gray-800 dark:text-white">'.e($row->organization).'</a>';
                 }
 
                 return e($row->organization);
@@ -246,8 +246,8 @@ class PersonDataGrid extends DataGrid
     protected function lessonsCell(int $count): string
     {
         return '<span style="display:inline-flex;align-items:center;gap:6px;color:#6b7280;">'
-            .'<i class="fa fa-book-open" style="font-size:13px;"></i>'
-            .'<span>'.$count.'</span>'
+            .'<i class="fa fa-book-open text-gray-800 dark:text-white" style="font-size:13px;"></i>'
+            .'<span class="text-gray-800 dark:text-white">'.$count.'</span>'
             .'</span>';
     }
 
@@ -259,6 +259,6 @@ class PersonDataGrid extends DataGrid
             return '—';
         }
 
-        return '<span style="color:#172230;">'.e($country).'</span>';
+        return '<span style="" class="text-gray-800 dark:text-white">'.e($country).'</span>';
     }
 }
