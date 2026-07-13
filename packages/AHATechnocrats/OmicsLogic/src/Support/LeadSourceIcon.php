@@ -16,8 +16,8 @@ class LeadSourceIcon
         $icon = e(self::iconClass($sourceName));
 
         return '<span style="display:inline-flex;align-items:center;gap:6px;color:#6b7280;">'
-            .'<i class="'.$icon.'" style="font-size:14px;width:14px;text-align:center;"></i>'
-            .'<span>'.$label.'</span>'
+            .'<i class="'.$icon.' text-gray-800 dark:text-white" style="font-size:14px;width:14px;text-align:center;"></i>'
+            .'<span class="text-gray-800 dark:text-white">'.$label.'</span>'
             .'</span>';
     }
 
