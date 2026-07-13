@@ -78,7 +78,7 @@ class WebFormSubmissionMapper
             'notes',
         ]);
 
-        $programInterest = $this->value($input, $personInput, [
+        $programInterest = $this->arrayOrStringValue($input, $personInput, [
             'program_interest',
             'interested_in_program',
             'interested in program',
@@ -91,8 +91,17 @@ class WebFormSubmissionMapper
             'program_other',
         ]);
 
-        if ($programInterest === '__other__' || str_starts_with(strtolower(trim((string) $programInterest)), 'other')) {
-            $programInterest = $programInterestOther ? trim($programInterestOther) : null;
+        if (is_array($programInterest)) {
+            $firstProgram = $programInterest[0] ?? null;
+            $programInterestStr = implode(', ', $programInterest);
+        } else {
+            $firstProgram = $programInterest;
+            $programInterestStr = $programInterest;
+        }
+
+        if ($programInterestStr === '__other__' || str_starts_with(strtolower(trim((string) $programInterestStr)), 'other')) {
+            $programInterestStr = $programInterestOther ? trim($programInterestOther) : null;
+            $firstProgram = $programInterestStr;
         }
 
         $submittedAt = $this->value($input, $personInput, [
@@ -102,7 +111,7 @@ class WebFormSubmissionMapper
         ]);
 
         $webFormSourceId = $this->resolveWebFormSourceId();
-        $primaryProductId = $this->resolveProductId($programInterest) ?? $webForm?->product_id;
+        $primaryProductId = $this->resolveProductId($firstProgram) ?? $webForm?->product_id;
 
         $person = array_filter([
             'name' => $name,
@@ -112,7 +121,7 @@ class WebFormSubmissionMapper
             'country_code' => $country,
             'education_level' => $this->normalizeEducation($education),
             'inquiry_details' => $this->normalizeInquiryDetails($inquiryDetails),
-            'program_interest' => $programInterest,
+            'program_interest' => $programInterestStr,
             'lifecycle_stage' => LifecycleStage::Lead->value,
             'primary_product_id' => $primaryProductId,
             'primary_source_id' => $webFormSourceId,
@@ -241,6 +250,33 @@ class WebFormSubmissionMapper
 
             if (isset($input[$key]) && is_scalar($input[$key]) && trim((string) $input[$key]) !== '') {
                 return trim((string) $input[$key]);
+            }
+        }
+
+        return null;
+    }
+
+    protected function arrayOrStringValue(array $input, array $personInput, array $keys)
+    {
+        foreach ($keys as $key) {
+            if (isset($personInput[$key])) {
+                $val = $personInput[$key];
+                if (is_array($val) && !empty($val)) {
+                    return $val;
+                }
+                if (is_scalar($val) && trim((string) $val) !== '') {
+                    return trim((string) $val);
+                }
+            }
+
+            if (isset($input[$key])) {
+                $val = $input[$key];
+                if (is_array($val) && !empty($val)) {
+                    return $val;
+                }
+                if (is_scalar($val) && trim((string) $val) !== '') {
+                    return trim((string) $val);
+                }
             }
         }
 
