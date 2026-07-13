@@ -23,6 +23,15 @@
                 <div class="flex items-center gap-x-2.5">
                     {!! view_render_event('admin.organizations.index.create_button.before') !!}
 
+                    @if (bouncer()->hasPermission('organizations.edit'))
+                        <a
+                            href="{{ route('admin.mass_assign.index') }}"
+                            class="secondary-button"
+                        >
+                            @lang('admin::app.mass_assign.btn')
+                        </a>
+                    @endif
+
                     @if (bouncer()->hasPermission('organizations.create'))
                         <!-- Create button for person -->
                         <a

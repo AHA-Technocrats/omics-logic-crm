@@ -2461,4 +2461,10 @@ return [
         'xls' => 'XLS',
         'xlsx' => 'XLSX',
     ],
+    'mass_assign' => [
+        'title'       => 'Mass Assign',
+        'btn'         => 'Mass Assign',
+        'success'     => 'Mass assignment completed successfully.',
+        'no-selection'=> 'No organizations or users selected.',
+    ],
 ];

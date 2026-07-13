@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('contacts')->group(function () {
     /**
+     * Mass Assign routes.
+     */
+    Route::controller(\AHATechnocrats\Admin\Http\Controllers\MassAssignController::class)->prefix('mass-assign')->group(function () {
+        Route::get('', 'index')->name('admin.mass_assign.index');
+        Route::get('entities', 'getEntities')->name('admin.mass_assign.entities');
+        Route::get('users', 'getUsers')->name('admin.mass_assign.users');
+        Route::post('assign', 'assign')->name('admin.mass_assign.assign');
+    });
+
+    /**
      * Persons routes.
      */
     Route::controller(PersonController::class)->prefix('persons')->group(function () {

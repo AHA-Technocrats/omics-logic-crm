@@ -35,6 +35,15 @@
 
             <!-- Create button for Leads -->
             <div class="flex items-center gap-x-2.5">
+                @if (bouncer()->hasPermission('organizations.edit'))
+                    <a
+                        href="{{ route('admin.mass_assign.index') }}"
+                        class="secondary-button"
+                    >
+                        @lang('admin::app.mass_assign.btn')
+                    </a>
+                @endif
+
                 @if (bouncer()->hasPermission('leads.create'))
                     <a
                         href="{{ route('admin.leads.create', request()->query()) }}"
