@@ -232,22 +232,28 @@
                     </div>
                 </x-admin::form>
 
-                <p class="omics-login__legal">
+                <!-- <p class="omics-login__legal">
                     @lang('admin::app.users.login.terms-text')
 
                     <a class="omics-login__legal-link" href="https://ahatechnocrats.com/">
                         @lang('admin::app.users.login.terms-link')
-                    </a>
+                    </a> -->
 
                     <!-- @lang('admin::app.users.login.and')
 
                     <a class="omics-login__legal-link" href="#">
                         @lang('admin::app.users.login.privacy-link')
                     </a>. -->
-                </p>
+                <!-- </p> -->
 
                 {!! view_render_event('admin.sessions.login.form_controls.after') !!}
             </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 z-[1]">
+        <div class="border-t bg-white py-5 text-center text-sm font-normal dark:border-gray-800 dark:bg-gray-900 dark:text-white max-md:py-3">
+            <p>{!! core()->getConfigData('general.settings.footer.label') !!}</p>
         </div>
     </div>
 

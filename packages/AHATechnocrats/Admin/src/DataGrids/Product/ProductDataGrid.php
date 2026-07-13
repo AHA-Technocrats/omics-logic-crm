@@ -41,6 +41,7 @@ class ProductDataGrid extends DataGrid
             'sortable' => true,
             'searchable' => true,
             'filterable' => true,
+            'closure' => fn ($row) => '<span style="font-weight:600;" class="text-gray-800 dark:text-white">'.e($row->name).'</span>',
         ]);
 
         $this->addColumn([
@@ -50,7 +51,9 @@ class ProductDataGrid extends DataGrid
             'sortable' => true,
             'filterable' => true,
             'searchable' => true,
-            'closure' => fn ($row) => $row->category ?: '—',
+            'closure' => fn ($row) => $row->category
+                ? '<span  class="text-gray-500 dark:text-white">'.e($row->category).'</span>'
+                : '—',
         ]);
 
         $this->addColumn([
@@ -58,7 +61,11 @@ class ProductDataGrid extends DataGrid
             'label' => trans('omicslogic::app.datagrid.aliases'),
             'type' => 'integer',
             'sortable' => true,
-            'closure' => fn ($row) => (int) ($row->alias_count ?? 0),
+            'closure' => fn ($row) => '<span style="display:inline-flex;align-items:center;gap:6px;" class="text-gray-500 dark:text-white">'
+                .'<i class="fa fa-tag" style="font-size:13px;"></i>'
+                .'<span>'.(int) ($row->alias_count ?? 0).'</span>'
+                .'</span>',
+                
         ]);
 
         $this->addColumn([
@@ -66,7 +73,7 @@ class ProductDataGrid extends DataGrid
             'label' => trans('omicslogic::app.datagrid.leads'),
             'type' => 'integer',
             'sortable' => true,
-            'closure' => fn ($row) => (int) ($row->leads_count ?? 0),
+            'closure' => fn ($row) => '<span class="font-bold">'.(int) ($row->leads_count ?? 0).'</span>',
         ]);
 
         $this->addColumn([
@@ -99,20 +106,63 @@ class ProductDataGrid extends DataGrid
             'type' => 'string',
             'sortable' => true,
             'filterable' => true,
-            'closure' => function ($row) {
-                if ($row->mapping_status === 'mapped') {
-                    return trans('omicslogic::app.fields.status-mapped');
-                }
-
-                if ($row->mapping_status === 'review') {
-                    return trans('omicslogic::app.fields.status-review');
-                }
-
-                return $row->is_active
-                    ? trans('omicslogic::app.fields.status-active')
-                    : trans('omicslogic::app.fields.status-inactive');
-            },
+            'closure' => fn ($row) => $this->statusBadge($row),
         ]);
+    }
+
+    protected function statusBadge(object $row): string
+    {
+        if ($row->mapping_status === 'mapped') {
+            return $this->statusPill(
+                trans('omicslogic::app.fields.status-mapped'),
+                'fa fa-check',
+                '#dcfce7',
+                '#15803d',
+            );
+        }
+
+        if ($row->mapping_status === 'review') {
+            $pill = $this->statusPill(
+                trans('omicslogic::app.fields.status-review'),
+                'fa fa-exclamation-triangle',
+                '#fef3c7',
+                '#b45309',
+            );
+
+            if (! bouncer()->hasPermission('campaigns.edit')) {
+                return $pill;
+            }
+
+            $url = e(route('admin.campaigns.edit', $row->id));
+
+            return '<a href="'.$url.'" style="display:inline-flex;text-decoration:none;cursor:pointer;">'
+                .$pill
+                .'</a>';
+        }
+
+        if ($row->is_active) {
+            return $this->statusPill(
+                trans('omicslogic::app.fields.status-active'),
+                'fa fa-check',
+                '#dcfce7',
+                '#15803d',
+            );
+        }
+
+        return $this->statusPill(
+            trans('omicslogic::app.fields.status-inactive'),
+            'fa fa-ban',
+            '#f3f4f6',
+            '#6b7280',
+        );
+    }
+
+    protected function statusPill(string $label, string $icon, string $background, string $color): string
+    {
+        return '<span style="display:inline-flex;align-items:center;gap:6px;background-color:'.$background.';color:'.$color.';border-radius:9999px;padding:4px 12px;font-size:12px;font-weight:600;">'
+            .'<i class="'.$icon.'" style="font-size:11px;"></i>'
+            .'<span>'.e($label).'</span>'
+            .'</span>';
     }
 
     public function prepareActions(): void
