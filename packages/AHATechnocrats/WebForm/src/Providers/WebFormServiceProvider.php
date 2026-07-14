@@ -3,6 +3,7 @@
 namespace AHATechnocrats\WebForm\Providers;
 
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class WebFormServiceProvider extends ServiceProvider
@@ -23,6 +24,8 @@ class WebFormServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         $this->app->register(ModuleServiceProvider::class);
+
+        Event::listen('settings.web_forms.create.after', \AHATechnocrats\WebForm\Listeners\CreateWebFormShortUrl::class);
     }
 
     /**

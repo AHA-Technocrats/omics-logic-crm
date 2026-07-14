@@ -3,6 +3,8 @@
 namespace AHATechnocrats\WebForm\DataGrids;
 
 use AHATechnocrats\DataGrid\DataGrid;
+use AHATechnocrats\WebForm\Models\WebForm;
+use AHATechnocrats\WebForm\Services\WebFormShortUrl;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -20,6 +22,7 @@ class WebFormDataGrid extends DataGrid
             ->addSelect(
                 'web_forms.id',
                 'web_forms.form_id',
+                'web_forms.short_url_key',
                 'web_forms.title',
                 'web_forms.is_active',
                 'web_forms.create_lead',
@@ -32,6 +35,7 @@ class WebFormDataGrid extends DataGrid
             ->groupBy(
                 'web_forms.id',
                 'web_forms.form_id',
+                'web_forms.short_url_key',
                 'web_forms.title',
                 'web_forms.is_active',
                 'web_forms.create_lead',
@@ -142,7 +146,21 @@ class WebFormDataGrid extends DataGrid
                 'icon' => 'icon-code',
                 'title' => trans('admin::app.settings.webforms.edit.embed'),
                 'method' => 'GET',
-                'url' => fn ($row) => "javascript:window.openWebFormEmbedModal('".route('admin.settings.web_forms.preview', $row->form_id)."', '".route('admin.settings.web_forms.form_js', $row->form_id)."')",
+                'url' => function ($row) {
+                    $webForm = WebForm::query()->find($row->id);
+
+                    $fullUrl = route('admin.settings.web_forms.preview', $row->form_id);
+                    $shortUrl = $webForm
+                        ? app(WebFormShortUrl::class)->publicUrl($webForm)
+                        : '';
+                    $scriptUrl = route('admin.settings.web_forms.form_js', $row->form_id);
+
+                    return 'javascript:window.openWebFormEmbedModal('
+                        .json_encode($fullUrl).', '
+                        .json_encode($shortUrl).', '
+                        .json_encode($scriptUrl)
+                        .')';
+                },
             ]);
         }
 

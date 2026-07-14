@@ -83,14 +83,6 @@
                         {!! view_render_event('admin.settings.webform.edit.preview_button.after', ['webform' => $webForm]) !!}
 
                         {!! view_render_event('admin.settings.webform.edit.save_button.before', ['webform' => $webForm]) !!}
-
-                        <button
-                            type="submit"
-                            class="primary-button"
-                        >
-                            @lang('admin::app.settings.webforms.edit.save-btn')
-                        </button>
-
                         {!! view_render_event('admin.settings.webform.edit.save_button.after', ['webform' => $webForm]) !!}
                     </div>
                 </div>
@@ -110,15 +102,14 @@
 
                 <div class="flex w-full flex-col gap-2">
                     <div class="box-shadow rounded-lg border border-gray-300 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-                        <div class="mb-4 flex flex-wrap items-center justify-end gap-2 border-b border-gray-200 pb-4 dark:border-gray-800">
-                            @include('admin::settings.web-forms.partials.customization-drawer', ['mode' => 'edit', 'webForm' => $webForm])
-                        </div>
+                        @include('admin::settings.web-forms.partials.wizard-timeline', ['mode' => 'edit'])
 
                         {!! view_render_event('admin.settings.webform.edit.form_controls.before', ['webform' => $webForm]) !!}
 
-                            @include('admin::settings.web-forms.partials.hidden-required-fields')
+                        @include('admin::settings.web-forms.partials.hidden-required-fields')
+
+                        <div v-show="currentStep === 1">
                             @include('admin::settings.web-forms.partials.form-metadata', ['mode' => 'edit', 'webForm' => $webForm])
-                            @include('admin::settings.web-forms.partials.form-behavior', ['mode' => 'edit', 'webForm' => $webForm])
 
                             <!-- Attributes -->
                             <div class="mb-4 mt-6 flex items-center justify-between gap-4 border-t border-gray-200 pt-6 dark:border-gray-800">
@@ -206,6 +197,8 @@
                             />
 
                             <!-- Form Fields -->
+                            <div class="overflow-x-auto">
+                            <table class="w-full">
                             <draggable
                                 tag="tbody"
                                 ghost-class="draggable-ghost"
@@ -392,9 +385,26 @@
                                     </x-admin::table.thead.tr>
                                 </template>
                             </draggable>
+                            </table>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div v-show="currentStep === 2">
+                            @include('admin::settings.web-forms.partials.lead-email', ['mode' => 'edit', 'webForm' => $webForm])
+                        </div>
+
+                        <div v-show="currentStep === 3">
+                            @include('admin::settings.web-forms.partials.form-behavior', ['mode' => 'edit', 'webForm' => $webForm])
+                        </div>
+
+                        <div v-show="currentStep === 4">
+                            @include('admin::settings.web-forms.partials.customization-panel', ['mode' => 'edit', 'webForm' => $webForm])
                         </div>
 
                             {!! view_render_event('admin.settings.webform.edit.form_controls.after', ['webform' => $webForm]) !!}
+
+                        @include('admin::settings.web-forms.partials.wizard-nav', ['mode' => 'edit'])
                         </div>
                     </div>
 
@@ -557,29 +567,11 @@
                     <x-slot:content class="!border-b-0">
                         {!! view_render_event('admin.settings.webform.edit.modal.form_controls.before', ['webform' => $webForm]) !!}
 
-                        <x-admin::form.control-group>
-                            <x-admin::form.control-group.label class="required">
-                                @lang('admin::app.settings.webforms.edit.public-url')
-                            </x-admin::form.control-group.label>
-
-                            <x-admin::form.control-group.control
-                                type="text"
-                                id="publicUrl"
-                                name="publicUrl"
-                                rules="required"
-                                :value="route('admin.settings.web_forms.preview', $webForm->form_id)"
-                                :label="trans('admin::app.settings.webforms.edit.public-url')"
-                                :placeholder="trans('admin::app.settings.webforms.edit.public-url')"
-                            />
-
-                            <span
-                                id="publicUrlBtn"
-                                class="cursor-pointer text-xs font-normal text-brandColor hover:text-sky-600 hover:underline"
-                                @click="copyToClipboard('#publicUrl','#publicUrlBtn')"
-                            >
-                                @lang('admin::app.settings.webforms.edit.copy')
-                            </span>
-                        </x-admin::form.control-group>
+                        @include('admin::settings.web-forms.partials.embed-urls', [
+                            'webForm' => $webForm,
+                            'fullUrl' => route('admin.settings.web_forms.preview', $webForm->form_id),
+                            'shortUrl' => $shortPublicUrl ?? '',
+                        ])
 
                         <x-admin::form.control-group>
                             <x-admin::form.control-group.label class="required">
@@ -649,6 +641,15 @@
 
                 data() {
                     return {
+                        currentStep: 1,
+
+                        wizardSteps: [
+                            { id: 1, label: '@lang('admin::app.settings.webforms.edit.step-form')' },
+                            { id: 2, label: '@lang('admin::app.settings.webforms.edit.step-lead-email')' },
+                            { id: 3, label: '@lang('admin::app.settings.webforms.edit.step-after-submit')' },
+                            { id: 4, label: '@lang('admin::app.settings.webforms.edit.step-customization')' },
+                        ],
+
                         submitSuccessAction: {
                             value: '{{ old('submit_success_action', $webForm->submit_success_action) }}',
 
@@ -795,6 +796,54 @@
                 },
 
                 methods: {
+                    goToStep(step) {
+                        if (step >= 1 && step <= this.wizardSteps.length) {
+                            this.currentStep = step;
+                            this.refreshWizardEditors();
+                        }
+                    },
+
+                    nextStep() {
+                        if (this.currentStep < this.wizardSteps.length) {
+                            this.currentStep += 1;
+                            this.refreshWizardEditors();
+                        }
+                    },
+
+                    prevStep() {
+                        if (this.currentStep > 1) {
+                            this.currentStep -= 1;
+                            this.refreshWizardEditors();
+                        }
+                    },
+
+                    refreshWizardEditors() {
+                        this.$nextTick(() => {
+                            if (typeof tinymce === 'undefined') {
+                                return;
+                            }
+
+                            const editorIds = this.currentStep === 1
+                                ? ['description']
+                                : (this.currentStep === 3 ? ['thank_you_content'] : []);
+
+                            editorIds.forEach((id) => {
+                                const editor = tinymce.get(id);
+
+                                if (! editor) {
+                                    return;
+                                }
+
+                                editor.show();
+                                editor.fire('ResizeEditor');
+
+                                if (editor.getContainer()) {
+                                    editor.getContainer().style.display = '';
+                                }
+                            });
+                        });
+                    },
+
                     /**
                      * Update createLead value from create_lead switch.
                      *
@@ -809,8 +858,6 @@
                         this.syncProgramField();
 
                         if (! this.customizationSaveUrl) {
-                            this.$refs.customizationDrawer?.close();
-
                             this.$emitter.emit('add-flash', {
                                 type: 'success',
                                 message: "@lang('admin::app.settings.webforms.form.customization-applied')",
@@ -839,8 +886,6 @@
                                     type: 'success',
                                     message: response.data.message,
                                 });
-
-                                this.$refs.customizationDrawer?.close();
                             })
                             .catch(error => {
                                 this.$emitter.emit('add-flash', {

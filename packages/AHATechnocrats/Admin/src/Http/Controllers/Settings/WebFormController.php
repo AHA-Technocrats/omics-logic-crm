@@ -14,6 +14,7 @@ use AHATechnocrats\WebForm\DataGrids\WebFormDataGrid;
 use AHATechnocrats\WebForm\Helpers\WebFormCampaigns;
 use AHATechnocrats\WebForm\Helpers\WebFormFieldOrder;
 use AHATechnocrats\WebForm\Repositories\WebFormRepository;
+use AHATechnocrats\WebForm\Services\WebFormShortUrl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Event;
@@ -33,7 +34,8 @@ class WebFormController extends Controller
         protected LeadRepository $leadRepository,
         protected PipelineRepository $pipelineRepository,
         protected SourceRepository $sourceRepository,
-        protected TypeRepository $typeRepository
+        protected TypeRepository $typeRepository,
+        protected WebFormShortUrl $webFormShortUrl,
     ) {}
 
     /**
@@ -85,12 +87,17 @@ class WebFormController extends Controller
             'title' => 'required',
             'submit_button_label' => 'required',
             'submit_success_action' => 'required',
-            'submit_success_content' => 'required',
+            'submit_success_content' => 'required_if:submit_success_action,redirect',
+            'thank_you_content' => 'required_if:submit_success_action,message',
         ]);
 
         Event::dispatch('settings.web_forms.create.before');
 
         $data = request()->all();
+
+        if (($data['submit_success_action'] ?? '') === 'message' && empty($data['submit_success_content'])) {
+            $data['submit_success_content'] = 'Your response has been recorded.';
+        }
 
         $webForm = $this->webFormRepository->create($data);
 
@@ -113,8 +120,11 @@ class WebFormController extends Controller
             ['id', 'NOTIN', $webForm->attributes()->pluck('attribute_id')->toArray()],
         ]);
 
+        $shortPublicUrl = $this->webFormShortUrl->publicUrl($webForm->fresh());
+
         return view('admin::settings.web-forms.edit', [
-            'webForm' => $webForm,
+            'webForm' => $webForm->fresh(),
+            'shortPublicUrl' => $shortPublicUrl,
             'attributes' => $attributes,
             'emailTemplates' => EmailTemplate::query()->orderBy('name')->get(['id', 'name']),
             'activeCampaigns' => WebFormCampaigns::activeAsOptions(),
@@ -130,12 +140,17 @@ class WebFormController extends Controller
             'title' => 'required',
             'submit_button_label' => 'required',
             'submit_success_action' => 'required',
-            'submit_success_content' => 'required',
+            'submit_success_content' => 'required_if:submit_success_action,redirect',
+            'thank_you_content' => 'required_if:submit_success_action,message',
         ]);
 
         Event::dispatch('settings.web_forms.update.before', $id);
 
         $data = request()->all();
+
+        if (($data['submit_success_action'] ?? '') === 'message' && empty($data['submit_success_content'])) {
+            $data['submit_success_content'] = 'Your response has been recorded.';
+        }
 
         $webForm = $this->webFormRepository->update($data, $id);
 

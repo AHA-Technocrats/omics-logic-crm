@@ -101,7 +101,7 @@
                 ];
 
                 if ($attributes->get('tinymce', false) || $attributes->get(':tinymce', false)) {
-                    $defaultAttributes['id'] = $attributes->get(':id', 'id');
+                    $defaultAttributes['id'] = $attributes->get('id') ?? $attributes->get(':id') ?? 'id';
                 }
             @endphp
 

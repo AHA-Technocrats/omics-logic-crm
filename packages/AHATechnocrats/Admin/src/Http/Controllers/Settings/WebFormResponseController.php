@@ -6,6 +6,7 @@ use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\WebForm\DataGrids\WebFormSubmissionDataGrid;
 use AHATechnocrats\WebForm\Models\WebFormSubmission;
 use AHATechnocrats\WebForm\Repositories\WebFormRepository;
+use AHATechnocrats\WebForm\Services\WebFormShortUrl;
 use AHATechnocrats\WebForm\Services\WebFormSubmissionExport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -16,6 +17,7 @@ class WebFormResponseController extends Controller
 {
     public function __construct(
         protected WebFormRepository $webFormRepository,
+        protected WebFormShortUrl $webFormShortUrl,
     ) {}
 
     public function index(int $id): View|JsonResponse
@@ -32,7 +34,13 @@ class WebFormResponseController extends Controller
             ->where('web_form_id', $id)
             ->count();
 
-        return view('admin::settings.web-forms.responses', compact('webForm', 'submissionCount'));
+        $shortPublicUrl = $this->webFormShortUrl->publicUrl($webForm->fresh());
+
+        return view('admin::settings.web-forms.responses', [
+            'webForm' => $webForm->fresh(),
+            'submissionCount' => $submissionCount,
+            'shortPublicUrl' => $shortPublicUrl,
+        ]);
     }
 
     public function export(int $id): BinaryFileResponse

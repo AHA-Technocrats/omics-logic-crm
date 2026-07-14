@@ -10,13 +10,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WebForm extends Model implements WebFormContract
 {
+    public const DEFAULT_THANK_YOU_CONTENT = '<h2>Your response has been recorded.</h2><p>Thank you for submitting the form.</p>';
+
     protected $fillable = [
         'form_id',
+        'short_url_key',
         'title',
         'description',
         'submit_button_label',
         'submit_success_action',
         'submit_success_content',
+        'thank_you_content',
         'create_lead',
         'is_active',
         'send_submitter_email',
@@ -71,5 +75,21 @@ class WebForm extends Model implements WebFormContract
     public function emailTemplate(): BelongsTo
     {
         return $this->belongsTo(EmailTemplateProxy::modelClass(), 'email_template_id');
+    }
+
+    public function resolvedThankYouContent(): string
+    {
+        if (filled($this->thank_you_content)) {
+            return $this->thank_you_content;
+        }
+
+        if (
+            ($this->submit_success_action ?? 'message') === 'message'
+            && filled($this->submit_success_content)
+        ) {
+            return '<p>'.e($this->submit_success_content).'</p>';
+        }
+
+        return self::DEFAULT_THANK_YOU_CONTENT;
     }
 }
