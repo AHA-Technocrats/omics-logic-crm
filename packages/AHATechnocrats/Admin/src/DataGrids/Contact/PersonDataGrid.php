@@ -27,7 +27,6 @@ class PersonDataGrid extends DataGrid
                 'persons.name as person_name',
                 'persons.emails',
                 'persons.education_level',
-                'persons.engagement_lessons',
                 'persons.last_activity_at',
                 'organizations.name as organization',
                 'organizations.id as organization_id',
@@ -35,6 +34,12 @@ class PersonDataGrid extends DataGrid
                 'users.image as owner_image',
             )
             ->selectRaw('(SELECT COUNT(*) FROM '.$tablePrefix.'leads WHERE '.$tablePrefix.'leads.person_id = '.$tablePrefix.'persons.id) as leads_count')
+            ->selectRaw('(
+                SELECT COUNT(*) FROM '.$tablePrefix.'leads
+                JOIN '.$tablePrefix.'lead_pipeline_stages ON '.$tablePrefix.'lead_pipeline_stages.id = '.$tablePrefix.'leads.lead_pipeline_stage_id
+                WHERE '.$tablePrefix.'leads.person_id = '.$tablePrefix.'persons.id
+                  AND '.$tablePrefix.'lead_pipeline_stages.code = \'won\'
+            ) as won_leads_count')
             ->selectRaw('COALESCE(organizations.country_code, persons.country_code) as country_code')
             ->leftJoin('organizations', 'persons.organization_id', '=', 'organizations.id')
             ->leftJoin('users', 'persons.user_id', '=', 'users.id')
@@ -143,11 +148,18 @@ class PersonDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
-            'index' => 'engagement_lessons',
-            'label' => trans('omicslogic::app.datagrid.lessons'),
+            'index' => 'won_leads_count',
+            'label' => trans('omicslogic::app.datagrid.customers') !== 'omicslogic::app.datagrid.customers' ? trans('omicslogic::app.datagrid.customers') : 'Customers',
             'type' => 'integer',
             'sortable' => true,
-            'closure' => fn ($row) => $this->lessonsCell((int) ($row->engagement_lessons ?? 0)),
+            'closure' => function ($row) {
+                $count = (int) ($row->won_leads_count ?? 0);
+
+                return '<span class="flex items-center gap-1">'
+                    .'<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600 dark:text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>'
+                    .'<span class="text-gray-800 dark:text-white">'.$count.'</span>'
+                    .'</span>';
+            },
         ]);
 
         $this->addColumn([
@@ -241,14 +253,6 @@ class PersonDataGrid extends DataGrid
             ->implode('');
 
         return e($initials ?: '?');
-    }
-
-    protected function lessonsCell(int $count): string
-    {
-        return '<span style="display:inline-flex;align-items:center;gap:6px;color:#6b7280;">'
-            .'<i class="fa fa-book-open text-gray-800 dark:text-white" style="font-size:13px;"></i>'
-            .'<span class="text-gray-800 dark:text-white">'.$count.'</span>'
-            .'</span>';
     }
 
     protected function countryBadge(?string $country): string
