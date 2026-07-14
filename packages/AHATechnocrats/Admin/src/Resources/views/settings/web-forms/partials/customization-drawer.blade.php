@@ -159,7 +159,7 @@
                         </label>
                     </x-admin::form.control-group>
 
-                    <div v-if="campaignScope === 'selected'" class="max-h-48 space-y-2 overflow-y-auto">
+                    <div v-if="campaignScope === 'selected'" class="mb-3 max-h-48 space-y-2 overflow-y-auto">
                         <label
                             v-for="campaign in availableCampaigns"
                             :key="campaign.key"
@@ -176,12 +176,28 @@
                         </label>
                     </div>
 
+                    <label class="flex cursor-pointer items-center gap-2 text-sm dark:text-gray-300">
+                        <input
+                            type="checkbox"
+                            class="peer hidden"
+                            v-model="showCampaignOther"
+                        />
+                        <span class="icon-checkbox-outline peer-checked:icon-checkbox-select text-2xl peer-checked:text-brandColor"></span>
+                        @lang('admin::app.settings.webforms.form.show-other-option')
+                    </label>
+
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        @lang('admin::app.settings.webforms.form.show-other-option-help')
+                    </p>
+
                     <input type="hidden" name="program_options" :value="campaignOptionsJson" />
+                    <input type="hidden" name="show_campaign_other" :value="showCampaignOther ? 1 : 0" />
                 </div>
 
                 <template v-if="programField === 'none'">
                     <input type="hidden" name="campaign_scope" value="all" />
                     <input type="hidden" name="program_options" value="[]" />
+                    <input type="hidden" name="show_campaign_other" value="0" />
                 </template>
             </div>
 

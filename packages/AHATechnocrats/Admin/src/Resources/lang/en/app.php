@@ -1020,6 +1020,8 @@ return [
                 'campaigns-on-form' => 'Campaigns on form',
                 'all-campaigns' => 'All active campaigns',
                 'selected-campaigns' => 'Selected campaigns only',
+                'show-other-option' => 'Other',
+                'show-other-option-help' => 'Include an “Other” free-text option on the form. Uncheck to hide it.',
                 'allow-org-create' => 'Allow organization auto-creation',
                 'live-preview' => 'Live Preview',
                 'live-preview-help' => 'This preview updates live as you edit. Save when you are happy with it.',

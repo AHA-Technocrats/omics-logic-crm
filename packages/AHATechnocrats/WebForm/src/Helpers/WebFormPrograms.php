@@ -27,6 +27,15 @@ class WebFormPrograms
         return ($webForm->program_field ?? 'required') !== 'none';
     }
 
+    public static function showsOtherOption(WebFormContract $webForm): bool
+    {
+        if (! self::isEnabled($webForm)) {
+            return false;
+        }
+
+        return (bool) ($webForm->show_campaign_other ?? true);
+    }
+
     /**
      * @return list<array{key: string, name: string, id?: int}>
      */

@@ -323,6 +323,16 @@ class WebFormRepository extends Repository
         $data['is_active'] = filter_var($data['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN);
         $data['send_submitter_email'] = filter_var($data['send_submitter_email'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
+        if (array_key_exists('show_campaign_other', $data)) {
+            $data['show_campaign_other'] = filter_var($data['show_campaign_other'], FILTER_VALIDATE_BOOLEAN);
+        } else {
+            $data['show_campaign_other'] = true;
+        }
+
+        if (($data['program_field'] ?? 'required') === 'none') {
+            $data['show_campaign_other'] = false;
+        }
+
         if (empty($data['email_template_id'])) {
             $data['email_template_id'] = null;
         }
@@ -346,6 +356,9 @@ class WebFormRepository extends Repository
             'program_field' => $data['program_field'] ?? $webForm->program_field,
             'campaign_scope' => $data['campaign_scope'] ?? $webForm->campaign_scope,
             'program_options' => $data['program_options'] ?? $webForm->program_options,
+            'show_campaign_other' => array_key_exists('show_campaign_other', $data)
+                ? $data['show_campaign_other']
+                : $webForm->show_campaign_other,
             'allow_org_create' => array_key_exists('allow_org_create', $data)
                 ? $data['allow_org_create']
                 : $webForm->allow_org_create,
@@ -355,6 +368,11 @@ class WebFormRepository extends Repository
         $payload = $this->normalizeCampaignSettings($payload);
         $payload = $this->normalizeRequiredFieldDefaults($payload);
         $payload['allow_org_create'] = filter_var($payload['allow_org_create'] ?? true, FILTER_VALIDATE_BOOLEAN);
+        $payload['show_campaign_other'] = filter_var($payload['show_campaign_other'] ?? true, FILTER_VALIDATE_BOOLEAN);
+
+        if (($payload['program_field'] ?? 'required') === 'none') {
+            $payload['show_campaign_other'] = false;
+        }
 
         $fieldOrder = $this->parseFieldOrder($data['field_order'] ?? $webForm->field_order);
 

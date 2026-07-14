@@ -33,6 +33,7 @@ class WebForm extends Model implements WebFormContract
         'allow_org_create',
         'program_field',
         'program_options',
+        'show_campaign_other',
         'field_order',
         'background_color',
         'form_background_color',
@@ -49,6 +50,7 @@ class WebForm extends Model implements WebFormContract
         'honeypot_enabled' => 'boolean',
         'block_disposable' => 'boolean',
         'allow_org_create' => 'boolean',
+        'show_campaign_other' => 'boolean',
         'field_order' => 'array',
         'program_options' => 'array',
     ];

@@ -686,6 +686,8 @@
 
                         allowOrgCreate: {{ (old('allow_org_create') ?? $webForm->allow_org_create) ? 'true' : 'false' }},
 
+                        showCampaignOther: {{ (old('show_campaign_other') ?? $webForm->show_campaign_other ?? true) ? 'true' : 'false' }},
+
                         formTitle: @json(old('title', $webForm->title)),
 
                         submitButtonLabel: @json(old('submit_button_label', $webForm->submit_button_label ?? 'Submit')),
@@ -828,6 +830,7 @@
                             program_field: this.programField === 'required' ? 'required' : 'none',
                             campaign_scope: this.programField === 'required' ? this.campaignScope : 'all',
                             program_options: this.programField === 'required' ? this.campaignOptionsJson : '[]',
+                            show_campaign_other: this.programField === 'required' && this.showCampaignOther ? 1 : 0,
                             allow_org_create: this.allowOrgCreate ? 1 : 0,
                             field_order: JSON.stringify(this.formFields.map(field => field.key)),
                         })

@@ -154,6 +154,7 @@ class WebFormController extends Controller
         $this->validate(request(), [
             'program_field' => 'required|in:none,required',
             'campaign_scope' => 'nullable|in:all,selected',
+            'show_campaign_other' => 'nullable',
             'background_color' => 'nullable|string|max:20',
             'form_background_color' => 'nullable|string|max:20',
             'form_title_color' => 'nullable|string|max:20',
