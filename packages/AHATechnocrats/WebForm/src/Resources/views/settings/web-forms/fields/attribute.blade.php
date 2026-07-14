@@ -91,19 +91,23 @@
                         <x-web_form::form.control-group.control
                             type="checkbox"
                             name="{{ $fieldName }}[]"
-                            id="{{ $fieldName }}[]"
+                            id="{{ $fieldName }}_{{ $option->id }}"
                             value="{{ $option->id }}"
-                            for="{{ $fieldName }}[]"
+                            for="{{ $fieldName }}_{{ $option->id }}"
+                            :rules="$loop->first ? $validations : ''"
+                            :label="$attribute->name ?? $parentAttribute->name"
                         />
 
                         <label
                             class="cursor-pointer text-xs font-medium text-gray-600 dark:text-gray-300"
-                            for="{{ $fieldName }}[]"
+                            for="{{ $fieldName }}_{{ $option->id }}"
                         >
                             {{ $option->name }}
                         </label>
                     </x-web_form::form.control-group>
                 @endforeach
+
+                <x-web_form::form.control-group.error :control-name="$fieldName.'[]'" />
 
                 @break
 

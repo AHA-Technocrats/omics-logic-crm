@@ -69,7 +69,7 @@
                             type="select"
                             name="type"
                             id="import-type"
-                            :value="old('type') ?? 'persons'"
+                            :value="old('type') ?? array_key_first(config('importers'))"
                             ref="importType"
                             rules="required"
                             :label="trans('admin::app.settings.data-transfer.imports.create.type')"
@@ -81,7 +81,7 @@
 
                         <!-- Source Sample Download Links -->
                         <a
-                            href="{{ route('admin.settings.data_transfer.imports.download_sample') }}/persons"
+                            href="{{ route('admin.settings.data_transfer.imports.download_sample', ['sample' => array_key_first(config('importers'))]) }}"
                             data-sample-base="{{ route('admin.settings.data_transfer.imports.download_sample') }}"
                             data-sample-select="import-type"
                             target="_blank"

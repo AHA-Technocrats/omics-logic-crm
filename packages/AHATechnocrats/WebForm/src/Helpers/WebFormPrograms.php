@@ -62,14 +62,13 @@ class WebFormPrograms
         $validKeys = self::allKeys();
 
         $normalized = array_values(array_unique(array_filter(
-            $input,
-            fn ($key) => is_string($key) && in_array($key, $validKeys, true)
+            array_map(
+                fn ($key) => is_scalar($key) ? (string) $key : null,
+                $input
+            ),
+            fn ($key) => $key !== null && in_array($key, $validKeys, true)
         )));
 
-        if ($normalized === [] || count($normalized) === count($validKeys)) {
-            return null;
-        }
-
-        return $normalized;
+        return $normalized === [] ? null : $normalized;
     }
 }

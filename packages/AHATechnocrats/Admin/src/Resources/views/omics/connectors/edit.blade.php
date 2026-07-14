@@ -118,6 +118,26 @@
                         </x-admin::form.control-group>
 
                         <x-admin::form.control-group class="mb-0">
+                            <x-admin::form.control-group.label for="create_lead">
+                                @lang('omicslogic::app.connectors.create-lead')
+                            </x-admin::form.control-group.label>
+
+                            <input type="hidden" name="create_lead" value="0" />
+
+                            <x-admin::form.control-group.control
+                                type="switch"
+                                name="create_lead"
+                                value="1"
+                                :label="trans('omicslogic::app.connectors.create-lead')"
+                                :checked="(bool) old('create_lead', $createLead)"
+                            />
+
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                @lang('omicslogic::app.connectors.create-lead-help')
+                            </p>
+                        </x-admin::form.control-group>
+
+                        <x-admin::form.control-group class="mb-0">
                             <x-admin::form.control-group.label>
                                 Initial Sync Date (Optional)
                             </x-admin::form.control-group.label>

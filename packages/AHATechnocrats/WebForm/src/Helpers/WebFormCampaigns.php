@@ -46,9 +46,12 @@ class WebFormCampaigns
         if (self::usesSelectedScope($webForm)) {
             $ids = self::selectedIds($webForm);
 
-            if ($ids !== []) {
-                $query->whereIn('id', $ids);
+            // Selected scope with no valid IDs must not fall back to "all campaigns".
+            if ($ids === []) {
+                return collect();
             }
+
+            $query->whereIn('id', $ids);
         }
 
         return $query->get();

@@ -12,6 +12,13 @@
             ? array_map('strval', $storedCampaignOptions)
             : array_column($availableCampaigns, 'key');
         $allCampaignsSelected = $campaignScope !== 'selected';
+        $programField = old('program_field', $webForm->program_field ?? 'required');
+        if ($programField === 'optional') {
+            $programField = 'required';
+        }
+        if (! in_array($programField, ['none', 'required'], true)) {
+            $programField = 'required';
+        }
     @endphp
 
     <!-- Page Title -->
@@ -236,6 +243,15 @@
                                                         :value="element.attribute.entity_type"
                                                         :name="'attributes[' + element.id + '][entity_type]'"
                                                     />
+                                                    <template v-if="element.attribute.options?.length">
+                                                        <input
+                                                            v-for="(option, optionIndex) in element.attribute.options"
+                                                            :key="optionIndex"
+                                                            type="hidden"
+                                                            :value="option.name"
+                                                            :name="'attributes[' + element.id + '][options][' + optionIndex + '][name]'"
+                                                        />
+                                                    </template>
                                                 </template>
                                                 <template v-else>
                                                     <input
@@ -266,7 +282,12 @@
                                                 </p>
 
                                                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                    Built-in field
+                                                    <template v-if="element.key === 'builtin:program'">
+                                                        Required
+                                                    </template>
+                                                    <template v-else>
+                                                        Built-in field
+                                                    </template>
                                                 </p>
                                             </template>
 
@@ -314,8 +335,18 @@
                                         <!-- Required Or Not -->
                                         <x-admin::table.td>
                                             <template v-if="element.type === 'builtin'">
-                                                <p class="mt-6 text-sm text-gray-400 dark:text-gray-500">
-                                                    —
+                                                <p
+                                                    class="mt-6 text-sm"
+                                                    :class="element.key === 'builtin:program'
+                                                        ? 'font-medium text-gray-800 dark:text-white'
+                                                        : 'text-gray-400 dark:text-gray-500'"
+                                                >
+                                                    <template v-if="element.key === 'builtin:program'">
+                                                        Required
+                                                    </template>
+                                                    <template v-else>
+                                                        —
+                                                    </template>
                                                 </p>
                                             </template>
 
@@ -409,10 +440,58 @@
                                 >
                                     <option value="text">Short Answer (Text)</option>
                                     <option value="textarea">Paragraph (Textarea)</option>
+                                    <option value="checkbox">Checkboxes (Multiple choice)</option>
                                     <option value="boolean">Yes/No (Boolean)</option>
                                     <option value="date">Date</option>
                                 </x-admin::form.control-group.control>
                             </x-admin::form.control-group>
+
+                            <div
+                                v-if="customField.type === 'checkbox'"
+                                class="mb-4 rounded-lg border border-gray-200 p-3 dark:border-gray-800"
+                            >
+                                <p class="mb-2 text-sm font-semibold text-gray-800 dark:text-white">
+                                    Checkbox options
+                                </p>
+
+                                <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">
+                                    Add the choices visitors can select (multiple allowed).
+                                </p>
+
+                                <div class="mb-2 flex flex-col gap-2">
+                                    <div
+                                        v-for="(option, index) in customField.options"
+                                        :key="index"
+                                        class="flex items-center gap-2"
+                                    >
+                                        <x-admin::form.control-group.control
+                                            type="text"
+                                            ::name="'custom_option_' + index"
+                                            v-model="customField.options[index]"
+                                            label="Option"
+                                            placeholder="Option label"
+                                            class="flex-1"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            class="secondary-button !px-2"
+                                            @click="removeCustomFieldOption(index)"
+                                            v-if="customField.options.length > 1"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="secondary-button"
+                                    @click="addCustomFieldOption"
+                                >
+                                    + Add Option
+                                </button>
+                            </div>
 
                             <!-- Target Entity -->
                             <x-admin::form.control-group class="mb-4">
@@ -583,7 +662,11 @@
 
                         organizationField: 'required',
 
-                        programField: 'required',
+                        programField: @json($programField),
+
+                        isApplyingCustomization: false,
+
+                        customizationSaveUrl: @json(route('admin.web_forms.customization.update', $webForm->id)),
 
                         availablePrograms: @json($availableCampaigns),
 
@@ -622,6 +705,7 @@
                             type: 'text',
                             entity_type: 'persons',
                             is_required: false,
+                            options: ['', ''],
                         },
 
                         attributes: @json($attributes),
@@ -666,45 +750,20 @@
                         this.pinInquiryDetailsLast();
                     },
 
-                    programField(newValue) {
-                        const programKey = 'builtin:program';
-                        const programIndex = this.formFields.findIndex(field => field.key === programKey);
-
-                        if (newValue !== 'none' && programIndex === -1) {
-                            const inquiryIndex = this.formFields.findIndex(field => field.key === 'builtin:inquiry_details');
-
-                            const programField = {
-                                key: programKey,
-                                type: 'builtin',
-                                label: 'Interested in Program',
-                                locked: false,
-                                removable: false,
-                            };
-
-                            if (inquiryIndex === -1) {
-                                this.formFields.push(programField);
-                            } else {
-                                this.formFields.splice(inquiryIndex, 0, programField);
-                            }
-                        } else if (newValue === 'none' && programIndex !== -1) {
-                            this.formFields.splice(programIndex, 1);
-                        }
-
-                        this.pinInquiryDetailsLast();
+                    programField() {
+                        this.syncProgramField();
                     },
                 },
 
                 computed:{
                     campaignOptionsJson() {
-                        if (this.campaignScope !== 'selected' || this.selectedCampaignKeys.length === 0) {
+                        if (this.campaignScope !== 'selected') {
                             return '[]';
                         }
 
-                        if (this.selectedCampaignKeys.length === this.availableCampaigns.length) {
-                            return '[]';
-                        }
-
-                        return JSON.stringify(this.selectedCampaignKeys);
+                        return JSON.stringify(
+                            (this.selectedCampaignKeys || []).map(key => String(key))
+                        );
                     },
 
                     programOptionsJson() {
@@ -744,14 +803,131 @@
                         this.createLead = event.target.checked;
                     },
 
+                    applyCustomization() {
+                        this.syncProgramField();
+
+                        if (! this.customizationSaveUrl) {
+                            this.$refs.customizationDrawer?.close();
+
+                            this.$emitter.emit('add-flash', {
+                                type: 'success',
+                                message: "@lang('admin::app.settings.webforms.form.customization-applied')",
+                            });
+
+                            return;
+                        }
+
+                        this.isApplyingCustomization = true;
+
+                        this.$axios.put(this.customizationSaveUrl, {
+                            background_color: this.backgroundColor,
+                            form_background_color: this.formBackgroundColor,
+                            form_title_color: this.formTitleColor,
+                            form_submit_button_color: this.formSubmitButtonColor,
+                            attribute_label_color: this.attributeLabelColor,
+                            program_field: this.programField === 'required' ? 'required' : 'none',
+                            campaign_scope: this.programField === 'required' ? this.campaignScope : 'all',
+                            program_options: this.programField === 'required' ? this.campaignOptionsJson : '[]',
+                            allow_org_create: this.allowOrgCreate ? 1 : 0,
+                            field_order: JSON.stringify(this.formFields.map(field => field.key)),
+                        })
+                            .then(response => {
+                                this.$emitter.emit('add-flash', {
+                                    type: 'success',
+                                    message: response.data.message,
+                                });
+
+                                this.$refs.customizationDrawer?.close();
+                            })
+                            .catch(error => {
+                                this.$emitter.emit('add-flash', {
+                                    type: 'error',
+                                    message: error.response?.data?.message
+                                        || error.response?.data?.errors?.program_field?.[0]
+                                        || 'Failed to save customization',
+                                });
+                            })
+                            .finally(() => {
+                                this.isApplyingCustomization = false;
+                            });
+                    },
+
+                    onShowCampaignInterestChange(checked) {
+                        this.programField = checked ? 'required' : 'none';
+                        this.syncProgramField();
+                    },
+
+                    syncProgramField() {
+                        this.programField = this.programField === 'required' ? 'required' : 'none';
+
+                        const programKey = 'builtin:program';
+                        const programIndex = this.formFields.findIndex(field => field.key === programKey);
+
+                        if (this.programField === 'required' && programIndex === -1) {
+                            const inquiryIndex = this.formFields.findIndex(field => field.key === 'builtin:inquiry_details');
+
+                            const programField = {
+                                key: programKey,
+                                type: 'builtin',
+                                label: 'Interested in Campaign',
+                                locked: false,
+                                removable: false,
+                            };
+
+                            if (inquiryIndex === -1) {
+                                this.formFields.push(programField);
+                            } else {
+                                this.formFields.splice(inquiryIndex, 0, programField);
+                            }
+                        } else if (this.programField === 'none' && programIndex !== -1) {
+                            this.formFields.splice(programIndex, 1);
+                        }
+
+                        this.pinInquiryDetailsLast();
+                    },
+
                     openCustomFieldModal() {
+                        this.customField = {
+                            name: '',
+                            type: 'text',
+                            entity_type: 'persons',
+                            is_required: false,
+                            options: ['', ''],
+                        };
+
                         this.$refs.customFieldModal.toggle();
+                    },
+
+                    addCustomFieldOption() {
+                        this.customField.options.push('');
+                    },
+
+                    removeCustomFieldOption(index) {
+                        if (this.customField.options.length <= 1) {
+                            return;
+                        }
+
+                        this.customField.options.splice(index, 1);
                     },
 
                     saveCustomField() {
                         if (! this.customField.name) {
                             alert("Please enter a field label / question");
                             return;
+                        }
+
+                        let options = [];
+
+                        if (this.customField.type === 'checkbox') {
+                            options = (this.customField.options || [])
+                                .map(option => String(option || '').trim())
+                                .filter(option => option !== '')
+                                .map(name => ({ name }));
+
+                            if (options.length < 2) {
+                                alert("Please add at least two checkbox options");
+                                return;
+                            }
                         }
 
                         let code = 'custom_' + this.customField.name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Math.floor(Math.random() * 100000);
@@ -771,11 +947,17 @@
                                 type: this.customField.type,
                                 entity_type: this.customField.entity_type,
                                 is_required: this.customField.is_required,
+                                options: options,
                             }
                         });
 
-                        this.customField.name = '';
-                        this.customField.is_required = false;
+                        this.customField = {
+                            name: '',
+                            type: 'text',
+                            entity_type: 'persons',
+                            is_required: false,
+                            options: ['', ''],
+                        };
 
                         this.$refs.customFieldModal.toggle();
                     },

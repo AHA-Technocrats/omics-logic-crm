@@ -6,6 +6,7 @@ use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\OmicsLogic\Models\Connector;
 use AHATechnocrats\OmicsLogic\Models\ConnectorSyncRun;
 use AHATechnocrats\OmicsLogic\Services\ConnectorSyncService;
+use AHATechnocrats\WebForm\Models\WebForm;
 use AHATechnocrats\WebForm\Repositories\WebFormRepository;
 use App\Firebase\Services\ConnectorFirebaseSyncService;
 use App\Firebase\Services\FormSyncService;
@@ -39,7 +40,15 @@ class ConnectorController extends Controller
             $connector->refresh();
         }
 
-        $webForms = $webFormRepository->all(['id', 'title']);
+        $webForms = $webFormRepository->all(['id', 'title', 'create_lead']);
+
+        $mappedWebFormId = (int) (($connector->config ?? [])['web_form_id'] ?? 0);
+        $createLead = true;
+
+        if ($mappedWebFormId > 0) {
+            $mappedWebForm = $webForms->firstWhere('id', $mappedWebFormId);
+            $createLead = (bool) ($mappedWebForm?->create_lead ?? true);
+        }
 
         $firebaseConfigured = $firebaseSyncService->isFirebaseConfigured();
 
@@ -51,6 +60,7 @@ class ConnectorController extends Controller
         return view('admin::omics.connectors.edit', compact(
             'connector',
             'webForms',
+            'createLead',
             'firebaseConfigured',
             'firebaseProjectId',
         ));
@@ -65,6 +75,7 @@ class ConnectorController extends Controller
             'status' => 'required|in:connected,disabled,error',
             'sync_schedule' => 'nullable|in:manual,hourly,daily,weekly',
             'sync_from_date' => 'nullable|date',
+            'create_lead' => 'nullable|boolean',
         ];
 
         if ($connector->type === 'portal_api') {
@@ -89,6 +100,12 @@ class ConnectorController extends Controller
             'status' => $data['status'],
             'config' => array_merge($connector->config ?? [], $config),
         ]);
+
+        if ($connector->type === 'portal_api' && ! empty($config['web_form_id'])) {
+            WebForm::query()
+                ->whereKey($config['web_form_id'])
+                ->update(['create_lead' => $request->boolean('create_lead')]);
+        }
 
         session()->flash('success', trans('omicslogic::app.connectors.update-success'));
 

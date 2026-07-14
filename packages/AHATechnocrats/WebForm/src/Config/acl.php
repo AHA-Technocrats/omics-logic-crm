@@ -19,7 +19,7 @@ return [
     ], [
         'key' => 'web_forms.edit',
         'name' => 'web_form::app.acl.edit',
-        'route' => ['admin.web_forms.edit', 'admin.web_forms.update'],
+        'route' => ['admin.web_forms.edit', 'admin.web_forms.update', 'admin.web_forms.customization.update'],
         'sort' => 3,
     ], [
         'key' => 'web_forms.delete',

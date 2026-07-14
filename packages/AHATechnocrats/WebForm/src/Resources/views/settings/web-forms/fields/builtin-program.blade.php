@@ -1,8 +1,11 @@
 @php
     use AHATechnocrats\WebForm\Helpers\WebFormPrograms;
+@endphp
 
+@if (WebFormPrograms::isEnabled($webForm))
+@php
     $campaigns = WebFormPrograms::forForm($webForm);
-    $isRequired = ($webForm->program_field ?? 'required') === 'required';
+    $isRequired = true;
     $programOptions = collect($campaigns);
 @endphp
 
@@ -71,3 +74,4 @@
         <x-web_form::form.control-group.error control-name="persons[program_interest][]" />
     </x-web_form::form.control-group>
 </div>
+@endif
