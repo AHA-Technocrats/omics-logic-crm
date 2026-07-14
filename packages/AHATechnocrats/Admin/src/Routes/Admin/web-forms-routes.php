@@ -15,9 +15,10 @@ Route::controller(WebFormController::class)->prefix('web-forms')->group(function
 
     Route::put('edit/{id}', 'update')->name('admin.web_forms.update');
 
+    Route::put('{id}/customization', 'updateCustomization')->name('admin.web_forms.customization.update');
+
     Route::delete('{id}', 'destroy')->name('admin.web_forms.delete');
 });
-
 Route::controller(WebFormResponseController::class)->prefix('web-forms')->group(function () {
     Route::get('{id}/responses', 'index')->name('admin.web_forms.responses.index');
 

@@ -147,6 +147,35 @@ class WebFormController extends Controller
     }
 
     /**
+     * Persist customization drawer settings (colors, campaign interest, campaign list).
+     */
+    public function updateCustomization(int $id): JsonResponse
+    {
+        $this->validate(request(), [
+            'program_field' => 'required|in:none,required',
+            'campaign_scope' => 'nullable|in:all,selected',
+            'background_color' => 'nullable|string|max:20',
+            'form_background_color' => 'nullable|string|max:20',
+            'form_title_color' => 'nullable|string|max:20',
+            'form_submit_button_color' => 'nullable|string|max:20',
+            'attribute_label_color' => 'nullable|string|max:20',
+        ]);
+
+        Event::dispatch('settings.web_forms.update.before', $id);
+
+        $webForm = $this->webFormRepository->updateCustomization($id, request()->all());
+
+        Event::dispatch('settings.web_forms.update.after', $webForm);
+
+        return response()->json([
+            'message' => trans('admin::app.settings.webforms.form.customization-saved'),
+            'program_field' => $webForm->program_field,
+            'campaign_scope' => $webForm->campaign_scope,
+            'field_order' => $webForm->field_order,
+        ]);
+    }
+
+    /**
      * Remove the specified email template from storage.
      */
     public function destroy(int $id): JsonResponse

@@ -111,43 +111,78 @@
 
             <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
                 <p class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">
-                    @lang('admin::app.settings.webforms.form.campaigns-on-form')
+                    @lang('admin::app.settings.webforms.form.interested-in-campaign')
                 </p>
 
-                <input type="hidden" name="campaign_scope" :value="campaignScope" />
-
                 <x-admin::form.control-group class="!mb-3">
-                    <label class="mb-2 flex cursor-pointer items-center gap-2 text-sm dark:text-gray-300">
-                        <input type="radio" value="all" v-model="campaignScope" class="peer hidden" />
-                        <span class="icon-radio-normal peer-checked:icon-radio-selected text-2xl text-gray-400 peer-checked:text-brandColor"></span>
-                        @lang('admin::app.settings.webforms.form.all-campaigns')
-                    </label>
+                    <x-admin::form.control-group.label for="show_campaign_interest">
+                        @lang('admin::app.settings.webforms.form.interested-in-campaign-field')
+                    </x-admin::form.control-group.label>
+
+                    <input type="hidden" name="program_field" :value="programField" />
 
                     <label class="flex cursor-pointer items-center gap-2 text-sm dark:text-gray-300">
-                        <input type="radio" value="selected" v-model="campaignScope" class="peer hidden" />
-                        <span class="icon-radio-normal peer-checked:icon-radio-selected text-2xl text-gray-400 peer-checked:text-brandColor"></span>
-                        @lang('admin::app.settings.webforms.form.selected-campaigns')
-                    </label>
-                </x-admin::form.control-group>
-
-                <div v-if="campaignScope === 'selected'" class="max-h-48 space-y-2 overflow-y-auto">
-                    <label
-                        v-for="campaign in availableCampaigns"
-                        :key="campaign.key"
-                        class="flex cursor-pointer items-center gap-2 text-sm dark:text-gray-300"
-                    >
                         <input
+                            id="show_campaign_interest"
                             type="checkbox"
                             class="peer hidden"
-                            :value="campaign.key"
-                            v-model="selectedCampaignKeys"
+                            :checked="programField === 'required'"
+                            @change="onShowCampaignInterestChange($event.target.checked)"
                         />
                         <span class="icon-checkbox-outline peer-checked:icon-checkbox-select text-2xl peer-checked:text-brandColor"></span>
-                        @{{ campaign.name }}
+                        @lang('admin::app.settings.webforms.form.field-show')
                     </label>
+
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        When shown, this field is always required. Uncheck to hide it from the form.
+                    </p>
+                </x-admin::form.control-group>
+
+                <div v-show="programField === 'required'">
+                    <p class="mb-3 text-sm font-semibold text-gray-800 dark:text-white">
+                        @lang('admin::app.settings.webforms.form.campaigns-on-form')
+                    </p>
+
+                    <input type="hidden" name="campaign_scope" :value="campaignScope" />
+
+                    <x-admin::form.control-group class="!mb-3">
+                        <label class="mb-2 flex cursor-pointer items-center gap-2 text-sm dark:text-gray-300">
+                            <input type="radio" value="all" v-model="campaignScope" class="peer hidden" />
+                            <span class="icon-radio-normal peer-checked:icon-radio-selected text-2xl text-gray-400 peer-checked:text-brandColor"></span>
+                            @lang('admin::app.settings.webforms.form.all-campaigns')
+                        </label>
+
+                        <label class="flex cursor-pointer items-center gap-2 text-sm dark:text-gray-300">
+                            <input type="radio" value="selected" v-model="campaignScope" class="peer hidden" />
+                            <span class="icon-radio-normal peer-checked:icon-radio-selected text-2xl text-gray-400 peer-checked:text-brandColor"></span>
+                            @lang('admin::app.settings.webforms.form.selected-campaigns')
+                        </label>
+                    </x-admin::form.control-group>
+
+                    <div v-if="campaignScope === 'selected'" class="max-h-48 space-y-2 overflow-y-auto">
+                        <label
+                            v-for="campaign in availableCampaigns"
+                            :key="campaign.key"
+                            class="flex cursor-pointer items-center gap-2 text-sm dark:text-gray-300"
+                        >
+                            <input
+                                type="checkbox"
+                                class="peer hidden"
+                                :value="String(campaign.key)"
+                                v-model="selectedCampaignKeys"
+                            />
+                            <span class="icon-checkbox-outline peer-checked:icon-checkbox-select text-2xl peer-checked:text-brandColor"></span>
+                            @{{ campaign.name }}
+                        </label>
+                    </div>
+
+                    <input type="hidden" name="program_options" :value="campaignOptionsJson" />
                 </div>
 
-                <input type="hidden" name="program_options" :value="campaignOptionsJson" />
+                <template v-if="programField === 'none'">
+                    <input type="hidden" name="campaign_scope" value="all" />
+                    <input type="hidden" name="program_options" value="[]" />
+                </template>
             </div>
 
             <x-admin::form.control-group>
@@ -169,8 +204,18 @@
     </x-slot>
 
     <x-slot:footer class="flex gap-2.5 p-4">
-        <button type="button" class="primary-button flex-1 justify-center" @click="$refs.customizationDrawer.close()">
-            @lang('admin::app.components.datagrid.filters.custom-filters.apply')
+        <button
+            type="button"
+            class="primary-button flex-1 justify-center"
+            :disabled="isApplyingCustomization"
+            @click="applyCustomization"
+        >
+            <template v-if="isApplyingCustomization">
+                Saving...
+            </template>
+            <template v-else>
+                @lang('admin::app.settings.webforms.form.apply')
+            </template>
         </button>
     </x-slot:footer>
 </x-admin::drawer>

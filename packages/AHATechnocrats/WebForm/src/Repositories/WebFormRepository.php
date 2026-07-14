@@ -7,7 +7,6 @@ use AHATechnocrats\Core\Eloquent\Repository;
 use AHATechnocrats\WebForm\Contracts\WebForm;
 use AHATechnocrats\WebForm\Helpers\WebFormCampaigns;
 use AHATechnocrats\WebForm\Helpers\WebFormFieldOrder;
-use AHATechnocrats\WebForm\Helpers\WebFormPrograms;
 use Illuminate\Container\Container;
 use Illuminate\Support\Str;
 
@@ -205,7 +204,12 @@ class WebFormRepository extends Repository
                 ]);
 
                 if (! $existing) {
-                    $attribute = $attributeRepository->create([
+                    $options = $this->normalizeCustomAttributeOptions(
+                        $attributeData['options'] ?? [],
+                        $attributeData['type'] ?? null
+                    );
+
+                    $attribute = $attributeRepository->create(array_filter([
                         'code' => $code,
                         'name' => $attributeData['name'],
                         'type' => $attributeData['type'],
@@ -213,24 +217,63 @@ class WebFormRepository extends Repository
                         'is_required' => $attributeData['is_required'] ?? 0,
                         'is_user_defined' => 1,
                         'quick_add' => 1,
-                    ]);
+                        'options' => $options,
+                    ], fn ($value) => $value !== null));
                     $attributeData['attribute_id'] = $attribute->id;
                 } else {
                     $attributeData['attribute_id'] = $existing->id;
                 }
 
                 // Remove temporary keys so they are not saved in web_form_attributes
-                unset($attributeData['is_new'], $attributeData['code'], $attributeData['type'], $attributeData['entity_type']);
+                unset(
+                    $attributeData['is_new'],
+                    $attributeData['code'],
+                    $attributeData['type'],
+                    $attributeData['entity_type'],
+                    $attributeData['options']
+                );
             }
         }
     }
 
-    protected function normalizeProgramSettings(array $data): array
+    /**
+     * @param  mixed  $options
+     * @return list<array{name: string}>
+     */
+    protected function normalizeCustomAttributeOptions(mixed $options, mixed $type): array
     {
-        if (array_key_exists('program_options', $data)) {
-            $data['program_options'] = WebFormPrograms::normalizeOptionsInput($data['program_options']);
+        if (! in_array($type, ['checkbox', 'select', 'multiselect'], true)) {
+            return [];
         }
 
+        if (is_string($options)) {
+            $options = json_decode($options, true);
+        }
+
+        if (! is_array($options)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($options as $option) {
+            $name = is_array($option)
+                ? trim((string) ($option['name'] ?? ''))
+                : trim((string) $option);
+
+            if ($name === '') {
+                continue;
+            }
+
+            $normalized[] = ['name' => $name];
+        }
+
+        return $normalized;
+    }
+
+    protected function normalizeProgramSettings(array $data): array
+    {
+        // Campaign scope now owns program_options; keep this as a no-op for older callers.
         return $data;
     }
 
@@ -267,7 +310,13 @@ class WebFormRepository extends Repository
             $data['organization_field'] = 'required';
         }
 
-        if (! in_array($data['program_field'], ['required'], true)) {
+        // Campaign interest is either on the form (always required) or hidden.
+        // Legacy "optional" values are treated as shown/required.
+        if ($data['program_field'] === 'optional') {
+            $data['program_field'] = 'required';
+        }
+
+        if (! in_array($data['program_field'], ['none', 'required'], true)) {
             $data['program_field'] = 'required';
         }
 
@@ -279,5 +328,55 @@ class WebFormRepository extends Repository
         }
 
         return $data;
+    }
+
+    /**
+     * Persist customization drawer settings without a full form rewrite.
+     */
+    public function updateCustomization(int $id, array $data): WebForm
+    {
+        $webForm = $this->findOrFail($id);
+
+        $payload = [
+            'background_color' => $data['background_color'] ?? $webForm->background_color,
+            'form_background_color' => $data['form_background_color'] ?? $webForm->form_background_color,
+            'form_title_color' => $data['form_title_color'] ?? $webForm->form_title_color,
+            'form_submit_button_color' => $data['form_submit_button_color'] ?? $webForm->form_submit_button_color,
+            'attribute_label_color' => $data['attribute_label_color'] ?? $webForm->attribute_label_color,
+            'program_field' => $data['program_field'] ?? $webForm->program_field,
+            'campaign_scope' => $data['campaign_scope'] ?? $webForm->campaign_scope,
+            'program_options' => $data['program_options'] ?? $webForm->program_options,
+            'allow_org_create' => array_key_exists('allow_org_create', $data)
+                ? $data['allow_org_create']
+                : $webForm->allow_org_create,
+            'organization_field' => $webForm->organization_field ?? 'required',
+        ];
+
+        $payload = $this->normalizeCampaignSettings($payload);
+        $payload = $this->normalizeRequiredFieldDefaults($payload);
+        $payload['allow_org_create'] = filter_var($payload['allow_org_create'] ?? true, FILTER_VALIDATE_BOOLEAN);
+
+        $fieldOrder = $this->parseFieldOrder($data['field_order'] ?? $webForm->field_order);
+
+        $webForm->update($payload);
+
+        if ($fieldOrder) {
+            $fieldOrder = WebFormFieldOrder::normalizeOrder($webForm->fresh(), $fieldOrder);
+
+            $webForm->update([
+                'field_order' => $fieldOrder,
+            ]);
+
+            $this->syncAttributeSortOrders($webForm->fresh(), $fieldOrder);
+        } else {
+            // Re-normalize stored order so builtin:program is added/removed with program_field.
+            $resolved = WebFormFieldOrder::resolveOrder($webForm->fresh());
+
+            $webForm->update([
+                'field_order' => $resolved,
+            ]);
+        }
+
+        return $webForm->fresh();
     }
 }
