@@ -1,4 +1,5 @@
 @php
+    $webForm = $webForm ?? null;
     $fullUrl = $fullUrl ?? ($webForm ? route('admin.settings.web_forms.preview', $webForm->form_id) : '');
     $shortUrl = $shortUrl ?? '';
     $bindShort = $bindShort ?? false;
