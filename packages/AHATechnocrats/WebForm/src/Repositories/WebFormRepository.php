@@ -47,6 +47,10 @@ class WebFormRepository extends Repository
         $data = $this->normalizeCampaignSettings($data);
         $data = $this->normalizeRequiredFieldDefaults($data);
 
+        if (empty($data['thank_you_content'])) {
+            $data['thank_you_content'] = \AHATechnocrats\WebForm\Models\WebForm::DEFAULT_THANK_YOU_CONTENT;
+        }
+
         $fieldOrder = $this->parseFieldOrder($data['field_order'] ?? null);
 
         unset($data['field_order']);
@@ -237,7 +241,6 @@ class WebFormRepository extends Repository
     }
 
     /**
-     * @param  mixed  $options
      * @return list<array{name: string}>
      */
     protected function normalizeCustomAttributeOptions(mixed $options, mixed $type): array

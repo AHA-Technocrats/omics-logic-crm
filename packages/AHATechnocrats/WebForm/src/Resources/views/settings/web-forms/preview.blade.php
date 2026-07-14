@@ -1,3 +1,10 @@
+@php
+    $honeypotRejectMessage = config(
+        'omicslogic.anti_spam.honeypot_reject_message',
+        'Do not fill the data in the person and organisation.'
+    );
+@endphp
+
 <x-web_form::layouts>
     <x-slot:title>
         {{ strip_tags($webForm->title) }}
@@ -76,6 +83,27 @@
                 padding: 0;
             }
 
+            .webform-honeypot-warning {
+                margin: 0 0 16px;
+                padding: 10px 12px;
+                border: 1px solid #fcd34d;
+                border-radius: 8px;
+                background: #fffbeb;
+                color: #92400e;
+                font-size: 13px;
+                line-height: 1.5;
+            }
+
+            .webform-hp-trap {
+                position: absolute !important;
+                left: -9999px !important;
+                height: 0 !important;
+                width: 0 !important;
+                opacity: 0 !important;
+                overflow: hidden !important;
+                pointer-events: none !important;
+            }
+
             .webform-field {
                 margin-bottom: 16px;
                 padding: 18px 20px;
@@ -128,6 +156,12 @@
             .dark .webform-description {
                 color: #9ca3af;
             }
+
+            .dark .webform-honeypot-warning {
+                background: #422006;
+                border-color: #a16207;
+                color: #fde68a;
+            }
         </style>
     @endpush
 
@@ -174,54 +208,74 @@
 
                         {!! view_render_event('web_forms.web_forms.form_controls.before', ['webForm' => $webForm]) !!}
 
-                        <template v-if="!hasSubmitted">
-                            <x-web_form::form
-                                v-slot="{ meta, values, errors, handleSubmit }"
-                                as="div"
-                                ref="modalForm"
+                        <x-web_form::form
+                            v-slot="{ meta, values, errors, handleSubmit }"
+                            as="div"
+                            ref="modalForm"
+                        >
+                            <form
+                                @submit="handleSubmit($event, create)"
+                                ref="webForm"
                             >
-                                <form
-                                    @submit="handleSubmit($event, create)"
-                                    ref="webForm"
-                                >
-                                    @include('web_form::settings.web-forms.controls')
+                                @if ($webForm->honeypot_enabled)
+                                    <p class="webform-honeypot-warning" role="note">
+                                        {{ $honeypotRejectMessage }}
+                                    </p>
+                                @endif
 
-                                    <input type="hidden" name="_form_token" value="{{ $formToken ?? '' }}" />
+                                @include('web_form::settings.web-forms.controls')
 
-                                    <input
-                                        type="text"
-                                        name="{{ config('omicslogic.anti_spam.honeypot_field', '_website_url') }}"
-                                        tabindex="-1"
-                                        autocomplete="off"
-                                        style="position:absolute;left:-9999px;height:0;width:0;opacity:0"
-                                    />
+                                <input type="hidden" name="_form_token" value="{{ $formToken ?? '' }}" />
 
-                                    @if ($webForm->turnstile_enabled && config('omicslogic.turnstile.site_key'))
-                                        <div
-                                            class="cf-turnstile mb-3"
-                                            data-sitekey="{{ config('omicslogic.turnstile.site_key') }}"
-                                        ></div>
-                                    @endif
+                                <input
+                                    type="text"
+                                    name="{{ config('omicslogic.anti_spam.honeypot_field', '_website_url') }}"
+                                    tabindex="-1"
+                                    autocomplete="off"
+                                    aria-hidden="true"
+                                    class="webform-hp-trap"
+                                />
 
-                                    <div class="webform-actions">
-                                        <x-web_form::button
-                                            class="primary-button rounded text-white font-semibold transition-all hover:opacity-90"
-                                            :title="$webForm->submit_button_label"
-                                            ::loading="isStoring"
-                                            ::disabled="isStoring"
-                                            style="background-color: {{ $webForm->form_submit_button_color }} !important"
+                                @if ($webForm->honeypot_enabled)
+                                    <div class="webform-hp-trap" aria-hidden="true">
+                                        <label for="persons_hp_name">Person</label>
+                                        <input
+                                            type="text"
+                                            id="persons_hp_name"
+                                            name="persons_hp[name]"
+                                            tabindex="-1"
+                                            autocomplete="off"
+                                        />
+
+                                        <label for="organizations_hp_name">Organisation</label>
+                                        <input
+                                            type="text"
+                                            id="organizations_hp_name"
+                                            name="organizations_hp[name]"
+                                            tabindex="-1"
+                                            autocomplete="off"
                                         />
                                     </div>
-                                </form>
-                            </x-web_form::form>
-                        </template>
-                        <template v-else>
-                            <div class="webform-description">
-                                <p style="font-size: 16px; font-weight: 500; color: #374151;">
-                                    You have already filled this form.
-                                </p>
-                            </div>
-                        </template>
+                                @endif
+
+                                @if ($webForm->turnstile_enabled && config('omicslogic.turnstile.site_key'))
+                                    <div
+                                        class="cf-turnstile mb-3"
+                                        data-sitekey="{{ config('omicslogic.turnstile.site_key') }}"
+                                    ></div>
+                                @endif
+
+                                <div class="webform-actions">
+                                    <x-web_form::button
+                                        class="primary-button rounded text-white font-semibold transition-all hover:opacity-90"
+                                        :title="$webForm->submit_button_label"
+                                        ::loading="isStoring"
+                                        ::disabled="isStoring"
+                                        style="background-color: {{ $webForm->form_submit_button_color }} !important"
+                                    />
+                                </div>
+                            </form>
+                        </x-web_form::form>
 
                         {!! view_render_event('web_forms.web_forms.form_controls.after', ['webForm' => $webForm]) !!}
                     </div>
@@ -235,25 +289,23 @@
 
                 data() {
                     return {
-                        hasSubmitted: false,
                         isStoring: false,
                         programInterest: '',
                         organizationSuggestions: [],
                         showOrganizationSuggestions: false,
                         selectedOrganizationId: '',
                         organizationSearchTimer: null,
+                        honeypotRejectMessage: @json($honeypotRejectMessage),
                     };
-                },
-
-                mounted() {
-                    if (localStorage.getItem('webform_submitted_{{ $webForm->form_id }}')) {
-                        this.hasSubmitted = true;
-                    }
                 },
 
                 methods: {
                     organizationSearchUrl() {
                         return '{{ route('admin.settings.web_forms.organizations.search') }}';
+                    },
+
+                    checkEmailUrl() {
+                        return '{{ route('admin.settings.web_forms.check_email', $webForm->id) }}';
                     },
 
                     onOrganizationInput(event, field) {
@@ -311,83 +363,141 @@
                         }, 150);
                     },
 
-                    create(params, { resetForm, setErrors }) {
-                        this.isStoring = true;
+                    honeypotsFilled(formData) {
+                        const personHp = (formData.get('persons_hp[name]') || '').toString().trim();
+                        const orgHp = (formData.get('organizations_hp[name]') || '').toString().trim();
+                        const websiteHp = (formData.get('{{ config('omicslogic.anti_spam.honeypot_field', '_website_url') }}') || '').toString().trim();
 
+                        return personHp !== '' || orgHp !== '' || websiteHp !== '';
+                    },
+
+                    extractEmail(formData) {
+                        return (formData.get('persons[emails][0][value]') || '').toString().trim().toLowerCase();
+                    },
+
+                    async confirmResubmitIfNeeded(email) {
+                        if (! email) {
+                            return true;
+                        }
+
+                        try {
+                            const response = await this.$axios.post(this.checkEmailUrl(), { email });
+
+                            if (! response.data?.already_submitted) {
+                                return true;
+                            }
+
+                            return window.confirm(
+                                'A submission already exists for this email. Do you want to send again?'
+                            );
+                        } catch (error) {
+                            return true;
+                        }
+                    },
+
+                    async create(params, { resetForm, setErrors }) {
                         const formData = new FormData(this.$refs.webForm);
 
-                        let inputNames = Array.from(formData.keys());
-
-                        inputNames = inputNames.reduce((acc, name) => {
-                            const dotName = name.replace(/\[([^\]]+)\]/g, '.$1');
-
-                            acc[dotName] = name;
-
-                            return acc;
-                        }, {});
-
-                        this.$axios
-                            .post('{{ route('admin.settings.web_forms.form_store', $webForm->id) }}', formData, {
-                                headers: {
-                                    'Content-Type': 'multipart/form-data',
-                                },
-                            })
-                            .then(response => {
-                                localStorage.setItem('webform_submitted_{{ $webForm->form_id }}', 'true');
-                                this.hasSubmitted = true;
-
-                                resetForm();
-
-                                this.$refs.webForm.reset();
-
-                                this.programInterest = '';
-                                this.selectedOrganizationId = '';
-                                this.organizationSuggestions = [];
-                                this.showOrganizationSuggestions = false;
-
-                                this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                            })
-                            .catch(error => {
-                                if (error.response && error.response.status === 422 && error.response.data.message === 'You have already filled this form.') {
-                                    localStorage.setItem('webform_submitted_{{ $webForm->form_id }}', 'true');
-                                    this.hasSubmitted = true;
-                                    return;
-                                }
-
-                                if (error.response.data.redirect) {
-                                    window.location.href = error.response.data.redirect;
-
-                                    return;
-                                }
-
-                                if (! error.response.data.errors) {
-                                    this.$emitter.emit('add-flash', { type: 'error', message: error.response.data.message });
-
-                                    return;
-                                }
-
-                                const laravelErrors = error.response.data.errors || {};
-                                const mappedErrors = {};
-
-                                for (
-                                    const [dotKey, messages]
-                                    of Object.entries(laravelErrors)
-                                ) {
-                                    const inputName = inputNames[dotKey];
-
-                                    if (
-                                        inputName
-                                        && messages.length
-                                    ) {
-                                        mappedErrors[inputName] = messages[0];
-                                    }
-                                }
-
-                                setErrors(mappedErrors);
-                            })
-                            .finally(() => {
-                                this.isStoring = false;
+                        if (this.honeypotsFilled(formData)) {
+                            this.$emitter.emit('add-flash', {
+                                type: 'warning',
+                                message: this.honeypotRejectMessage,
                             });
+
+                            return;
+                        }
+
+                        this.isStoring = true;
+
+                        try {
+                            const email = this.extractEmail(formData);
+                            const shouldContinue = await this.confirmResubmitIfNeeded(email);
+
+                            if (! shouldContinue) {
+                                return;
+                            }
+
+                            let inputNames = Array.from(formData.keys());
+
+                            inputNames = inputNames.reduce((acc, name) => {
+                                const dotName = name.replace(/\[([^\]]+)\]/g, '.$1');
+
+                                acc[dotName] = name;
+
+                                return acc;
+                            }, {});
+
+                            const response = await this.$axios.post(
+                                '{{ route('admin.settings.web_forms.form_store', $webForm->id) }}',
+                                formData,
+                                {
+                                    headers: {
+                                        'Content-Type': 'multipart/form-data',
+                                    },
+                                }
+                            );
+
+                            if (response.data?.redirect) {
+                                window.location.href = response.data.redirect;
+
+                                return;
+                            }
+
+                            if (response.data?.message) {
+                                this.$emitter.emit('add-flash', {
+                                    type: 'success',
+                                    message: response.data.message,
+                                });
+                            }
+                        } catch (error) {
+                            if (error.response?.data?.redirect) {
+                                window.location.href = error.response.data.redirect;
+
+                                return;
+                            }
+
+                            if (! error.response?.data?.errors) {
+                                const message = error.response?.data?.message
+                                    || error.response?.data?.errors?.form?.[0]
+                                    || 'Something went wrong. Please try again.';
+
+                                this.$emitter.emit('add-flash', { type: 'error', message });
+
+                                return;
+                            }
+
+                            const laravelErrors = error.response.data.errors || {};
+                            const mappedErrors = {};
+
+                            let inputNames = Array.from(new FormData(this.$refs.webForm).keys());
+
+                            inputNames = inputNames.reduce((acc, name) => {
+                                const dotName = name.replace(/\[([^\]]+)\]/g, '.$1');
+
+                                acc[dotName] = name;
+
+                                return acc;
+                            }, {});
+
+                            for (const [dotKey, messages] of Object.entries(laravelErrors)) {
+                                const inputName = inputNames[dotKey];
+
+                                if (inputName && messages.length) {
+                                    mappedErrors[inputName] = messages[0];
+                                }
+                            }
+
+                            if (laravelErrors.form?.[0] && ! Object.keys(mappedErrors).length) {
+                                this.$emitter.emit('add-flash', {
+                                    type: 'warning',
+                                    message: laravelErrors.form[0],
+                                });
+                            }
+
+                            setErrors(mappedErrors);
+                        } finally {
+                            this.isStoring = false;
+                        }
                     }
                 }
             });

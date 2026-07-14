@@ -8,9 +8,15 @@ Route::controller(WebFormController::class)->middleware(['web', 'admin_locale'])
 
     Route::get('forms/{id}/form.html', 'preview')->name('admin.settings.web_forms.preview');
 
+    Route::get('forms/{id}/thank-you', 'thankYou')->name('admin.settings.web_forms.thank_you');
+
     Route::get('organizations/search', 'searchOrganizations')
         ->middleware('throttle:60,1')
         ->name('admin.settings.web_forms.organizations.search');
+
+    Route::post('forms/{id}/check-email', 'checkEmail')
+        ->middleware('throttle:60,1')
+        ->name('admin.settings.web_forms.check_email');
 
     Route::post('forms/{id}', 'formStore')
         ->middleware('throttle:30,1')

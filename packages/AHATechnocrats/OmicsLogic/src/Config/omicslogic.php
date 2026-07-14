@@ -12,6 +12,9 @@ return [
         'rate_limit_email' => (int) env('FORM_RATE_LIMIT_EMAIL', 5),
         'block_disposable_email' => (bool) env('FORM_BLOCK_DISPOSABLE', true),
         'honeypot_field' => '_website_url',
+        'honeypot_person_field' => 'persons_hp.name',
+        'honeypot_organization_field' => 'organizations_hp.name',
+        'honeypot_reject_message' => 'Do not fill the data in the person and organisation.',
     ],
 
     'dedup' => [

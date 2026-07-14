@@ -85,12 +85,17 @@ class WebFormController extends Controller
             'title' => 'required',
             'submit_button_label' => 'required',
             'submit_success_action' => 'required',
-            'submit_success_content' => 'required',
+            'submit_success_content' => 'required_if:submit_success_action,redirect',
+            'thank_you_content' => 'required_if:submit_success_action,message',
         ]);
 
         Event::dispatch('settings.web_forms.create.before');
 
         $data = request()->all();
+
+        if (($data['submit_success_action'] ?? '') === 'message' && empty($data['submit_success_content'])) {
+            $data['submit_success_content'] = 'Your response has been recorded.';
+        }
 
         $webForm = $this->webFormRepository->create($data);
 
@@ -130,12 +135,17 @@ class WebFormController extends Controller
             'title' => 'required',
             'submit_button_label' => 'required',
             'submit_success_action' => 'required',
-            'submit_success_content' => 'required',
+            'submit_success_content' => 'required_if:submit_success_action,redirect',
+            'thank_you_content' => 'required_if:submit_success_action,message',
         ]);
 
         Event::dispatch('settings.web_forms.update.before', $id);
 
         $data = request()->all();
+
+        if (($data['submit_success_action'] ?? '') === 'message' && empty($data['submit_success_content'])) {
+            $data['submit_success_content'] = 'Your response has been recorded.';
+        }
 
         $webForm = $this->webFormRepository->update($data, $id);
 

@@ -354,7 +354,7 @@ return [
         ],
         'layouts' => [
             'powered-by' => [
-                'description' => '&copy; Copyright ' . date('Y') . ' . Made with ❤️ by :ahatechnocrats',
+                'description' => '&copy; Copyright '.date('Y').' . Made with ❤️ by :ahatechnocrats',
             ],
             'header' => [
                 'mega-search' => [
@@ -1054,7 +1054,7 @@ return [
                 'customize-webform' => 'Customize Webform',
                 'customize-webform-info' => 'Customize your web form with element colors of your choosing.',
                 'description' => 'Description',
-                'display-custom-message' => 'Display custom message',
+                'display-custom-message' => 'Display thank you page',
                 'form-background-color' => 'Form Background Color',
                 'form-submit-btn-color' => 'Form Submit Button Color',
                 'form-submit-button-color' => 'Form Submit Button Color',
@@ -1065,6 +1065,9 @@ return [
                 'save-btn' => 'Save Webform',
                 'submit-button-label' => 'Submit Button Label',
                 'submit-success-action' => 'Submit Success Action',
+                'thank-you-page' => 'Thank You Page',
+                'thank-you-page-info' => 'Design the confirmation page shown after a successful submission (like Google Forms).',
+                'redirect-url' => 'Redirect URL',
                 'redirect-to-url' => 'Redirect To Url',
                 'choose-value' => 'Choose Value',
                 'select-file' => 'Select File',
@@ -1085,7 +1088,7 @@ return [
                 'customize-webform' => 'Customize Webform',
                 'customize-webform-info' => 'Customize your web form with element colors of your choosing.',
                 'description' => 'Description',
-                'display-custom-message' => 'Display custom message',
+                'display-custom-message' => 'Display thank you page',
                 'embed' => 'Embed',
                 'enter-value' => 'Enter Value',
                 'form-background-color' => 'Form Background Color',
@@ -1098,6 +1101,9 @@ return [
                 'preview' => 'Preview',
                 'public-url' => 'Public URL',
                 'redirect-to-url' => 'Redirect To URL',
+                'redirect-url' => 'Redirect URL',
+                'thank-you-page' => 'Thank You Page',
+                'thank-you-page-info' => 'Design the confirmation page shown after a successful submission (like Google Forms).',
                 'save-btn' => 'Save Webform',
                 'select-file' => 'Select File',
                 'select-image' => 'Select Image',
@@ -2472,9 +2478,9 @@ return [
         'xlsx' => 'XLSX',
     ],
     'mass_assign' => [
-        'title'       => 'Mass Assign',
-        'btn'         => 'Mass Assign',
-        'success'     => 'Mass assignment completed successfully.',
-        'no-selection'=> 'No organizations or users selected.',
+        'title' => 'Mass Assign',
+        'btn' => 'Mass Assign',
+        'success' => 'Mass assignment completed successfully.',
+        'no-selection' => 'No organizations or users selected.',
     ],
 ];

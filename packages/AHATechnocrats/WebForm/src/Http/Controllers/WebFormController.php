@@ -59,12 +59,6 @@ class WebFormController extends Controller
             abort(404);
         }
 
-        if (WebFormSubmission::query()->where('web_form_id', $webForm->id)->where('ip_address', request()->ip())->exists()) {
-            return response()->json([
-                'message' => 'You have already filled this form.',
-            ], 422);
-        }
-
         $mapped = $this->submissionMapper->map(request()->all(), $webForm);
 
         request()->merge([
@@ -173,13 +167,50 @@ class WebFormController extends Controller
 
         if ($webForm->submit_success_action == 'message') {
             return response()->json([
-                'message' => $webForm->submit_success_content,
+                'redirect' => route('admin.settings.web_forms.thank_you', $webForm->form_id),
             ], 200);
         }
 
         return response()->json([
             'redirect' => $webForm->submit_success_content,
-        ], 301);
+        ], 200);
+    }
+
+    public function checkEmail(int $id): JsonResponse
+    {
+        $webForm = $this->webFormRepository->findOrFail($id);
+
+        if (! ($webForm->is_active ?? true)) {
+            abort(404);
+        }
+
+        $email = strtolower(trim((string) request()->input('email', '')));
+
+        if ($email === '') {
+            return response()->json(['already_submitted' => false]);
+        }
+
+        $alreadySubmitted = WebFormSubmission::query()
+            ->where('web_form_id', $webForm->id)
+            ->whereHas('person', function ($query) use ($email) {
+                $query->where('normalized_email', $email);
+            })
+            ->exists();
+
+        return response()->json([
+            'already_submitted' => $alreadySubmitted,
+        ]);
+    }
+
+    public function thankYou(string $id): View
+    {
+        $webForm = $this->webFormRepository->findOneByField('form_id', $id);
+
+        if (is_null($webForm) || ! ($webForm->is_active ?? true)) {
+            abort(404);
+        }
+
+        return view('web_form::settings.web-forms.thank-you', compact('webForm'));
     }
 
     public function preview(string $id): View

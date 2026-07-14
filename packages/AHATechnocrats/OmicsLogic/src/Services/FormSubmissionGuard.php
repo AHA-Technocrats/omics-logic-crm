@@ -25,12 +25,25 @@ class FormSubmissionGuard
         $warnings = [];
         $spamScore = 0;
 
-        $honeypotField = config('omicslogic.anti_spam.honeypot_field', '_website_url');
+        if ($webForm->honeypot_enabled) {
+            $honeypotRejectMessage = config(
+                'omicslogic.anti_spam.honeypot_reject_message',
+                'Do not fill the data in the person and organisation.'
+            );
 
-        if ($webForm->honeypot_enabled && $request->filled($honeypotField)) {
-            throw ValidationException::withMessages([
-                'form' => ['Submission rejected.'],
-            ]);
+            $honeypotField = config('omicslogic.anti_spam.honeypot_field', '_website_url');
+            $personHoneypot = config('omicslogic.anti_spam.honeypot_person_field', 'persons_hp.name');
+            $organizationHoneypot = config('omicslogic.anti_spam.honeypot_organization_field', 'organizations_hp.name');
+
+            if (
+                $request->filled($honeypotField)
+                || $request->filled($personHoneypot)
+                || $request->filled($organizationHoneypot)
+            ) {
+                throw ValidationException::withMessages([
+                    'form' => [$honeypotRejectMessage],
+                ]);
+            }
         }
 
         if ($webForm->min_submit_seconds) {
