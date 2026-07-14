@@ -52,11 +52,21 @@
 
             methods: {
                 destroyTinymceInstance() {
-                    if (! tinymce.activeEditor) {
+                    if (typeof tinymce === 'undefined') {
                         return;
                     }
 
-                    tinymce.activeEditor.destroy();
+                    const editorId = this.selector?.match(/#([\w-]+)/)?.[1];
+
+                    if (! editorId) {
+                        return;
+                    }
+
+                    const editor = tinymce.get(editorId);
+
+                    if (editor) {
+                        editor.destroy();
+                    }
                 },
 
                 init() {

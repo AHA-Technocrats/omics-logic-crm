@@ -83,17 +83,6 @@
                 padding: 0;
             }
 
-            .webform-honeypot-warning {
-                margin: 0 0 16px;
-                padding: 10px 12px;
-                border: 1px solid #fcd34d;
-                border-radius: 8px;
-                background: #fffbeb;
-                color: #92400e;
-                font-size: 13px;
-                line-height: 1.5;
-            }
-
             .webform-hp-trap {
                 position: absolute !important;
                 left: -9999px !important;
@@ -156,12 +145,6 @@
             .dark .webform-description {
                 color: #9ca3af;
             }
-
-            .dark .webform-honeypot-warning {
-                background: #422006;
-                border-color: #a16207;
-                color: #fde68a;
-            }
         </style>
     @endpush
 
@@ -217,12 +200,6 @@
                                 @submit="handleSubmit($event, create)"
                                 ref="webForm"
                             >
-                                @if ($webForm->honeypot_enabled)
-                                    <p class="webform-honeypot-warning" role="note">
-                                        {{ $honeypotRejectMessage }}
-                                    </p>
-                                @endif
-
                                 @include('web_form::settings.web-forms.controls')
 
                                 <input type="hidden" name="_form_token" value="{{ $formToken ?? '' }}" />
