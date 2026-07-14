@@ -10,6 +10,7 @@ use AHATechnocrats\Lead\Repositories\LeadRepository;
 use AHATechnocrats\Lead\Repositories\PipelineRepository;
 use AHATechnocrats\Lead\Repositories\SourceRepository;
 use AHATechnocrats\Lead\Repositories\TypeRepository;
+use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use AHATechnocrats\OmicsLogic\Models\OrganizationMergeReviewPair;
 use AHATechnocrats\OmicsLogic\Services\WebFormSubmissionMapper;
 use AHATechnocrats\WebForm\Models\WebFormSubmission;
@@ -113,6 +114,74 @@ class FormSyncService
             ->where('normalized_email', strtolower(trim($email)))
             ->first();
 
+        $createLead = (bool) ($webForm->create_lead ?? true);
+
+        if (! $createLead) {
+            $person = $this->savePersonWithoutLead($mapped['person'], $person);
+        } else {
+            $person = $this->savePersonWithLead($mapped, $person);
+        }
+
+        $submittedAt = $mapped['submitted_at']
+            ?? $this->documentTimestamp($document)
+            ?? now();
+
+        WebFormSubmission::query()->create([
+            'web_form_id' => $webForm->id,
+            'person_id' => $person->id,
+            'payload' => array_merge($input, [
+                'firestore_doc_id' => (string) ($document['id'] ?? ''),
+            ]),
+            'ip_address' => null,
+            'user_agent' => 'firebase-sync',
+            'spam_score' => 0,
+            'status' => 'accepted',
+            'created_at' => $submittedAt,
+            'updated_at' => $submittedAt,
+        ]);
+    }
+
+    /**
+     * Persist person (+ org) only for retention / contact-only portal sync.
+     *
+     * @param  array<string, mixed>  $personData
+     */
+    protected function savePersonWithoutLead(array $personData, ?Person $person): Person
+    {
+        $personData = array_merge($personData, [
+            'entity_type' => 'persons',
+        ]);
+
+        if ($person) {
+            if (empty($person->lifecycle_stage)) {
+                $personData['lifecycle_stage'] = LifecycleStage::Customer->value;
+            } else {
+                unset($personData['lifecycle_stage']);
+            }
+
+            return $this->personRepository->update($personData, $person->id);
+        }
+
+        if (empty($personData['lifecycle_stage']) || $personData['lifecycle_stage'] === LifecycleStage::Lead->value) {
+            $personData['lifecycle_stage'] = LifecycleStage::Customer->value;
+        }
+
+        Event::dispatch('contacts.person.create.before');
+
+        $person = $this->personRepository->create($personData);
+
+        Event::dispatch('contacts.person.create.after', $person);
+
+        return $person;
+    }
+
+    /**
+     * Persist lead with nested person (existing portal sync path).
+     *
+     * @param  array{person: array<string, mixed>, lead: array<string, mixed>}  $mapped
+     */
+    protected function savePersonWithLead(array $mapped, ?Person $person): Person
+    {
         $pipeline = $this->pipelineRepository->getDefaultPipeline();
         $stage = $pipeline->stages()->first();
 
@@ -146,23 +215,7 @@ class FormSyncService
 
         Event::dispatch('lead.create.after', $lead);
 
-        $submittedAt = $mapped['submitted_at']
-            ?? $this->documentTimestamp($document)
-            ?? now();
-
-        WebFormSubmission::query()->create([
-            'web_form_id' => $webForm->id,
-            'person_id' => $lead->person_id,
-            'payload' => array_merge($input, [
-                'firestore_doc_id' => (string) ($document['id'] ?? ''),
-            ]),
-            'ip_address' => null,
-            'user_agent' => 'firebase-sync',
-            'spam_score' => 0,
-            'status' => 'accepted',
-            'created_at' => $submittedAt,
-            'updated_at' => $submittedAt,
-        ]);
+        return $lead->person ?? $this->personRepository->find($lead->person_id);
     }
 
     /**
