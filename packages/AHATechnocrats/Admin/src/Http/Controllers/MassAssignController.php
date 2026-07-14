@@ -19,8 +19,7 @@ class MassAssignController extends Controller
         protected PersonRepository $personRepository,
         protected LeadRepository $leadRepository,
         protected UserRepository $userRepository
-    ) {
-    }
+    ) {}
 
     /**
      * Display the Mass Assign page.
@@ -35,9 +34,9 @@ class MassAssignController extends Controller
      */
     public function getEntities(Request $request): JsonResponse
     {
-        // For simplicity, we assume "Admin" means users with role ID 1, 
+        // For simplicity, we assume "Admin" means users with role ID 1,
         // or just unassigned. We can also let the UI pass filters.
-        
+
         $query = DB::table('organizations')
             ->leftJoin('users as account_owners', 'organizations.account_owner_id', '=', 'account_owners.id')
             ->select(
@@ -48,16 +47,16 @@ class MassAssignController extends Controller
                 'account_owners.name as account_owner_name'
             )
             ->whereNull('organizations.account_owner_id')
-            ->orWhereIn('organizations.account_owner_id', function($q) {
+            ->orWhereIn('organizations.account_owner_id', function ($q) {
                 $q->select('users.id')
-                  ->from('users')
-                  ->join('roles', 'users.role_id', '=', 'roles.id')
-                  ->where('roles.permission_type', 'all');
+                    ->from('users')
+                    ->join('roles', 'users.role_id', '=', 'roles.id')
+                    ->where('roles.permission_type', 'all');
             });
-            
+
         // Search functionality
         if ($request->has('search') && $request->search != '') {
-            $query->where('organizations.name', 'like', '%' . $request->search . '%');
+            $query->where('organizations.name', 'like', '%'.$request->search.'%');
         }
 
         $organizations = $query->orderBy('organizations.name')->get();
@@ -91,13 +90,15 @@ class MassAssignController extends Controller
     public function assign(Request $request): JsonResponse
     {
         $assignments = $request->input('assignments');
-        
+
         $orgToUserMapping = [];
-        
+
         if ($assignments) {
             // Process explicit manual assignments
             foreach ($assignments as $assignment) {
-                if (empty($assignment['user_id']) || empty($assignment['org_ids'])) continue;
+                if (empty($assignment['user_id']) || empty($assignment['org_ids'])) {
+                    continue;
+                }
                 foreach ($assignment['org_ids'] as $orgId) {
                     $orgToUserMapping[$orgId] = $assignment['user_id'];
                 }
@@ -111,7 +112,7 @@ class MassAssignController extends Controller
 
             $organizationIds = $request->input('organization_ids');
             $userIds = $request->input('user_ids');
-            
+
             $totalUsers = count($userIds);
             $userIndex = 0;
 
@@ -143,17 +144,17 @@ class MassAssignController extends Controller
                 $persons = $this->personRepository->findWhere(['organization_id' => $orgId]);
                 foreach ($persons as $person) {
                     Event::dispatch('contacts.person.update.before', $person->id);
-                    
+
                     $personData = [
                         'user_id' => $assignToUserId,
                         'organization_id' => $person->organization_id,
                     ];
-                    
+
                     if ($person->emails) {
                         // Pass existing emails to prevent unique_id corruption
                         $personData['emails'] = is_string($person->emails) ? json_decode($person->emails, true) : (is_object($person->emails) ? $person->emails->toArray() : $person->emails);
                     }
-                    
+
                     if ($person->contact_numbers) {
                         $personData['contact_numbers'] = is_string($person->contact_numbers) ? json_decode($person->contact_numbers, true) : (is_object($person->contact_numbers) ? $person->contact_numbers->toArray() : $person->contact_numbers);
                     }
@@ -184,6 +185,7 @@ class MassAssignController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'message' => $e->getMessage(),
             ], 500);

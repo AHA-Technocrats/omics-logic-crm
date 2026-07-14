@@ -12,6 +12,7 @@ use AHATechnocrats\Lead\Repositories\TypeRepository;
 use AHATechnocrats\Product\Repositories\ProductRepository;
 use AHATechnocrats\Tag\Repositories\TagRepository;
 use AHATechnocrats\User\Repositories\UserRepository;
+use Carbon\Carbon;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -89,6 +90,54 @@ class LeadDataGrid extends DataGrid
 
         if ($userIds = bouncer()->getAuthorizedUserIds()) {
             $queryBuilder->whereIn('leads.user_id', $userIds);
+        }
+
+        $dateRange = request('date_range', 'last_30_days');
+
+        switch ($dateRange) {
+            case 'today':
+                $queryBuilder->whereDate('leads.created_at', Carbon::today());
+                break;
+            case 'yesterday':
+                $queryBuilder->whereDate('leads.created_at', Carbon::yesterday());
+                break;
+            case 'this_week':
+                $queryBuilder->whereBetween('leads.created_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek(),
+                ]);
+                break;
+            case 'this_month':
+                $queryBuilder->whereBetween('leads.created_at', [
+                    Carbon::now()->startOfMonth(),
+                    Carbon::now()->endOfMonth(),
+                ]);
+                break;
+            case 'last_30_days':
+                $queryBuilder->where('leads.created_at', '>=', Carbon::now()->subDays(30));
+                break;
+            case 'last_month':
+                $queryBuilder->whereBetween('leads.created_at', [
+                    Carbon::now()->subMonth()->startOfMonth(),
+                    Carbon::now()->subMonth()->endOfMonth(),
+                ]);
+                break;
+            case 'this_year':
+                $queryBuilder->whereBetween('leads.created_at', [
+                    Carbon::now()->startOfYear(),
+                    Carbon::now()->endOfYear(),
+                ]);
+                break;
+            case 'date_wise':
+                if (request('date_from') && request('date_to')) {
+                    $queryBuilder->whereBetween('leads.created_at', [
+                        request('date_from').' 00:00:00',
+                        request('date_to').' 23:59:59',
+                    ]);
+                }
+                break;
+            case 'all':
+                break;
         }
 
         if (! is_null(request()->input('rotten_lead.in'))) {

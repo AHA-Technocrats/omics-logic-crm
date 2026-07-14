@@ -1,6 +1,13 @@
 {!! view_render_event('admin.leads.index.view_switcher.before') !!}
 
 <div class="flex items-center gap-4 max-md:w-full max-md:!justify-between">
+    <!-- Date Range Filter Vue Component -->
+    <v-leads-filters>
+        <div class="flex items-center gap-2">
+            <div class="light-shimmer-bg dark:shimmer h-[39px] w-[200px] rounded-md"></div>
+        </div>
+    </v-leads-filters>
+
     <x-admin::dropdown>
         <x-slot:toggle>
             {!! view_render_event('admin.leads.index.view_switcher.pipeline.button.before') !!}

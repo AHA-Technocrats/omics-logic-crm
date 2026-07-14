@@ -65,7 +65,7 @@ class ProductDataGrid extends DataGrid
                 .'<i class="fa fa-tag" style="font-size:13px;"></i>'
                 .'<span>'.(int) ($row->alias_count ?? 0).'</span>'
                 .'</span>',
-                
+
         ]);
 
         $this->addColumn([

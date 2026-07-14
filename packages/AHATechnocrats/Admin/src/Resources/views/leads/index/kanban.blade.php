@@ -375,9 +375,29 @@
 
             mounted () {
                 this.boot();
+
+                this.$emitter.on('refresh-kanban', this.refreshFromUrl);
+            },
+
+            beforeUnmount() {
+                this.$emitter.off('refresh-kanban', this.refreshFromUrl);
             },
 
             methods: {
+                /**
+                 * Refresh from URL parameters
+                 */
+                refreshFromUrl() {
+                    this.applied.filters.columns = []; // Clear filter search if needed, or leave it. We just call get() because it automatically reads URL params
+                    
+                    this.get()
+                        .then(response => {
+                            for (let [sortOrder, data] of Object.entries(response.data)) {
+                                this.stageLeads[sortOrder] = data;
+                            }
+                        });
+                },
+
                 /**
                  * Initialization: This function checks for any previously saved filters in local storage and applies them as needed.
                  *
@@ -424,6 +444,17 @@
                         pipeline_id: "{{ request('pipeline_id') }}",
                         limit: 10,
                     };
+
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.has('date_range')) {
+                        params['date_range'] = urlParams.get('date_range');
+                    }
+                    if (urlParams.has('date_from')) {
+                        params['date_from'] = urlParams.get('date_from');
+                    }
+                    if (urlParams.has('date_to')) {
+                        params['date_to'] = urlParams.get('date_to');
+                    }
 
                     this.applied.filters.columns.forEach((column) => {
                         if (column.index === 'all') {

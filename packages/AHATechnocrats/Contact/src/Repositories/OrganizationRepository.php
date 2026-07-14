@@ -47,7 +47,6 @@ class OrganizationRepository extends Repository
         if (isset($data['user_id'])) {
             $data['user_id'] = $data['user_id'] ?: null;
         }
-        
 
         if (isset($data['account_owner_id'])) {
             $data['account_owner_id'] = $data['account_owner_id'] ?: null;

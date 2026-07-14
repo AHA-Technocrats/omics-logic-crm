@@ -6,6 +6,7 @@ use AHATechnocrats\OmicsLogic\Enums\ConnectorType;
 use AHATechnocrats\OmicsLogic\Models\Connector;
 use AHATechnocrats\WebForm\Models\WebForm;
 use App\Firebase\FirebaseManager;
+use Carbon\Carbon;
 
 class ConnectorFirebaseSyncService
 {
@@ -36,7 +37,7 @@ class ConnectorFirebaseSyncService
 
         $since = $connector->last_sync_at;
         if (! $since && ! empty($connector->config['sync_from_date'])) {
-            $since = \Carbon\Carbon::parse($connector->config['sync_from_date'])->startOfDay();
+            $since = Carbon::parse($connector->config['sync_from_date'])->startOfDay();
         }
 
         $stats = $this->formSyncService->sync($webFormId, $batchSize, $since);

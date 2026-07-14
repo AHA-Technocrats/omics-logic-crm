@@ -2,6 +2,7 @@
 
 namespace AHATechnocrats\WebForm\Providers;
 
+use AHATechnocrats\WebForm\Listeners\CreateWebFormShortUrl;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -25,7 +26,7 @@ class WebFormServiceProvider extends ServiceProvider
 
         $this->app->register(ModuleServiceProvider::class);
 
-        Event::listen('settings.web_forms.create.after', \AHATechnocrats\WebForm\Listeners\CreateWebFormShortUrl::class);
+        Event::listen('settings.web_forms.create.after', CreateWebFormShortUrl::class);
     }
 
     /**

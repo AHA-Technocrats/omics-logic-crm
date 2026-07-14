@@ -115,6 +115,54 @@ class LeadController extends Controller
                 $query->whereIn('leads.user_id', $userIds);
             }
 
+            $dateRange = request()->query('date_range', 'last_30_days');
+
+            switch ($dateRange) {
+                case 'today':
+                    $query->whereDate('leads.created_at', Carbon::today());
+                    break;
+                case 'yesterday':
+                    $query->whereDate('leads.created_at', Carbon::yesterday());
+                    break;
+                case 'this_week':
+                    $query->whereBetween('leads.created_at', [
+                        Carbon::now()->startOfWeek(),
+                        Carbon::now()->endOfWeek(),
+                    ]);
+                    break;
+                case 'this_month':
+                    $query->whereBetween('leads.created_at', [
+                        Carbon::now()->startOfMonth(),
+                        Carbon::now()->endOfMonth(),
+                    ]);
+                    break;
+                case 'last_30_days':
+                    $query->where('leads.created_at', '>=', Carbon::now()->subDays(30));
+                    break;
+                case 'last_month':
+                    $query->whereBetween('leads.created_at', [
+                        Carbon::now()->subMonth()->startOfMonth(),
+                        Carbon::now()->subMonth()->endOfMonth(),
+                    ]);
+                    break;
+                case 'this_year':
+                    $query->whereBetween('leads.created_at', [
+                        Carbon::now()->startOfYear(),
+                        Carbon::now()->endOfYear(),
+                    ]);
+                    break;
+                case 'date_wise':
+                    if (request()->query('date_from') && request()->query('date_to')) {
+                        $query->whereBetween('leads.created_at', [
+                            request()->query('date_from').' 00:00:00',
+                            request()->query('date_to').' 23:59:59',
+                        ]);
+                    }
+                    break;
+                case 'all':
+                    break;
+            }
+
             $stage->lead_value = (clone $query)->sum('lead_value');
 
             $data[$stage->sort_order] = (new StageResource($stage))->jsonSerialize();

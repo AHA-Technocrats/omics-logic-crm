@@ -11,6 +11,8 @@ use AHATechnocrats\Contact\Repositories\OrganizationRepository;
 use AHATechnocrats\OmicsLogic\Services\DeletionTimelineService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Event;
 use Illuminate\View\View;
 
@@ -145,13 +147,13 @@ class OrganizationController extends Controller
     /**
      * Search organization results.
      */
-    public function search(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function search(): AnonymousResourceCollection
     {
         $results = $this->organizationRepository->findWhere([
-            ['name', 'like', '%' . urldecode(request()->input('query')) . '%'],
+            ['name', 'like', '%'.urldecode(request()->input('query')).'%'],
         ]);
 
-        return \Illuminate\Http\Resources\Json\JsonResource::collection($results);
+        return JsonResource::collection($results);
     }
 
     /**

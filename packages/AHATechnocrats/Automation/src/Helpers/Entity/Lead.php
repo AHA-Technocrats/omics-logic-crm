@@ -4,11 +4,11 @@ namespace AHATechnocrats\Automation\Helpers\Entity;
 
 use AHATechnocrats\Activity\Repositories\ActivityRepository;
 use AHATechnocrats\Admin\Notifications\Common;
-use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Automation\Repositories\WebhookRepository;
 use AHATechnocrats\Automation\Services\WebhookService;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
+use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use AHATechnocrats\EmailTemplate\Repositories\EmailTemplateRepository;
 use AHATechnocrats\Lead\Contracts\Lead as ContractsLead;
 use AHATechnocrats\Lead\Repositories\LeadRepository;

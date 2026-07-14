@@ -1,6 +1,7 @@
 <?php
 
 use AHATechnocrats\Installer\Http\Middleware\CanInstall;
+use App\Http\Middleware\VerifyFirebaseApiKey;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -31,7 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'firebase.api' => \App\Http\Middleware\VerifyFirebaseApiKey::class,
+            'firebase.api' => VerifyFirebaseApiKey::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

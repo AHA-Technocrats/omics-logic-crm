@@ -261,7 +261,7 @@ class WebFormSubmissionMapper
         foreach ($keys as $key) {
             if (isset($personInput[$key])) {
                 $val = $personInput[$key];
-                if (is_array($val) && !empty($val)) {
+                if (is_array($val) && ! empty($val)) {
                     return $val;
                 }
                 if (is_scalar($val) && trim((string) $val) !== '') {
@@ -271,7 +271,7 @@ class WebFormSubmissionMapper
 
             if (isset($input[$key])) {
                 $val = $input[$key];
-                if (is_array($val) && !empty($val)) {
+                if (is_array($val) && ! empty($val)) {
                     return $val;
                 }
                 if (is_scalar($val) && trim((string) $val) !== '') {

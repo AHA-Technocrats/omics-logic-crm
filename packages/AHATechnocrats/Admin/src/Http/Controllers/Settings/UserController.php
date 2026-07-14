@@ -8,6 +8,7 @@ use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
 use AHATechnocrats\Admin\Http\Requests\MassUpdateRequest;
 use AHATechnocrats\Admin\Http\Resources\UserResource;
 use AHATechnocrats\Admin\Notifications\User\Create as UserCreatedNotification;
+use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use AHATechnocrats\User\Repositories\GroupRepository;
 use AHATechnocrats\User\Repositories\RoleRepository;
 use AHATechnocrats\User\Repositories\UserRepository;
@@ -15,7 +16,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
-use AHATechnocrats\Core\Services\SafeMailDispatcher;
 use Illuminate\View\View;
 use Prettus\Repository\Criteria\RequestCriteria;
 

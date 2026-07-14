@@ -7,13 +7,14 @@ use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\PersonController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\PersonLeadController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\PersonPortalController;
 use AHATechnocrats\Admin\Http\Controllers\Contact\Persons\TagController;
+use AHATechnocrats\Admin\Http\Controllers\MassAssignController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('contacts')->group(function () {
     /**
      * Mass Assign routes.
      */
-    Route::controller(\AHATechnocrats\Admin\Http\Controllers\MassAssignController::class)->prefix('mass-assign')->group(function () {
+    Route::controller(MassAssignController::class)->prefix('mass-assign')->group(function () {
         Route::get('', 'index')->name('admin.mass_assign.index');
         Route::get('entities', 'getEntities')->name('admin.mass_assign.entities');
         Route::get('users', 'getUsers')->name('admin.mass_assign.users');
@@ -93,7 +94,7 @@ Route::prefix('contacts')->group(function () {
         Route::get('edit/{id?}', 'edit')->name('admin.contacts.organizations.edit');
 
         Route::put('edit/{id}', 'update')->name('admin.contacts.organizations.update');
-        
+
         Route::get('search', 'search')->name('admin.contacts.organizations.search');
 
         Route::get('delete-preview/{id}', 'deletePreview')->name('admin.contacts.organizations.delete-preview');

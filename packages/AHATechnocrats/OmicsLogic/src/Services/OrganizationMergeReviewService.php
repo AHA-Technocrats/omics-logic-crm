@@ -141,7 +141,7 @@ class OrganizationMergeReviewService
                 ->where('status', 'pending')
                 ->where(function ($query) use ($duplicate) {
                     $query->where('organization_a_id', $duplicate->id)
-                          ->orWhere('organization_b_id', $duplicate->id);
+                        ->orWhere('organization_b_id', $duplicate->id);
                 })
                 ->update([
                     'status' => 'dismissed',
