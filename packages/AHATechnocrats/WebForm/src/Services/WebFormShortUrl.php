@@ -42,12 +42,14 @@ class WebFormShortUrl
                 ->urlKey($preferredKey)
                 ->secure(false)
                 ->trackVisits()
+                ->forwardQueryParams()
                 ->make();
         } catch (\Throwable) {
             $shortUrl = app(Builder::class)
                 ->destinationUrl($destination)
                 ->secure(false)
                 ->trackVisits()
+                ->forwardQueryParams()
                 ->make();
         }
 

@@ -57,15 +57,29 @@ class CleanupDatabase extends Command
             'persons',
             'person_activities',
             'person_tags',
+            'person_products',
 
             // Organization operational tables
             'organizations',
 
+            // Imports and Jobs
+            'imports',
+            'import_batches',
+            'jobs',
+            'failed_jobs',
+            'job_batches',
+
             // Audit / Sync / Review logs
+            'audit_logs',
             'omics_audit_logs',
             'omics_connector_sync_runs',
             'omics_merge_review_pairs',
+            'omics_organization_merge_review_pairs',
             'omics_organization_aliases',
+            'firebase_sync_states',
+            'firebase_synced_documents',
+            'merge_queue',
+            'short_url_visits',
 
             // Email operational tables
             'emails',
@@ -88,6 +102,7 @@ class CleanupDatabase extends Command
             $tablesToTruncate[] = 'web_form_submissions';
             $tablesToTruncate[] = 'web_forms';
             $tablesToTruncate[] = 'web_form_attributes';
+            $tablesToTruncate[] = 'short_urls';
         }
 
         if ($includeProducts) {
