@@ -14,6 +14,7 @@ class WebForm extends Model implements WebFormContract
 
     protected $fillable = [
         'form_id',
+        'short_url_key',
         'title',
         'description',
         'submit_button_label',

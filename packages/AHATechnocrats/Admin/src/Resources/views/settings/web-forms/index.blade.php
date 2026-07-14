@@ -115,29 +115,11 @@
                     </x-slot>
 
                     <x-slot:content class="!border-b-0">
-                        <x-admin::form.control-group>
-                            <x-admin::form.control-group.label class="required">
-                                @lang('admin::app.settings.webforms.edit.public-url')
-                            </x-admin::form.control-group.label>
-
-                            <x-admin::form.control-group.control
-                                type="text"
-                                id="publicUrl"
-                                name="publicUrl"
-                                rules="required"
-                                ::value="previewUrl"
-                                :label="trans('admin::app.settings.webforms.edit.public-url')"
-                                :placeholder="trans('admin::app.settings.webforms.edit.public-url')"
-                            />
-
-                            <span
-                                id="publicUrlBtn"
-                                class="cursor-pointer text-xs font-normal text-brandColor hover:text-sky-600 hover:underline"
-                                @click="copyToClipboard('#publicUrl','#publicUrlBtn')"
-                            >
-                                @lang('admin::app.settings.webforms.edit.copy')
-                            </span>
-                        </x-admin::form.control-group>
+                        @include('admin::settings.web-forms.partials.embed-urls', [
+                            'bindShort' => true,
+                            'bindFull' => true,
+                            'shortUrl' => 'bound',
+                        ])
 
                         <x-admin::form.control-group>
                             <x-admin::form.control-group.label class="required">
@@ -171,6 +153,7 @@
                 data() {
                     return {
                         previewUrl: '',
+                        shortUrl: '',
                         scriptUrl: ''
                     };
                 },
@@ -181,8 +164,9 @@
                     }
                 },
                 mounted() {
-                    window.openWebFormEmbedModal = (previewUrl, scriptUrl) => {
+                    window.openWebFormEmbedModal = (previewUrl, shortUrl, scriptUrl) => {
                         this.previewUrl = previewUrl;
+                        this.shortUrl = shortUrl || '';
                         this.scriptUrl = scriptUrl;
                         this.$refs.embed.toggle();
                     };

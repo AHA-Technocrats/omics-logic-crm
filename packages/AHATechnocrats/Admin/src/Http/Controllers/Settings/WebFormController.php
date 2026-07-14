@@ -14,6 +14,7 @@ use AHATechnocrats\WebForm\DataGrids\WebFormDataGrid;
 use AHATechnocrats\WebForm\Helpers\WebFormCampaigns;
 use AHATechnocrats\WebForm\Helpers\WebFormFieldOrder;
 use AHATechnocrats\WebForm\Repositories\WebFormRepository;
+use AHATechnocrats\WebForm\Services\WebFormShortUrl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Event;
@@ -33,7 +34,8 @@ class WebFormController extends Controller
         protected LeadRepository $leadRepository,
         protected PipelineRepository $pipelineRepository,
         protected SourceRepository $sourceRepository,
-        protected TypeRepository $typeRepository
+        protected TypeRepository $typeRepository,
+        protected WebFormShortUrl $webFormShortUrl,
     ) {}
 
     /**
@@ -118,8 +120,11 @@ class WebFormController extends Controller
             ['id', 'NOTIN', $webForm->attributes()->pluck('attribute_id')->toArray()],
         ]);
 
+        $shortPublicUrl = $this->webFormShortUrl->publicUrl($webForm->fresh());
+
         return view('admin::settings.web-forms.edit', [
-            'webForm' => $webForm,
+            'webForm' => $webForm->fresh(),
+            'shortPublicUrl' => $shortPublicUrl,
             'attributes' => $attributes,
             'emailTemplates' => EmailTemplate::query()->orderBy('name')->get(['id', 'name']),
             'activeCampaigns' => WebFormCampaigns::activeAsOptions(),
