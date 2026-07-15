@@ -37,7 +37,7 @@ class ConnectorSyncService
             ]);
 
             $connector->update([
-                'last_sync_at' => now(),
+                'last_sync_at' => $startedAt,
                 'last_sync_status' => 'success',
                 'status' => $connector->status === 'disabled' ? 'connected' : $connector->status,
             ]);

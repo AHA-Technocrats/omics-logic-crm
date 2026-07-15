@@ -68,49 +68,60 @@ class FormRepository extends BaseFirestoreRepository
         return $this->getPaginatedForms($limit, $cursor, $dateField, 'asc', $since, null);
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     protected function buildDateRangeFilter(string $dateField, ?Carbon $from, ?Carbon $to): ?array
     {
+        $formatDateStr = fn (Carbon $date) => $date->clone()->utc()->format('Y-m-d\TH:i:s.v\Z');
+        $formatDateInt = fn (Carbon $date) => (string) $date->getTimestampMs();
+
+        $buildConditions = function (string $op, Carbon $date) use ($dateField, $formatDateStr, $formatDateInt) {
+            return [
+                'compositeFilter' => [
+                    'op' => 'OR',
+                    'filters' => [
+                        [
+                            'fieldFilter' => [
+                                'field' => ['fieldPath' => $dateField],
+                                'op' => $op,
+                                'value' => ['integerValue' => $formatDateInt($date)],
+                            ],
+                        ],
+                        [
+                            'fieldFilter' => [
+                                'field' => ['fieldPath' => $dateField],
+                                'op' => $op,
+                                'value' => ['stringValue' => $formatDateStr($date)],
+                            ],
+                        ],
+                        [
+                            'fieldFilter' => [
+                                'field' => ['fieldPath' => $dateField],
+                                'op' => $op,
+                                'value' => ['timestampValue' => $formatDateStr($date)],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        };
+
         if ($from && $to) {
             return [
                 'compositeFilter' => [
                     'op' => 'AND',
                     'filters' => [
-                        [
-                            'fieldFilter' => [
-                                'field' => ['fieldPath' => $dateField],
-                                'op' => 'GREATER_THAN_OR_EQUAL',
-                                'value' => ['timestampValue' => $from->toIso8601String()],
-                            ],
-                        ],
-                        [
-                            'fieldFilter' => [
-                                'field' => ['fieldPath' => $dateField],
-                                'op' => 'LESS_THAN_OR_EQUAL',
-                                'value' => ['timestampValue' => $to->toIso8601String()],
-                            ],
-                        ],
+                        $buildConditions('GREATER_THAN_OR_EQUAL', $from),
+                        $buildConditions('LESS_THAN_OR_EQUAL', $to),
                     ],
                 ],
             ];
         }
 
         if ($from) {
-            return [
-                'field' => ['fieldPath' => $dateField],
-                'op' => 'GREATER_THAN',
-                'value' => ['timestampValue' => $from->toIso8601String()],
-            ];
+            return $buildConditions('GREATER_THAN', $from);
         }
 
         if ($to) {
-            return [
-                'field' => ['fieldPath' => $dateField],
-                'op' => 'LESS_THAN_OR_EQUAL',
-                'value' => ['timestampValue' => $to->toIso8601String()],
-            ];
+            return $buildConditions('LESS_THAN_OR_EQUAL', $to);
         }
 
         return null;

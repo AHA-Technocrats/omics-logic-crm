@@ -1,28 +1,23 @@
 @php
     $submission = $webFormSubmission ?? null;
-    $rows = $submission
-        ? app(\AHATechnocrats\OmicsLogic\Services\WebFormSubmissionPresenter::class)->present($submission)
-        : [];
+    $rows = app(\AHATechnocrats\OmicsLogic\Services\WebFormSubmissionPresenter::class)
+        ->presentForLead($submission, $lead->person);
 @endphp
 
 {!! view_render_event('admin.leads.view.web-form-submission.before', ['lead' => $lead, 'webFormSubmission' => $submission]) !!}
 
-@if ($submission)
+@if ($submission || count($rows) > 0)
     <div class="flex w-full flex-col gap-4 border-b border-gray-300 p-4 dark:border-gray-800">
         <x-admin::accordion class="select-none !border-none">
             <x-slot:header class="!p-0">
                 <div class="flex w-full items-center justify-between gap-4 font-semibold dark:text-white">
                     <h4>@lang('omicslogic::app.fields.web-form-submission')</h4>
-
-                    @if ($submission->webForm)
-                        <!-- Link removed as per user request to not show it again and again -->
-                    @endif
                 </div>
             </x-slot>
 
             <x-slot:content class="mt-4 !px-0 !pb-0">
                 <dl class="grid grid-cols-1 gap-3 text-sm">
-                    @if ($submission->webForm)
+                    @if ($submission?->webForm)
                         <div class="flex justify-between gap-4">
                             <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.web-form')</dt>
                             <dd class="text-right font-medium dark:text-white">
@@ -40,16 +35,18 @@
                     @foreach ($rows as $row)
                         <div class="flex justify-between gap-4">
                             <dt class="text-gray-600 dark:text-gray-300">{{ $row['label'] }}</dt>
-                            <dd class="max-w-[60%] text-right font-medium dark:text-white">{{ $row['value'] }}</dd>
+                            <dd class="max-w-[60%] whitespace-pre-line text-right font-medium dark:text-white">{{ $row['value'] }}</dd>
                         </div>
                     @endforeach
 
-                    <div class="flex justify-between gap-4">
-                        <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.submitted-at')</dt>
-                        <dd class="text-right font-medium dark:text-white">
-                            {{ $submission->created_at?->format('D M d, Y H:i A') ?? '—' }}
-                        </dd>
-                    </div>
+                    @if ($submission)
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.submitted-at')</dt>
+                            <dd class="text-right font-medium dark:text-white">
+                                {{ $submission->created_at?->format('D M d, Y H:i A') ?? '—' }}
+                            </dd>
+                        </div>
+                    @endif
                 </dl>
             </x-slot>
         </x-admin::accordion>

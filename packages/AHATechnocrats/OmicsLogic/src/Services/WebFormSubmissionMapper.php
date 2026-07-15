@@ -3,7 +3,6 @@
 namespace AHATechnocrats\OmicsLogic\Services;
 
 use AHATechnocrats\Lead\Repositories\SourceRepository;
-use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use AHATechnocrats\Product\Models\Product;
 use AHATechnocrats\WebForm\Models\WebForm;
 use Carbon\Carbon;
@@ -122,7 +121,6 @@ class WebFormSubmissionMapper
             'education_level' => $this->normalizeEducation($education),
             'inquiry_details' => $this->normalizeInquiryDetails($inquiryDetails),
             'program_interest' => $programInterestStr,
-            'lifecycle_stage' => LifecycleStage::Lead->value,
             'primary_product_id' => $primaryProductId,
             'primary_source_id' => $webFormSourceId,
             'entity_type' => 'persons',
@@ -139,7 +137,7 @@ class WebFormSubmissionMapper
         }
 
         $leadTitle = $leadInput['title'] ?? ($name ? "Web Form — {$name}" : 'Web Form Lead');
-        $leadDescription = $leadInput['description'] ?? $person['inquiry_details'] ?? null;
+        $leadDescription = $leadInput['description'] ?? null;
 
         return [
             'person' => $person,

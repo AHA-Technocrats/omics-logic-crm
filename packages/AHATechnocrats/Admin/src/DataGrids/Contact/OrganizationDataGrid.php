@@ -32,8 +32,8 @@ class OrganizationDataGrid extends DataGrid
                 'account_owners.image as account_owner_image',
             )
             ->selectRaw('(SELECT COUNT(*) FROM persons WHERE persons.organization_id = organizations.id) as contacts_count')
-            ->selectRaw("(SELECT COUNT(*) FROM persons WHERE persons.organization_id = organizations.id AND persons.lifecycle_stage = 'engaged') as engaged_count")
-            ->selectRaw("(SELECT COUNT(*) FROM persons WHERE persons.organization_id = organizations.id AND persons.lifecycle_stage = 'customer') as customers_count");
+            ->selectRaw("(SELECT COUNT(DISTINCT persons.id) FROM persons INNER JOIN leads ON leads.person_id = persons.id INNER JOIN lead_pipeline_stages ON lead_pipeline_stages.id = leads.lead_pipeline_stage_id WHERE persons.organization_id = organizations.id AND lead_pipeline_stages.code IN ('follow-up', 'prospect', 'negotiation')) as engaged_count")
+            ->selectRaw("(SELECT COUNT(DISTINCT persons.id) FROM persons INNER JOIN leads ON leads.person_id = persons.id INNER JOIN lead_pipeline_stages ON lead_pipeline_stages.id = leads.lead_pipeline_stage_id WHERE persons.organization_id = organizations.id AND lead_pipeline_stages.code = 'won') as customers_count");
 
         if ($userIds = bouncer()->getAuthorizedUserIds()) {
             $queryBuilder->where(function ($query) use ($userIds) {

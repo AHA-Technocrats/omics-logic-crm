@@ -6,7 +6,6 @@ use AHATechnocrats\Contact\Models\Organization;
 use AHATechnocrats\Contact\Models\Person;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\Lead\Repositories\SourceRepository;
-use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use AHATechnocrats\OmicsLogic\Services\OrganizationAssigneeResolver;
 use AHATechnocrats\OmicsLogic\Services\OrganizationResolver;
 use AHATechnocrats\User\Repositories\UserRepository;
@@ -64,7 +63,6 @@ class PersonImportProcessor
         $rawEducation = $this->clean($row['education_level'] ?? null);
         $educationLevel = $this->normalizeEducation($rawEducation);
         $submittedAt = $this->parseTimestamp($this->clean($row['timestamp'] ?? null));
-        $lifecycleStage = $this->resolveLifecycleStage($this->clean($row['lifecycle_stage'] ?? null));
 
         $organization = $this->organizationResolver->resolve(
             $organizationName,
@@ -99,7 +97,6 @@ class PersonImportProcessor
                 $organization,
                 $educationLevel,
                 $country,
-                $lifecycleStage,
             );
 
             $person = $existingPerson->fresh();
@@ -114,7 +111,6 @@ class PersonImportProcessor
                 $sourceId,
                 $country,
                 $educationLevel,
-                $lifecycleStage,
             );
 
             if (! $payload) {
@@ -173,15 +169,6 @@ class PersonImportProcessor
         return null;
     }
 
-    protected function resolveLifecycleStage(?string $value): string
-    {
-        if ($value && LifecycleStage::tryFrom(strtolower($value))) {
-            return strtolower($value);
-        }
-
-        return LifecycleStage::Customer->value;
-    }
-
     protected function matchPersonByEmail(?string $email): ?Person
     {
         $normalized = $email ? strtolower(trim($email)) : null;
@@ -203,7 +190,6 @@ class PersonImportProcessor
         ?Organization $organization,
         ?string $educationLevel,
         ?string $country,
-        string $lifecycleStage,
     ): void {
         $changed = false;
 
@@ -237,12 +223,6 @@ class PersonImportProcessor
             $changed = true;
         }
 
-        $lifecycleValue = $person->lifecycle_stage;
-        if (empty($person->lifecycle_stage)) {
-            $lifecycleValue = $lifecycleStage;
-            $changed = true;
-        }
-
         if (! $changed) {
             return;
         }
@@ -256,7 +236,6 @@ class PersonImportProcessor
             'organization_id' => $organizationId,
             'education_level' => $educationValue,
             'country_code' => $countryValue,
-            'lifecycle_stage' => $lifecycleValue,
         ], fn ($value) => $value !== null && $value !== '' && $value !== []);
 
         $this->personRepository->update($payload, $person->id);
@@ -275,7 +254,6 @@ class PersonImportProcessor
         ?int $sourceId,
         ?string $country,
         ?string $educationLevel,
-        string $lifecycleStage,
     ): ?array {
         if (! $name && ! $email && ! $phone) {
             return null;
@@ -291,7 +269,6 @@ class PersonImportProcessor
             'education_level' => $educationLevel,
             'primary_source_id' => $sourceId,
             'user_id' => $ownerId,
-            'lifecycle_stage' => $lifecycleStage,
         ], fn ($value) => $value !== null && $value !== '');
     }
 

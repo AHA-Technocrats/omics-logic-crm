@@ -313,13 +313,21 @@ class LeadController extends Controller
             return redirect()->route('admin.leads.index');
         }
 
-        $webFormSubmission = $lead->person_id
-            ? WebFormSubmission::query()
+        // Show this lead's own form/enquiry answers (not another lead for the same person).
+        $webFormSubmission = WebFormSubmission::query()
+            ->with('webForm')
+            ->where('lead_id', $lead->id)
+            ->latest()
+            ->first();
+
+        if (! $webFormSubmission && $lead->person_id) {
+            $webFormSubmission = WebFormSubmission::query()
                 ->with('webForm')
                 ->where('person_id', $lead->person_id)
+                ->whereNull('lead_id')
                 ->latest()
-                ->first()
-            : null;
+                ->first();
+        }
 
         return view('admin::leads.view', compact('lead', 'webFormSubmission'));
     }

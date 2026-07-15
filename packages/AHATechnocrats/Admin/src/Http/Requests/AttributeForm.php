@@ -101,12 +101,12 @@ class AttributeForm extends FormRequest
                 }
             }
 
-            if ($attribute->is_unique) {
+            if ($attribute->is_unique && ! $this->route('id') && ! $this->id) {
                 array_push($validations[in_array($attribute->type, ['email', 'phone'])
                     ? $attribute->code.'.*.value'
                     : $attribute->code
                 ], function ($field, $value, $fail) use ($attribute) {
-                    if (! $this->attributeValueRepository->isValueUnique($this->id, $attribute->entity_type, $attribute, request($field))) {
+                    if (! $this->attributeValueRepository->isValueUnique($this->route('id') ?? $this->id, $attribute->entity_type, $attribute, request($field))) {
                         $fail('The value has already been taken.');
                     }
                 });

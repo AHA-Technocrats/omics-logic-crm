@@ -11,7 +11,6 @@ use AHATechnocrats\Lead\Repositories\PipelineRepository;
 use AHATechnocrats\Lead\Repositories\ProductRepository as LeadProductRepository;
 use AHATechnocrats\Lead\Repositories\SourceRepository;
 use AHATechnocrats\Lead\Repositories\TypeRepository;
-use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use AHATechnocrats\OmicsLogic\Services\OrganizationAssigneeResolver;
 use AHATechnocrats\OmicsLogic\Services\OrganizationResolver;
 use AHATechnocrats\Product\Models\Product;
@@ -307,7 +306,6 @@ class LeadImportProcessor
             'primary_source_id' => $sourceId,
             'primary_product_id' => $campaignProductId,
             'user_id' => $ownerId,
-            'lifecycle_stage' => LifecycleStage::Lead->value,
         ], fn ($value) => $value !== null && $value !== '');
     }
 
@@ -400,6 +398,7 @@ class LeadImportProcessor
         WebFormSubmission::query()->create([
             'web_form_id' => $this->importWebFormId(),
             'person_id' => $lead->person_id,
+            'lead_id' => $lead->id,
             'payload' => $payload,
             'spam_score' => 0,
             'status' => 'accepted',

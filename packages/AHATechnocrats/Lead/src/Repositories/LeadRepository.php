@@ -165,8 +165,6 @@ class LeadRepository extends Repository
             }
         }
 
-        app(LeadPersonSyncService::class)->syncLifecycleStageFromLead($lead->fresh());
-
         return $lead;
     }
 
@@ -292,10 +290,7 @@ class LeadRepository extends Repository
         if (array_key_exists('user_id', $data)) {
             app(LeadPersonSyncService::class)->syncOwnerFromLead($lead->fresh());
         }
-
-        app(LeadPersonSyncService::class)->syncLifecycleStageFromLead($lead->fresh());
     }
-
     /**
      * Create or update the linked person record from lead form data.
      */

@@ -7,7 +7,6 @@ use AHATechnocrats\Contact\Models\Person;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\Lead\Models\Lead;
 use AHATechnocrats\Lead\Repositories\ProductRepository as LeadProductRepository;
-use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use AHATechnocrats\Product\Models\Product;
 
 class LeadPersonSyncService
@@ -167,35 +166,5 @@ class LeadPersonSyncService
         }
 
         $lead->update(['lead_source_id' => $person->primary_source_id]);
-    }
-
-    public function syncLifecycleStageFromLead(Lead $lead): void
-    {
-        if (! $lead->person_id) {
-            return;
-        }
-
-        $person = Person::query()->find($lead->person_id);
-        if (! $person) {
-            return;
-        }
-
-        $stage = $lead->stage;
-        if (! $stage) {
-            return;
-        }
-
-        $newLifecycleStage = match ($stage->code) {
-            'won' => LifecycleStage::Customer->value,
-            'lost' => LifecycleStage::Dormant->value,
-            'follow-up', 'prospect', 'negotiation' => LifecycleStage::Engaged->value,
-            'new' => LifecycleStage::Lead->value,
-            default => null,
-        };
-
-        if ($newLifecycleStage && $person->lifecycle_stage !== $newLifecycleStage) {
-            $person->lifecycle_stage = $newLifecycleStage;
-            $person->save();
-        }
     }
 }

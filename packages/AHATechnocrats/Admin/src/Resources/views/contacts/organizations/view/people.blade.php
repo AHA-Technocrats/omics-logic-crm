@@ -15,15 +15,7 @@
     <div class="divide-y divide-gray-100 dark:divide-gray-800">
         @forelse ($organization->persons as $person)
             @php
-                $stage = \AHATechnocrats\OmicsLogic\Enums\LifecycleStage::tryFrom($person->lifecycle_stage ?? '');
-                $stageLabel = $stage?->label() ?? ucfirst($person->lifecycle_stage ?? 'subscriber');
-                $stageClass = match ($person->lifecycle_stage) {
-                    'customer' => 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
-                    'engaged' => 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
-                    'lead' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-                    'dormant' => 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-                    default => 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
-                };
+
                 $subtitle = collect([
                     $person->job_title ?? null,
                     $person->education_level ?? null,
@@ -43,9 +35,7 @@
                     </p>
                 </div>
 
-                <span class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $stageClass }}">
-                    {{ $stageLabel }}
-                </span>
+
             </a>
         @empty
             <p class="px-4 py-8 text-center text-sm text-gray-600 dark:text-gray-300">

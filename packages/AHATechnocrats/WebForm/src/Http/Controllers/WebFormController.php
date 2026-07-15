@@ -83,6 +83,7 @@ class WebFormController extends Controller
         app(WebForm::class);
 
         $createLead = (bool) ($webForm->create_lead ?? true);
+        $lead = null;
 
         if ($createLead) {
             request()->request->add(['entity_type' => 'leads']);
@@ -152,6 +153,7 @@ class WebFormController extends Controller
         WebFormSubmission::query()->create([
             'web_form_id' => $webForm->id,
             'person_id' => $person?->id,
+            'lead_id' => $lead?->id,
             'payload' => request()->only(['persons', 'leads', 'webforms']),
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),

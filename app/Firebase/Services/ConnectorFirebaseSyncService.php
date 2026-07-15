@@ -35,6 +35,8 @@ class ConnectorFirebaseSyncService
         $webFormId = $this->ensureWebFormMapping($connector);
         $batchSize = (int) ($connector->config['batch_size'] ?? config('firebase.sync.batch_size', 50));
 
+        // Resume from the last successful sync watermark (incremental).
+        // First run: optional sync_from_date, otherwise fetch the full Forms history once.
         $since = $connector->last_sync_at;
         if (! $since && ! empty($connector->config['sync_from_date'])) {
             $since = Carbon::parse($connector->config['sync_from_date'])->startOfDay();
@@ -42,10 +44,12 @@ class ConnectorFirebaseSyncService
 
         $stats = $this->formSyncService->sync($webFormId, $batchSize, $since);
 
+        // Portal sync creates persons/leads for each Form doc; "skipped" means already
+        // imported (or no email) — never report that as a contact merge.
         return [
-            'rows_total' => $stats['synced'] + $stats['skipped'] + $stats['failed'],
+            'rows_total' => $stats['synced'] + $stats['failed'],
             'rows_new' => $stats['synced'],
-            'rows_merged' => $stats['skipped'],
+            'rows_merged' => 0,
             'rows_review' => 0,
             'rows_failed' => $stats['failed'],
         ];

@@ -5,7 +5,6 @@
     $campaigns = app(\AHATechnocrats\Product\Repositories\ProductRepository::class)->all(['id', 'name']);
     $owners = app(\AHATechnocrats\User\Repositories\UserRepository::class)->all(['id', 'name']);
     $countries = config('omicslogic.countries', []);
-    $lifecycleStages = \AHATechnocrats\OmicsLogic\Enums\LifecycleStage::cases();
     $educationLevels = ['Undergraduate', 'Masters', 'PhD', 'Faculty', 'Industry'];
 @endphp
 
@@ -46,15 +45,6 @@
             </x-admin::form.control-group.control>
         </x-admin::form.control-group>
 
-        <x-admin::form.control-group>
-            <x-admin::form.control-group.label>@lang('omicslogic::app.fields.lifecycle-stage')</x-admin::form.control-group.label>
-            <x-admin::form.control-group.control type="select" name="filter_lifecycle_stage">
-                <option value="">@lang('omicslogic::app.fields.any')</option>
-                @foreach ($lifecycleStages as $stage)
-                    <option value="{{ $stage->value }}" @selected(old('filter_lifecycle_stage', $filters['lifecycle_stage'] ?? '') === $stage->value)>{{ $stage->label() }}</option>
-                @endforeach
-            </x-admin::form.control-group.control>
-        </x-admin::form.control-group>
 
         <x-admin::form.control-group>
             <x-admin::form.control-group.label>@lang('omicslogic::app.fields.campaign')</x-admin::form.control-group.label>

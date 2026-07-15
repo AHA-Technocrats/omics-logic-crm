@@ -17,7 +17,9 @@ class ReportAnalyticsService
 
         $total = (clone $query)->count();
         $engaged = (clone $query)->where('engagement_lessons', '>', 0)->count();
-        $customers = (clone $query)->where('lifecycle_stage', 'customer')->count();
+        $customers = (clone $query)->whereHas('leads.stage', function ($q) {
+            $q->where('code', 'won');
+        })->count();
 
         $monthsInRange = $this->monthsInRange($filters);
         $monthFrom = min($filters['month_from'], $filters['month_to']);
@@ -360,7 +362,6 @@ class ReportAnalyticsService
                     'email' => $email,
                     'organization' => $person->organization?->name,
                     'country' => $person->country_code,
-                    'stage' => $person->lifecycle_stage,
                     'education' => $person->education_level,
                     'lessons' => $person->engagement_lessons,
                     'score' => $person->lead_score,

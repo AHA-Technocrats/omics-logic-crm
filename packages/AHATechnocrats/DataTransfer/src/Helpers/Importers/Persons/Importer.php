@@ -41,7 +41,6 @@ class Importer extends AbstractImporter
         'education_level',
         'inquiry_details',
         'timestamp',
-        'lifecycle_stage',
         'source',
         'owner',
     ];
@@ -76,7 +75,6 @@ class Importer extends AbstractImporter
         'otherdetails' => 'inquiry_details',
         'queries' => 'inquiry_details',
         'jobtitle' => 'job_title',
-        'lifecyclestage' => 'lifecycle_stage',
         'owner' => 'owner',
         'source' => 'source',
     ];
@@ -181,7 +179,6 @@ class Importer extends AbstractImporter
             'name' => 'nullable|string',
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
-            'lifecycle_stage' => 'nullable|in:subscriber,lead,engaged,customer,dormant',
         ]);
 
         if ($validator->fails()) {

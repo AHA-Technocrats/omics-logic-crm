@@ -3,7 +3,6 @@
 namespace AHATechnocrats\OmicsLogic\Services;
 
 use AHATechnocrats\Lead\Models\Source;
-use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use AHATechnocrats\OmicsLogic\Models\Segment;
 use AHATechnocrats\Product\Models\Product;
 use AHATechnocrats\User\Models\User;
@@ -46,15 +45,6 @@ class SegmentFilterCounter
             $labels[] = [
                 'label' => trans('omicslogic::app.fields.country'),
                 'value' => (string) $filters['country_code'],
-            ];
-        }
-
-        if (! empty($filters['lifecycle_stage'])) {
-            $stage = LifecycleStage::tryFrom((string) $filters['lifecycle_stage']);
-
-            $labels[] = [
-                'label' => trans('omicslogic::app.fields.lifecycle-stage'),
-                'value' => $stage?->label() ?? (string) $filters['lifecycle_stage'],
             ];
         }
 
@@ -113,10 +103,6 @@ class SegmentFilterCounter
             $query->where("{$table}.country_code", $filters['country_code']);
         }
 
-        if (! empty($filters['lifecycle_stage'])) {
-            $query->where("{$table}.lifecycle_stage", $filters['lifecycle_stage']);
-        }
-
         if (! empty($filters['education_level'])) {
             $query->where("{$table}.education_level", $filters['education_level']);
         }
@@ -158,7 +144,6 @@ class SegmentFilterCounter
     {
         return array_filter([
             'country_code' => $data['filter_country_code'] ?? null,
-            'lifecycle_stage' => $data['filter_lifecycle_stage'] ?? null,
             'education_level' => $data['filter_education_level'] ?? null,
             'primary_product_id' => $data['filter_primary_product_id'] ?? null,
             'primary_source_id' => $data['filter_primary_source_id'] ?? null,

@@ -3,7 +3,6 @@
 namespace AHATechnocrats\OmicsLogic\Services;
 
 use AHATechnocrats\Contact\Models\Person;
-use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use Carbon\Carbon;
 
 class LeadScoreCalculator
@@ -62,12 +61,23 @@ class LeadScoreCalculator
             return 50;
         }
 
-        return match ($person->lifecycle_stage) {
-            LifecycleStage::Customer->value => 90,
-            LifecycleStage::Engaged->value => 60,
-            LifecycleStage::Lead->value => 25,
-            default => 10,
-        };
+        $person->loadMissing('leads.stage');
+
+        $leadStages = $person->leads->pluck('stage.code');
+
+        if ($leadStages->contains('won')) {
+            return 90;
+        }
+
+        if ($leadStages->intersect(['follow-up', 'prospect', 'negotiation'])->isNotEmpty()) {
+            return 60;
+        }
+
+        if ($leadStages->contains('new')) {
+            return 25;
+        }
+
+        return 10;
     }
 
     protected function recencyScore(Person $person): int

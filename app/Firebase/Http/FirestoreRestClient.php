@@ -80,10 +80,16 @@ class FirestoreRestClient
         }
 
         if ($orderByField) {
-            $structuredQuery['orderBy'] = [[
-                'field' => ['fieldPath' => $orderByField],
-                'direction' => strtoupper($orderDirection) === 'ASC' ? 'ASCENDING' : 'DESCENDING',
-            ]];
+            $structuredQuery['orderBy'] = [
+                [
+                    'field' => ['fieldPath' => $orderByField],
+                    'direction' => strtoupper($orderDirection) === 'ASC' ? 'ASCENDING' : 'DESCENDING',
+                ],
+                [
+                    'field' => ['fieldPath' => '__name__'],
+                    'direction' => strtoupper($orderDirection) === 'ASC' ? 'ASCENDING' : 'DESCENDING',
+                ],
+            ];
         }
 
         if ($startAfterDocumentId) {
@@ -92,8 +98,26 @@ class FirestoreRestClient
                 : $this->getDocument($collection, $startAfterDocumentId);
 
             if ($startDoc) {
+                $startValues = [];
+
+                if ($orderByField && array_key_exists($orderByField, $startDoc)) {
+                    $startValues[] = $this->encodeScalar($startDoc[$orderByField]);
+                }
+
+                $documentPath = $parentDocumentPath
+                    ? rtrim($parentDocumentPath, '/').'/'.$startAfterDocumentId
+                    : sprintf('projects/%s/databases/(default)/documents/%s/%s', $this->projectId, $collection, $startAfterDocumentId);
+
+                if (! str_starts_with($documentPath, 'projects/')) {
+                    $documentPath = sprintf('projects/%s/databases/(default)/documents/%s', $this->projectId, ltrim($documentPath, '/'));
+                }
+
+                $startValues[] = [
+                    'referenceValue' => $documentPath,
+                ];
+
                 $structuredQuery['startAt'] = [
-                    'values' => [$this->encodeValue($startDoc)],
+                    'values' => $startValues,
                     'before' => false,
                 ];
             }
@@ -217,6 +241,10 @@ class FirestoreRestClient
 
     protected function encodeScalar(mixed $value): array
     {
+        if (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $value)) {
+            return ['timestampValue' => $value];
+        }
+
         return match (true) {
             is_string($value) => ['stringValue' => $value],
             is_int($value) => ['integerValue' => (string) $value],

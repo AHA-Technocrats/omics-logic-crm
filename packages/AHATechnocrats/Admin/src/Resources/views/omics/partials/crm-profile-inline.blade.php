@@ -6,10 +6,6 @@
     $campaigns = app(\AHATechnocrats\Product\Repositories\ProductRepository::class)->all(['id', 'name']);
     $sources = app(\AHATechnocrats\Lead\Repositories\SourceRepository::class)->all(['id', 'name']);
     $owners = app(\AHATechnocrats\User\Repositories\UserRepository::class)->all(['id', 'name']);
-    $lifecycleStages = collect(\AHATechnocrats\OmicsLogic\Enums\LifecycleStage::cases())
-        ->map(fn ($stage) => ['id' => $stage->value, 'name' => $stage->label()])
-        ->values()
-        ->all();
 
     $campaignOptions = collect([['id' => '', 'name' => trans('omicslogic::app.fields.any')]])
         ->merge($campaigns->map(fn ($campaign) => ['id' => (string) $campaign->id, 'name' => $campaign->name]))
@@ -26,26 +22,10 @@
         ->values()
         ->all();
 
-    $stage = \AHATechnocrats\OmicsLogic\Enums\LifecycleStage::tryFrom($person?->lifecycle_stage ?? '');
 @endphp
 
 @if ($person)
     <div class="flex flex-col gap-1">
-        <div class="grid grid-cols-[1fr_2fr] items-center gap-1">
-            <div class="label dark:text-white">@lang('omicslogic::app.fields.lifecycle-stage')</div>
-            <div class="font-medium dark:text-white">
-                <x-admin::form.control-group.controls.inline.select
-                    name="lifecycle_stage"
-                    :value="$person->lifecycle_stage"
-                    :options="$lifecycleStages"
-                    position="left"
-                    :label="trans('omicslogic::app.fields.lifecycle-stage')"
-                    :url="$updateUrl"
-                    :allow-edit="$allowEdit"
-                    :value-label="$stage?->label() ?? '—'"
-                />
-            </div>
-        </div>
 
         <div class="grid grid-cols-[1fr_2fr] items-center gap-1">
             <div class="label dark:text-white">@lang('omicslogic::app.fields.campaign')</div>

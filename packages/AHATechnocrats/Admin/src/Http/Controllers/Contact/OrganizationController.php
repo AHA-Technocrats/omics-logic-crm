@@ -86,11 +86,15 @@ class OrganizationController extends Controller
             return $redirect;
         }
 
-        $customers = $organization->persons->where('lifecycle_stage', 'customer')->count();
+        $customers = $organization->persons()
+            ->whereHas('leads.stage', fn ($query) => $query->where('code', 'won'))
+            ->count();
 
         $stats = [
             'contacts' => $organization->persons->count(),
-            'engaged' => $organization->persons->where('lifecycle_stage', 'engaged')->count(),
+            'engaged' => $organization->persons()
+                ->whereHas('leads.stage', fn ($query) => $query->whereIn('code', ['follow-up', 'prospect', 'negotiation']))
+                ->count(),
             'customers' => $customers,
             'estimated_value' => $customers * 1200,
         ];

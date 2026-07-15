@@ -21,7 +21,7 @@ class ProductDataGrid extends DataGrid
             )
             ->selectRaw('COUNT(DISTINCT omics_product_aliases.id) as alias_count')
             ->selectRaw('(SELECT COUNT(*) FROM persons WHERE persons.primary_product_id = products.id) as leads_count')
-            ->selectRaw("(SELECT COUNT(*) FROM persons WHERE persons.primary_product_id = products.id AND persons.lifecycle_stage = 'customer') as customers_count")
+            ->selectRaw("(SELECT COUNT(DISTINCT persons.id) FROM persons INNER JOIN leads ON leads.person_id = persons.id INNER JOIN lead_pipeline_stages ON lead_pipeline_stages.id = leads.lead_pipeline_stage_id WHERE persons.primary_product_id = products.id AND lead_pipeline_stages.code = 'won') as customers_count")
             ->groupBy('products.id', 'products.name', 'products.category', 'products.mapping_status', 'products.is_active');
 
         $this->addFilter('id', 'products.id');

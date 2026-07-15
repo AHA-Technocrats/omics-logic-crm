@@ -1,8 +1,5 @@
 <?php
 
-use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
-use AHATechnocrats\OmicsLogic\Support\LifecycleStageOptions;
-
 return [
     /**
      * General.
@@ -171,21 +168,7 @@ return [
                 'default' => '#0E90D9',
             ],
         ],
-    ], [
-        'key' => 'general.settings.contacts',
-        'name' => 'admin::app.configuration.index.general.settings.contacts.title',
-        'info' => 'admin::app.configuration.index.general.settings.contacts.info',
-        'sort' => 4,
-        'fields' => [
-            [
-                'name' => 'default_lifecycle_stage',
-                'title' => 'admin::app.configuration.index.general.settings.contacts.default-lifecycle-stage',
-                'info' => 'admin::app.configuration.index.general.settings.contacts.default-lifecycle-stage-info',
-                'type' => 'select',
-                'default' => LifecycleStage::Subscriber->value,
-                'options' => LifecycleStageOptions::class.'@options',
-            ],
-        ],
+
     ], [
         'key' => 'general.magic_ai',
         'name' => 'admin::app.configuration.index.magic-ai.title',

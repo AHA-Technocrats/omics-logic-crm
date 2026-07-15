@@ -10,6 +10,14 @@ class FirestoreFormMapper
      */
     public function toSubmissionInput(array $document): array
     {
+        if (isset($document['feedbacks']) && is_array($document['feedbacks'])) {
+            foreach ($document['feedbacks'] as $feedback) {
+                if (is_array($feedback) && isset($feedback['question'], $feedback['answer'])) {
+                    $document[$feedback['question']] = $feedback['answer'];
+                }
+            }
+        }
+
         $fieldMap = (array) config('firebase.forms.field_map', []);
 
         $person = [];
@@ -45,7 +53,6 @@ class FirestoreFormMapper
             'persons' => $person,
             'leads' => [
                 'title' => 'Website Form — '.$name,
-                'description' => $person['inquiry_details'] ?? null,
             ],
             'firestore_doc_id' => (string) ($document['id'] ?? ''),
         ];
@@ -65,10 +72,30 @@ class FirestoreFormMapper
             $value = $document[$key];
 
             if (is_array($value)) {
+                // Portal phone object: prefer E.164 / international formats.
+                if (isset($value['e164Number']) || isset($value['number']) || isset($value['internationalNumber'])) {
+                    foreach (['e164Number', 'internationalNumber', 'number'] as $phoneKey) {
+                        if (! empty($value[$phoneKey]) && is_scalar($value[$phoneKey]) && trim((string) $value[$phoneKey]) !== '') {
+                            return trim((string) $value[$phoneKey]);
+                        }
+                    }
+                }
+
                 $encoded = collect($value)
+                    ->map(function ($item) {
+                        if (is_array($item)) {
+                            if (isset($item['question']) && isset($item['answer'])) {
+                                return $item['question'].': '.$item['answer'];
+                            }
+
+                            return implode(', ', array_filter($item, 'is_scalar'));
+                        }
+
+                        return $item;
+                    })
                     ->filter(fn ($item) => is_scalar($item) && trim((string) $item) !== '')
                     ->map(fn ($item) => trim((string) $item))
-                    ->implode(', ');
+                    ->implode("\n");
 
                 if ($encoded !== '') {
                     return $encoded;

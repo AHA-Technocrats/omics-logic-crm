@@ -6,7 +6,6 @@ use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Contact\Contracts\Person;
 use AHATechnocrats\Core\Eloquent\Repository;
-use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use AHATechnocrats\OmicsLogic\Services\LeadPersonSyncService;
 use AHATechnocrats\OmicsLogic\Services\LeadScoreCalculator;
 use AHATechnocrats\OmicsLogic\Services\OrganizationResolver;
@@ -116,7 +115,9 @@ class PersonRepository extends Repository
     {
         $data['entity_type'] = $data['entity_type'] ?? 'persons';
 
-        $data = $this->sanitizeRequestedPersonData($data);
+        $existing = $this->find($id);
+
+        $data = $this->sanitizeRequestedPersonData($data, $existing);
 
         if (array_key_exists('user_id', $data)) {
             $data['user_id'] = empty($data['user_id']) ? null : $data['user_id'];
@@ -277,13 +278,6 @@ class PersonRepository extends Repository
             $data['normalized_phone'] = preg_replace('/\D+/', '', $phone);
         }
 
-        // Only seed the default lifecycle stage on creation; never overwrite an
-        // existing person's stage on update (the field is no longer edited manually
-        // and stays in sync with the person's leads).
-        if ($personId === null && ($data['lifecycle_stage'] ?? null) === null) {
-            $data['lifecycle_stage'] = LifecycleStage::default()->value;
-        }
-
         $data['last_activity_at'] = $data['last_activity_at'] ?? now();
 
         return $data;
@@ -308,8 +302,12 @@ class PersonRepository extends Repository
 
     /**
      * Sanitize requested person data and return the clean array.
+     *
+     * When updating with a partial payload (e.g. only user_id), merge identity
+     * fields from the existing person so unique_id is not collapsed to a bare
+     * owner id that collides with other contacts.
      */
-    private function sanitizeRequestedPersonData(array $data): array
+    private function sanitizeRequestedPersonData(array $data, $existing = null): array
     {
         if (
             array_key_exists('organization_id', $data)
@@ -318,11 +316,22 @@ class PersonRepository extends Repository
             $data['organization_id'] = null;
         }
 
+        $userId = array_key_exists('user_id', $data)
+            ? $data['user_id']
+            : $existing?->user_id;
+
+        $organizationId = array_key_exists('organization_id', $data)
+            ? $data['organization_id']
+            : $existing?->organization_id;
+
+        $email = $data['emails'][0]['value']
+            ?? ($existing?->emails[0]['value'] ?? null);
+
         $uniqueIdParts = array_filter([
-            $data['user_id'] ?? null,
-            $data['organization_id'] ?? null,
-            $data['emails'][0]['value'] ?? null,
-        ]);
+            $userId ?: null,
+            $organizationId ?: null,
+            $email ?: null,
+        ], fn ($part) => $part !== null && $part !== '');
 
         $data['unique_id'] = implode('|', $uniqueIdParts);
 
@@ -335,6 +344,13 @@ class PersonRepository extends Repository
             if (! empty($data['contact_numbers'])) {
                 $data['unique_id'] .= '|'.$data['contact_numbers'][0]['value'];
             }
+        } elseif (! empty($existing?->contact_numbers[0]['value'])) {
+            $data['unique_id'] .= '|'.$existing->contact_numbers[0]['value'];
+        }
+
+        // Never persist a unique_id that is only a numeric owner id.
+        if ($data['unique_id'] !== '' && ctype_digit((string) $data['unique_id'])) {
+            unset($data['unique_id']);
         }
 
         return $data;

@@ -49,7 +49,6 @@ class Person extends Model implements PersonContract
         'user_id',
         'organization_id',
         'unique_id',
-        'lifecycle_stage',
         'is_student',
         'converted_at',
         'lead_score',

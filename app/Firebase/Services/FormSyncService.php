@@ -10,7 +10,6 @@ use AHATechnocrats\Lead\Repositories\LeadRepository;
 use AHATechnocrats\Lead\Repositories\PipelineRepository;
 use AHATechnocrats\Lead\Repositories\SourceRepository;
 use AHATechnocrats\Lead\Repositories\TypeRepository;
-use AHATechnocrats\OmicsLogic\Enums\LifecycleStage;
 use AHATechnocrats\OmicsLogic\Models\OrganizationMergeReviewPair;
 use AHATechnocrats\OmicsLogic\Services\WebFormSubmissionMapper;
 use AHATechnocrats\WebForm\Models\WebFormSubmission;
@@ -77,9 +76,14 @@ class FormSyncService
                 }
 
                 try {
-                    $this->importFormDocument($document, $webForm);
+                    $imported = $this->importFormDocument($document, $webForm);
                     $this->markSynced($docId);
-                    $stats['synced']++;
+
+                    if ($imported) {
+                        $stats['synced']++;
+                    } else {
+                        $stats['skipped']++;
+                    }
                 } catch (\Throwable $exception) {
                     report($exception);
                     $stats['failed']++;
@@ -98,47 +102,57 @@ class FormSyncService
 
     /**
      * @param  array<string, mixed>  $document
+     * @return bool True when a person/submission was imported
      */
-    protected function importFormDocument(array $document, $webForm): void
+    protected function importFormDocument(array $document, $webForm): bool
     {
-        $input = $this->formMapper->toSubmissionInput($document);
-        $mapped = $this->submissionMapper->map($input, $webForm);
+        return DB::transaction(function () use ($document, $webForm) {
+            $input = $this->formMapper->toSubmissionInput($document);
+            $mapped = $this->submissionMapper->map($input, $webForm);
 
-        $email = $mapped['person']['emails'][0]['value'] ?? null;
+            $email = $mapped['person']['emails'][0]['value'] ?? null;
 
-        if (! $email) {
-            throw new \RuntimeException('Firestore form is missing an email address.');
-        }
+            if (! $email) {
+                // Portal Forms without an email cannot create a person/lead.
+                return false;
+            }
 
-        $person = $this->personRepository->getModel()
-            ->where('normalized_email', strtolower(trim($email)))
-            ->first();
+            $person = $this->personRepository->getModel()
+                ->where('normalized_email', strtolower(trim($email)))
+                ->first();
 
-        $createLead = (bool) ($webForm->create_lead ?? true);
+            $createLead = (bool) ($webForm->create_lead ?? true);
+            $leadId = null;
 
-        if (! $createLead) {
-            $person = $this->savePersonWithoutLead($mapped['person'], $person);
-        } else {
-            $person = $this->savePersonWithLead($mapped, $person);
-        }
+            if (! $createLead) {
+                $person = $this->savePersonWithoutLead($mapped['person'], $person);
+            } else {
+                $lead = $this->savePersonWithLead($mapped, $person);
+                $person = $lead->person ?? $this->personRepository->find($lead->person_id);
+                $leadId = $lead->id;
+            }
 
-        $submittedAt = $mapped['submitted_at']
-            ?? $this->documentTimestamp($document)
-            ?? now();
+            $submittedAt = $mapped['submitted_at']
+                ?? $this->documentTimestamp($document)
+                ?? now();
 
-        WebFormSubmission::query()->create([
-            'web_form_id' => $webForm->id,
-            'person_id' => $person->id,
-            'payload' => array_merge($input, [
-                'firestore_doc_id' => (string) ($document['id'] ?? ''),
-            ]),
-            'ip_address' => null,
-            'user_agent' => 'firebase-sync',
-            'spam_score' => 0,
-            'status' => 'accepted',
-            'created_at' => $submittedAt,
-            'updated_at' => $submittedAt,
-        ]);
+            WebFormSubmission::query()->create([
+                'web_form_id' => $webForm->id,
+                'person_id' => $person->id,
+                'lead_id' => $leadId,
+                'payload' => array_merge($document, $input, [
+                    'firestore_doc_id' => (string) ($document['id'] ?? ''),
+                ]),
+                'ip_address' => null,
+                'user_agent' => 'firebase-sync',
+                'spam_score' => 0,
+                'status' => 'accepted',
+                'created_at' => $submittedAt,
+                'updated_at' => $submittedAt,
+            ]);
+
+            return true;
+        });
     }
 
     /**
@@ -153,17 +167,7 @@ class FormSyncService
         ]);
 
         if ($person) {
-            if (empty($person->lifecycle_stage)) {
-                $personData['lifecycle_stage'] = LifecycleStage::Customer->value;
-            } else {
-                unset($personData['lifecycle_stage']);
-            }
-
             return $this->personRepository->update($personData, $person->id);
-        }
-
-        if (empty($personData['lifecycle_stage']) || $personData['lifecycle_stage'] === LifecycleStage::Lead->value) {
-            $personData['lifecycle_stage'] = LifecycleStage::Customer->value;
         }
 
         Event::dispatch('contacts.person.create.before');
@@ -180,7 +184,7 @@ class FormSyncService
      *
      * @param  array{person: array<string, mixed>, lead: array<string, mixed>}  $mapped
      */
-    protected function savePersonWithLead(array $mapped, ?Person $person): Person
+    protected function savePersonWithLead(array $mapped, ?Person $person): Lead
     {
         $pipeline = $this->pipelineRepository->getDefaultPipeline();
         $stage = $pipeline->stages()->first();
@@ -215,7 +219,7 @@ class FormSyncService
 
         Event::dispatch('lead.create.after', $lead);
 
-        return $lead->person ?? $this->personRepository->find($lead->person_id);
+        return $lead;
     }
 
     /**
