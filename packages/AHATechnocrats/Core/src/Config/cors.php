@@ -23,6 +23,8 @@ return [
      */
     'paths' => [
         'admin/web-forms/forms/*',
+        'web-forms/forms/*',
+        'web-forms/organizations/search',
     ],
 
     /*

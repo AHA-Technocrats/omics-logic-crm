@@ -45,10 +45,13 @@ class WebFormController extends Controller
     {
         $webForm = $this->webFormRepository->findOneByField('form_id', $formId);
 
-        $formToken = $this->formSubmissionGuard->issueFormToken();
+        if (is_null($webForm) || ! ($webForm->is_active ?? true)) {
+            abort(404);
+        }
 
-        return response()->view('web_form::settings.web-forms.embed', compact('webForm', 'formToken'))
-            ->header('Content-Type', 'text/javascript');
+        return response()->view('web_form::settings.web-forms.embed', compact('webForm'))
+            ->header('Content-Type', 'text/javascript')
+            ->header('Cache-Control', 'no-store, private');
     }
 
     public function formStore(int $id): JsonResponse
