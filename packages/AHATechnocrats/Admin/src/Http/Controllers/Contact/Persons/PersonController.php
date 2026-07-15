@@ -168,9 +168,9 @@ class PersonController extends Controller
         }
 
         if ($userIds = bouncer()->getAuthorizedUserIds()) {
-            $persons = $personRepository->findWhereIn('user_id', $userIds);
+            $persons = $personRepository->with(['organization'])->findWhereIn('user_id', $userIds);
         } else {
-            $persons = $personRepository->all();
+            $persons = $personRepository->with(['organization'])->all();
         }
 
         return PersonResource::collection($persons);

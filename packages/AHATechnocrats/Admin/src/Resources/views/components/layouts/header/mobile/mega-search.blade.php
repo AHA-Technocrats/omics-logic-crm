@@ -189,6 +189,7 @@
                                                 </p>
 
                                                 <p class="text-gray-500">
+                                                    <span v-if="person.organization" class="font-semibold text-gray-600 dark:text-gray-300">@{{ person.organization.name }} - </span>
                                                     @{{ person.emails.map((item) => `${item.value}(${item.label})`).join(', ') }}
                                                 </p>
                                             </div>
@@ -213,6 +214,53 @@
                                         class="cursor-pointer text-xs font-semibold text-brandColor transition-all hover:underline"
                                     >
                                         @lang('admin::app.components.layouts.header.mega-search.explore-all-contacts')
+                                    </a>
+                                </template>
+                            </div>
+                        </template>
+                    </template>
+
+                    <template v-if="activeTab == 'organizations'">
+                        <template v-if="isLoading">
+                            <x-admin::shimmer.header.mega-search.organizations />
+                        </template>
+
+                        <template v-else>
+                            <div class="grid max-h-[400px] overflow-y-auto">
+                                <template v-for="organization in searchedResults.organizations">
+                                    <a
+                                        :href="'{{ route('admin.contacts.organizations.view', ':id') }}'.replace(':id', organization.id)"
+                                        class="flex cursor-pointer justify-between gap-2.5 border-b border-slate-300 p-4 last:border-b-0 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-gray-950"
+                                    >
+                                        <!-- Left Information -->
+                                        <div class="flex gap-2.5">
+                                            <!-- Details -->
+                                            <div class="grid place-content-start gap-1.5">
+                                                <p class="text-gray-600 dark:text-gray-300">
+                                                    @{{ organization.name }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </template>
+                            </div>
+
+                            <div class="flex border-t p-3 dark:border-gray-800">
+                                <template v-if="searchedResults.organizations.length">
+                                    <a
+                                        :href="'{{ route('admin.contacts.organizations.index') }}?search=:query'.replace(':query', searchTerm)"
+                                        class="cursor-pointer text-xs font-semibold text-brandColor transition-all hover:underline"
+                                    >
+                                        @{{ `@lang('admin::app.components.layouts.header.mega-search.explore-all-matching-organizations')`.replace(':query', searchTerm).replace(':count', searchedResults.organizations.length) }}
+                                    </a>
+                                </template>
+
+                                <template v-else>
+                                    <a
+                                        href="{{ route('admin.contacts.organizations.index') }}"
+                                        class="cursor-pointer text-xs font-semibold text-brandColor transition-all hover:underline"
+                                    >
+                                        @lang('admin::app.components.layouts.header.mega-search.explore-all-organizations')
                                     </a>
                                 </template>
                             </div>
@@ -455,6 +503,14 @@
                             ],
                         },
 
+                        organizations: {
+                            key: 'organizations',
+                            title: "@lang('admin::app.components.layouts.header.mega-search.tabs.organizations')",
+                            is_active: false,
+                            endpoint: "{{ route('admin.contacts.organizations.search') }}",
+                            query: '',
+                        },
+
                         settings: {
                             key: 'settings',
                             title: "@lang('admin::app.components.layouts.header.mega-search.tabs.settings')",
@@ -481,6 +537,7 @@
                         quotes: [],
                         products: [],
                         persons: [],
+                        organizations: [],
                         settings: [],
                         configurations: [],
                     },
@@ -573,6 +630,7 @@
                     if (
                         tab.key === 'settings'
                         || tab.key === 'configurations'
+                        || tab.key === 'organizations'
                     ) {
                         this.params = null;
 
