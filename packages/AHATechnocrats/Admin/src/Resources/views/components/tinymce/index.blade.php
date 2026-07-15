@@ -215,7 +215,7 @@
                                 }
                             });
 
-                            ['change', 'paste', 'keyup'].forEach((event) => {
+                            ['init', 'change', 'paste', 'keyup'].forEach((event) => {
                                 editor.on(event, () => this.field.onInput(editor.getContent()));
                             });
                         }

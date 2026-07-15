@@ -88,7 +88,7 @@
                 </div>
             </div>
 
-            <v-webform ref="webform"></v-webform>
+            <v-webform ref="webform" :errors="errors"></v-webform>
         </div>
     </x-admin::form>
 
@@ -108,7 +108,7 @@
 
                         @include('admin::settings.web-forms.partials.hidden-required-fields')
 
-                        <div v-show="currentStep === 1">
+                        <div v-show="currentStep === 1" class="wizard-step" data-step="1">
                             @include('admin::settings.web-forms.partials.form-metadata', ['mode' => 'edit', 'webForm' => $webForm])
 
                             <!-- Attributes -->
@@ -390,15 +390,15 @@
                         </div>
                         </div>
 
-                        <div v-show="currentStep === 2">
+                        <div v-show="currentStep === 2" class="wizard-step" data-step="2">
                             @include('admin::settings.web-forms.partials.lead-email', ['mode' => 'edit', 'webForm' => $webForm])
                         </div>
 
-                        <div v-show="currentStep === 3">
+                        <div v-show="currentStep === 3" class="wizard-step" data-step="3">
                             @include('admin::settings.web-forms.partials.form-behavior', ['mode' => 'edit', 'webForm' => $webForm])
                         </div>
 
-                        <div v-show="currentStep === 4">
+                        <div v-show="currentStep === 4" class="wizard-step" data-step="4">
                             @include('admin::settings.web-forms.partials.customization-panel', ['mode' => 'edit', 'webForm' => $webForm])
                         </div>
 
@@ -503,23 +503,6 @@
                                 </button>
                             </div>
 
-                            <!-- Target Entity -->
-                            <x-admin::form.control-group class="mb-4">
-                                <x-admin::form.control-group.label class="required">
-                                    Save Value Under
-                                </x-admin::form.control-group.label>
-
-                                <x-admin::form.control-group.control
-                                    type="select"
-                                    name="new_field_entity_type"
-                                    v-model="customField.entity_type"
-                                    label="Save Value Under"
-                                >
-                                    <option value="persons">Person (Contact)</option>
-                                    <option value="leads" v-if="createLead">Lead</option>
-                                    <option value="organizations">Organization</option>
-                                </x-admin::form.control-group.control>
-                            </x-admin::form.control-group>
 
                             <!-- Required -->
                             <x-admin::form.control-group class="mb-4">
@@ -706,7 +689,7 @@
                         customField: {
                             name: '',
                             type: 'text',
-                            entity_type: 'persons',
+                            entity_type: 'webforms',
                             is_required: false,
                             options: ['', ''],
                         },
@@ -719,7 +702,18 @@
                     }
                 },
 
+                props: ['errors'],
+
                 watch: {
+                    errors: {
+                        handler(newErrors) {
+                            if (newErrors && Object.keys(newErrors).length > 0) {
+                                this.jumpToErrorStep(newErrors);
+                            }
+                        },
+                        deep: true,
+                    },
+
                     createLead(newValue, oldValue) {
                         if (newValue) {
                             return;
@@ -796,6 +790,25 @@
                 },
 
                 methods: {
+                    jumpToErrorStep(errors) {
+                        const errorKeys = Object.keys(errors);
+                        if (errorKeys.length === 0) return;
+
+                        setTimeout(() => {
+                            let firstErrorElement = document.querySelector('[name="' + errorKeys[0] + '"]');
+                            if (firstErrorElement) {
+                                let stepDiv = firstErrorElement.closest('.wizard-step');
+                                if (stepDiv) {
+                                    let step = parseInt(stepDiv.getAttribute('data-step'));
+                                    if (step && this.currentStep !== step) {
+                                        this.currentStep = step;
+                                        this.refreshWizardEditors();
+                                    }
+                                }
+                            }
+                        }, 50);
+                    },
+
                     goToStep(step) {
                         if (step >= 1 && step <= this.wizardSteps.length) {
                             this.currentStep = step;
@@ -938,7 +951,7 @@
                         this.customField = {
                             name: '',
                             type: 'text',
-                            entity_type: 'persons',
+                            entity_type: 'webforms',
                             is_required: false,
                             options: ['', ''],
                         };
@@ -1002,7 +1015,7 @@
                         this.customField = {
                             name: '',
                             type: 'text',
-                            entity_type: 'persons',
+                            entity_type: 'webforms',
                             is_required: false,
                             options: ['', ''],
                         };

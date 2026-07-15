@@ -49,12 +49,58 @@ class WebFormSubmissionPresenter
         }
 
         foreach (Arr::wrap($payload['leads'] ?? []) as $key => $value) {
+            if ($key === 'title') {
+                continue;
+            }
+
             if (! is_scalar($value) || trim((string) $value) === '') {
                 continue;
             }
 
             $rows[] = [
                 'label' => ucfirst(str_replace('_', ' ', (string) $key)),
+                'value' => (string) $value,
+            ];
+        }
+
+        $attributeRepository = app(\AHATechnocrats\Attribute\Repositories\AttributeRepository::class);
+
+        foreach (Arr::wrap($payload['webforms'] ?? []) as $key => $value) {
+            if (! is_scalar($value) && ! is_array($value)) {
+                continue;
+            }
+
+            $attribute = $attributeRepository->findOneByField('code', $key);
+            $label = $attribute ? $attribute->name : ucfirst(str_replace('_', ' ', (string) $key));
+
+            if (is_array($value)) {
+                if ($attribute && in_array($attribute->type, ['checkbox', 'multiselect'])) {
+                    $mappedValues = [];
+                    foreach ($value as $v) {
+                        $option = $attribute->options()->where('id', $v)->first();
+                        $mappedValues[] = $option ? $option->name : $v;
+                    }
+                    $value = implode(', ', array_filter($mappedValues, fn($v) => trim((string) $v) !== ''));
+                } else {
+                    $value = implode(', ', array_filter($value, fn($v) => trim((string) $v) !== ''));
+                }
+            } else {
+                if ($attribute && in_array($attribute->type, ['select', 'radio', 'checkbox'])) {
+                    $option = $attribute->options()->where('id', $value)->first();
+                    if ($option) {
+                        $value = $option->name;
+                    }
+                } elseif ($attribute && $attribute->type === 'boolean') {
+                    $value = filter_var($value, FILTER_VALIDATE_BOOLEAN) ? 'Yes' : 'No';
+                }
+            }
+
+            if (trim((string) $value) === '') {
+                continue;
+            }
+
+            $rows[] = [
+                'label' => $label,
                 'value' => (string) $value,
             ];
         }

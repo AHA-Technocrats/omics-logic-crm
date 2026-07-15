@@ -86,26 +86,30 @@
                         : $parentAttribute->options()->orderBy('sort_order')->get();
                 @endphp
 
-                @foreach ($options as $option)
-                    <x-web_form::form.control-group class="!mb-2 flex select-none items-center gap-2.5">
-                        <x-web_form::form.control-group.control
+                <div style="display: flex !important; flex-direction: column !important; gap: 12px !important; margin-top: 8px !important; width: 100% !important;">
+                    @foreach ($options as $option)
+                        <v-field
+                            v-slot="{ field }"
                             type="checkbox"
                             name="{{ $fieldName }}[]"
-                            id="{{ $fieldName }}_{{ $option->id }}"
                             value="{{ $option->id }}"
-                            for="{{ $fieldName }}_{{ $option->id }}"
-                            :rules="$loop->first ? $validations : ''"
-                            :label="$attribute->name ?? $parentAttribute->name"
-                        />
-
-                        <label
-                            class="cursor-pointer text-xs font-medium text-gray-600 dark:text-gray-300"
-                            for="{{ $fieldName }}_{{ $option->id }}"
+                            rules="{{ $loop->first ? $validations : '' }}"
                         >
-                            {{ $option->name }}
-                        </label>
-                    </x-web_form::form.control-group>
-                @endforeach
+                            <label style="display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 12px !important; margin: 0 !important; padding: 0 !important; width: 100% !important; cursor: pointer !important; text-align: left !important; float: none !important;">
+                                <input
+                                    type="checkbox"
+                                    v-bind="field"
+                                    value="{{ $option->id }}"
+                                    style="margin: 0 !important; width: 20px !important; height: 20px !important; flex-shrink: 0 !important; cursor: pointer !important;"
+                                    class="rounded-sm border-2 border-gray-400 bg-white text-gray-700 focus:ring-0 checked:border-gray-700 checked:bg-gray-700 dark:border-gray-500 dark:bg-gray-800"
+                                />
+                                <span style="font-size: 15px !important; font-weight: 400 !important; margin: 0 !important; padding: 0 !important; text-align: left !important; width: auto !important; display: block !important;" class="text-gray-800 dark:text-gray-200">
+                                    {{ $option->name }}
+                                </span>
+                            </label>
+                        </v-field>
+                    @endforeach
+                </div>
 
                 <x-web_form::form.control-group.error :control-name="$fieldName.'[]'" />
 

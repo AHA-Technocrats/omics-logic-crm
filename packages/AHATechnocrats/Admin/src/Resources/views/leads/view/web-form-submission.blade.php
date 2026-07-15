@@ -15,13 +15,7 @@
                     <h4>@lang('omicslogic::app.fields.web-form-submission')</h4>
 
                     @if ($submission->webForm)
-                        <a
-                            href="{{ route('admin.web_forms.edit', $submission->web_form_id) }}"
-                            class="text-sm font-medium text-brandColor hover:underline"
-                            target="_blank"
-                        >
-                            @lang('omicslogic::app.fields.view-web-form', ['name' => $submission->webForm->title])
-                        </a>
+                        <!-- Link removed as per user request to not show it again and again -->
                     @endif
                 </div>
             </x-slot>
@@ -33,7 +27,7 @@
                             <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.web-form')</dt>
                             <dd class="text-right font-medium dark:text-white">
                                 <a
-                                    href="{{ route('admin.web_forms.edit', $submission->web_form_id) }}"
+                                    href="{{ route('admin.web_forms.responses.index', $submission->web_form_id) }}"
                                     class="text-brandColor hover:underline"
                                     target="_blank"
                                 >
@@ -43,19 +37,19 @@
                         </div>
                     @endif
 
-                    <div class="flex justify-between gap-4">
-                        <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.submitted-at')</dt>
-                        <dd class="text-right font-medium dark:text-white">
-                            {{ $submission->created_at?->format('D M d, Y H:i A') ?? '—' }}
-                        </dd>
-                    </div>
-
                     @foreach ($rows as $row)
                         <div class="flex justify-between gap-4">
                             <dt class="text-gray-600 dark:text-gray-300">{{ $row['label'] }}</dt>
                             <dd class="max-w-[60%] text-right font-medium dark:text-white">{{ $row['value'] }}</dd>
                         </div>
                     @endforeach
+
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.submitted-at')</dt>
+                        <dd class="text-right font-medium dark:text-white">
+                            {{ $submission->created_at?->format('D M d, Y H:i A') ?? '—' }}
+                        </dd>
+                    </div>
                 </dl>
             </x-slot>
         </x-admin::accordion>

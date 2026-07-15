@@ -152,7 +152,7 @@ class WebFormController extends Controller
         WebFormSubmission::query()->create([
             'web_form_id' => $webForm->id,
             'person_id' => $person?->id,
-            'payload' => request()->only(['persons', 'leads']),
+            'payload' => request()->only(['persons', 'leads', 'webforms']),
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'spam_score' => $guardResult['spam_score'],
@@ -162,7 +162,7 @@ class WebFormController extends Controller
         ]);
 
         if ($guardResult['spam_score'] < 30) {
-            $this->submitterMailer->sendIfConfigured($webForm, request()->only(['persons', 'leads']));
+            $this->submitterMailer->sendIfConfigured($webForm, request()->only(['persons', 'leads', 'webforms']));
         }
 
         if ($webForm->submit_success_action == 'message') {
