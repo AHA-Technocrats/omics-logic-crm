@@ -35,6 +35,32 @@ class WebFormSubmissionPresenter
     ];
 
     /**
+     * Internal CRM / system fields stored on person/lead payloads that are not enquiry answers.
+     *
+     * @var list<string>
+     */
+    protected array $skipInternalKeys = [
+        'id',
+        'organization_id',
+        'primary_product_id',
+        'primary_source_id',
+        'entity_type',
+        'user_id',
+        'spam_score',
+        'spam_status',
+        'lead_pipeline_id',
+        'lead_pipeline_stage_id',
+        'lead_source_id',
+        'lead_type_id',
+        'lead_value',
+        'person',
+        'status',
+        'unique_id',
+        'normalized_email',
+        'normalized_phone',
+    ];
+
+    /**
      * Preferred labels for known CRM / portal fields.
      *
      * @var array<string, string>
@@ -147,7 +173,7 @@ class WebFormSubmissionPresenter
         }
 
         foreach (Arr::wrap($payload['leads'] ?? []) as $key => $value) {
-            if ($key === 'title') {
+            if ($key === 'title' || in_array((string) $key, $this->skipInternalKeys, true)) {
                 continue;
             }
 
@@ -206,7 +232,10 @@ class WebFormSubmissionPresenter
         }
 
         foreach ($personData as $key => $value) {
-            if (array_key_exists($key, $this->fieldMap)) {
+            if (
+                array_key_exists($key, $this->fieldMap)
+                || in_array((string) $key, $this->skipInternalKeys, true)
+            ) {
                 continue;
             }
 

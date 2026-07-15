@@ -20,6 +20,7 @@ use AHATechnocrats\WebForm\Repositories\WebFormRepository;
 use AHATechnocrats\WebForm\Services\WebFormSubmitterMailer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Illuminate\View\View;
 
@@ -153,11 +154,13 @@ class WebFormController extends Controller
             }
         }
 
+        $submissionPayload = $this->enquiryPayloadFromRequest();
+
         WebFormSubmission::query()->create([
             'web_form_id' => $webForm->id,
             'person_id' => $person?->id,
             'lead_id' => $lead?->id,
-            'payload' => request()->only(['persons', 'leads', 'webforms']),
+            'payload' => $submissionPayload,
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'spam_score' => $guardResult['spam_score'],
@@ -167,7 +170,7 @@ class WebFormController extends Controller
         ]);
 
         if ($guardResult['spam_score'] < 30) {
-            $this->submitterMailer->sendIfConfigured($webForm, request()->only(['persons', 'leads', 'webforms']));
+            $this->submitterMailer->sendIfConfigured($webForm, $submissionPayload);
         }
 
         if ($webForm->submit_success_action == 'message') {
@@ -257,6 +260,49 @@ class WebFormController extends Controller
         return response()->json([
             'data' => $this->organizationSearchService->search($query),
         ]);
+    }
+
+    /**
+     * Keep enquiry payload to submitted answers only (no internal CRM ids).
+     *
+     * @return array{persons?: array<string, mixed>, leads?: array<string, mixed>, webforms?: array<string, mixed>}
+     */
+    protected function enquiryPayloadFromRequest(): array
+    {
+        $internalKeys = [
+            'id',
+            'organization_id',
+            'primary_product_id',
+            'primary_source_id',
+            'entity_type',
+            'user_id',
+            'spam_score',
+            'spam_status',
+            'lead_pipeline_id',
+            'lead_pipeline_stage_id',
+            'lead_source_id',
+            'lead_type_id',
+            'lead_value',
+            'person',
+            'status',
+            'unique_id',
+            'normalized_email',
+            'normalized_phone',
+        ];
+
+        $payload = [];
+
+        foreach (['persons', 'leads', 'webforms'] as $section) {
+            $data = request($section);
+
+            if (! is_array($data) || $data === []) {
+                continue;
+            }
+
+            $payload[$section] = Arr::except($data, $internalKeys);
+        }
+
+        return $payload;
     }
 
     protected function resolveOrganizationFromRequest($webForm, ?string $countryCode = null): void
