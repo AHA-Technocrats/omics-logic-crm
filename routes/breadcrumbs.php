@@ -185,6 +185,12 @@ Breadcrumbs::for('omics.reports', function (BreadcrumbTrail $trail) {
     $trail->push(trans('omicslogic::app.reports.title'), route('admin.omics.reports.index'));
 });
 
+// OmicsLogic > Customer Analytics
+Breadcrumbs::for('omics.customer-analytics', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push('Customer Analytics', route('admin.omics.analytics.customer'));
+});
+
 // OmicsLogic > Audit Log
 Breadcrumbs::for('omics.audit', function (BreadcrumbTrail $trail) {
     $trail->parent('dashboard');

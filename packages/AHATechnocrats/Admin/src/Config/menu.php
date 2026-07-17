@@ -159,6 +159,17 @@ return [
     ],
 
     /**
+     * Customer Analytics.
+     */
+    [
+        'key' => 'customer_analytics',
+        'name' => 'Customer Analytics',
+        'route' => 'admin.omics.analytics.customer',
+        'sort' => 12,
+        'icon-class' => 'icon-stats-up',
+    ],
+
+    /**
      * Imports.
      */
     [
