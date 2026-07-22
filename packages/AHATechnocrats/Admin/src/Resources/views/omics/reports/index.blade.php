@@ -20,7 +20,7 @@
 
         $byProgramItems = $report['by_program']->isNotEmpty()
             ? $report['by_program']
-            : collect([['label' => __('omicslogic::app.reports.unassigned-program'), 'total' => $summary['leads_in_range']]]);
+            : collect([['label' => __('omicslogic::app.reports.unassigned-program'), 'total' => $summary['contacts_in_range']]]);
 
         $engagedByProgramItems = $report['engaged_by_program']->isNotEmpty()
             ? $report['engaged_by_program']
@@ -189,6 +189,15 @@
             <div class="rounded-lg border border-gray-300 bg-white p-4 dark:border-gray-800 dark:bg-gray-900" style="flex: 1; min-width: 220px;">
                 <p class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     <span class="icon-user text-base"></span>
+                    @lang('omicslogic::app.reports.persons-in-range')
+                </p>
+                <p class="mt-1 text-2xl font-bold dark:text-white">{{ number_format($summary['contacts_in_range']) }}</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $summary['range_label'] }}</p>
+            </div>
+            
+            <div class="rounded-lg border border-gray-300 bg-white p-4 dark:border-gray-800 dark:bg-gray-900" style="flex: 1; min-width: 220px;">
+                <p class="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    <span class="icon-leads text-base"></span>
                     @lang('omicslogic::app.reports.leads-in-range')
                 </p>
                 <p class="mt-1 text-2xl font-bold dark:text-white">{{ number_format($summary['leads_in_range']) }}</p>
@@ -261,7 +270,8 @@
 
             @include('admin::omics.partials.report-funnel', [
                 'items' => $report['funnel'],
-                'total' => $summary['leads_in_range'],
+                'total' => $summary['contacts_in_range'],
+                'leads' => $summary['leads_in_range'],
                 'engaged' => $summary['engaged'],
                 'customers' => $summary['customers'],
             ])

@@ -16,8 +16,11 @@ class ReportAnalyticsService
         $query = $this->baseQuery($filters);
 
         $total = (clone $query)->count();
+        $leads = \AHATechnocrats\Lead\Models\Lead::whereIn('person_id', (clone $query)->select('persons.id'))->count();
         $engaged = (clone $query)->where('engagement_lessons', '>', 0)->count();
-        $customers = (clone $query)->where('lifecycle_stage', 'customer')->count();
+        $customers = (clone $query)->whereHas('leads.stage', function ($q) {
+            $q->where('code', 'won');
+        })->count();
 
         $monthsInRange = $this->monthsInRange($filters);
         $monthFrom = min($filters['month_from'], $filters['month_to']);
@@ -25,7 +28,8 @@ class ReportAnalyticsService
 
         return [
             'summary' => [
-                'leads_in_range' => $total,
+                'leads_in_range' => $leads,
+                'contacts_in_range' => $total,
                 'engaged' => $engaged,
                 'customers' => $customers,
                 'engaged_rate' => $total > 0 ? round(($engaged / $total) * 100, 1) : 0,
@@ -45,7 +49,7 @@ class ReportAnalyticsService
             'by_source' => $this->groupBySource($query),
             'by_program' => $this->groupByProgram($query),
             'by_country' => $this->groupByField($query, 'country_code'),
-            'funnel' => $this->lifecycleFunnel($query, $total, $engaged, $customers),
+            'funnel' => $this->lifecycleFunnel($query, $total, $leads, $engaged, $customers),
             'lessons' => $this->lessonsBreakdown($query),
             'engaged_by_program' => $this->engagedByProgram($query),
             'program_completion' => $this->programCompletionRates($query),
@@ -255,10 +259,11 @@ class ReportAnalyticsService
         })->sortByDesc('total')->values();
     }
 
-    protected function lifecycleFunnel(Builder $query, int $total, int $engaged, int $customers): Collection
+    protected function lifecycleFunnel(Builder $query, int $total, int $leads, int $engaged, int $customers): Collection
     {
         return collect([
-            ['label' => 'All contacts', 'total' => $total],
+            ['label' => 'Persons', 'total' => $total],
+            ['label' => 'Leads', 'total' => $leads],
             ['label' => 'Engaged', 'total' => $engaged],
             ['label' => 'Customers', 'total' => $customers],
         ]);
@@ -360,7 +365,7 @@ class ReportAnalyticsService
                     'email' => $email,
                     'organization' => $person->organization?->name,
                     'country' => $person->country_code,
-                    'stage' => $person->lifecycle_stage,
+                    'stage' => $person->leads()->whereHas('stage', function ($q) { $q->where('code', 'won'); })->exists() ? 'customer' : ($person->leads()->exists() ? 'lead' : 'subscriber'),
                     'education' => $person->education_level,
                     'lessons' => $person->engagement_lessons,
                     'score' => $person->lead_score,

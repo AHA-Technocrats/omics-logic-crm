@@ -10,6 +10,7 @@ use AHATechnocrats\WebForm\Models\WebForm;
 use AHATechnocrats\WebForm\Repositories\WebFormRepository;
 use App\Firebase\Services\ConnectorFirebaseSyncService;
 use App\Firebase\Services\FormSyncService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -181,5 +182,10 @@ class ConnectorController extends Controller
         ] as $connector) {
             Connector::query()->create($connector);
         }
+    }
+
+    public function logs(): JsonResponse
+    {
+        return datagrid(\AHATechnocrats\Admin\DataGrids\OmicsLogic\ConnectorSyncRunDataGrid::class)->process();
     }
 }

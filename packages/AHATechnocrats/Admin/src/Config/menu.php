@@ -166,7 +166,7 @@ return [
         'name' => 'Customer Analytics',
         'route' => 'admin.omics.analytics.customer',
         'sort' => 12,
-        'icon-class' => 'icon-stats-up',
+        'icon-class' => 'icon-user',
     ],
 
     /**

@@ -169,6 +169,7 @@
                         'normal': 'max-w-[525px]',
                         'medium': 'max-w-[768px]',
                         'large': 'max-w-[950px]',
+                        'xl': 'max-w-[1140px]',
                     }[this.size] || 'max-w-[525px]';
                 },
 
