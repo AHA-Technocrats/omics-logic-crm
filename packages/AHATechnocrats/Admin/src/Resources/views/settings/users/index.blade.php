@@ -409,50 +409,6 @@
 
                             {!! view_render_event('admin.settings.users.index.form.role_id.after') !!}
 
-                            <template v-if="user.role_id">
-                                <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-                                    <p class="mb-1 text-sm font-semibold text-gray-800 dark:text-white">
-                                        @lang('admin::app.settings.users.index.create.module-access')
-                                    </p>
-
-                                    <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">
-                                        @lang('admin::app.settings.users.index.create.module-access-info')
-                                    </p>
-
-                                    <div class="overflow-x-auto">
-                                        <table class="w-full text-left text-sm">
-                                            <thead>
-                                                <tr class="border-b border-gray-200 dark:border-gray-800">
-                                                    <th class="py-2 pe-4 font-medium text-gray-600 dark:text-gray-300"></th>
-                                                    <th class="py-2 pe-4 font-medium text-gray-600 dark:text-gray-300">
-                                                        @lang('admin::app.settings.users.index.create.access')
-                                                    </th>
-                                                    <th class="py-2 font-medium text-gray-600 dark:text-gray-300">
-                                                        @lang('admin::app.settings.users.index.create.data-visibility')
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr
-                                                    v-for="module in moduleAccessRows"
-                                                    :key="module.key"
-                                                    class="border-b border-gray-100 dark:border-gray-800"
-                                                >
-                                                    <td class="py-2 pe-4 text-gray-800 dark:text-gray-200">
-                                                        @{{ module.label }}
-                                                    </td>
-                                                    <td class="py-2 pe-4">
-                                                        @{{ module.access ? yesLabel : noLabel }}
-                                                    </td>
-                                                    <td class="py-2 text-gray-600 dark:text-gray-400">
-                                                        @{{ module.visibility }}
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </template>
 
                             {!! view_render_event('admin.settings.users.index.form.role_id.before') !!}
 
@@ -555,10 +511,6 @@
                         user: {
                             view_permission: 'global',
                         },
-
-                        yesLabel: "@lang('admin::app.settings.pipelines.index.datagrid.yes')",
-
-                        noLabel: "@lang('admin::app.settings.pipelines.index.datagrid.no')",
                     };
                 },
 
@@ -579,47 +531,6 @@
 
                     selectedType() {
                         return this.user.id ? 'edit' : 'create';
-                    },
-
-                    moduleAccessRows() {
-                        const role = this.roles.find((item) => Number(item.id) === Number(this.user.role_id));
-
-                        if (! role) {
-                            return [];
-                        }
-
-                        const hasAccess = (key) => {
-                            if (role.permission_type === 'all') {
-                                return true;
-                            }
-
-                            return (role.permissions || []).includes(key);
-                        };
-
-                        const ownerVisibility = () => {
-                            if (! this.user.view_permission) {
-                                return '—';
-                            }
-
-                            const labels = {
-                                global: "@lang('admin::app.settings.users.index.create.global')",
-                                group: "@lang('admin::app.settings.users.index.create.group')",
-                                individual: "@lang('admin::app.settings.users.index.create.individual')",
-                            };
-
-                            return labels[this.user.view_permission] ?? '—';
-                        };
-
-                        const notApplicable = "@lang('admin::app.settings.users.index.create.not-applicable')";
-
-                        return [
-                            { key: 'leads', label: "@lang('admin::app.layouts.leads')", access: hasAccess('leads'), visibility: ownerVisibility() },
-                            { key: 'persons', label: "@lang('admin::app.layouts.persons')", access: hasAccess('persons'), visibility: ownerVisibility() },
-                            { key: 'organizations', label: "@lang('omicslogic::app.menu.organizations')", access: hasAccess('organizations'), visibility: ownerVisibility() },
-                            { key: 'quotes', label: "@lang('admin::app.layouts.quotes')", access: hasAccess('quotes'), visibility: notApplicable },
-                            { key: 'activities', label: "@lang('admin::app.layouts.activities')", access: hasAccess('activities'), visibility: notApplicable },
-                            { key: 'mail', label: "@lang('admin::app.layouts.mail.title')", access: hasAccess('mail'), visibility: notApplicable },
-                        ];
                     },
                 },
 
