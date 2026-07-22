@@ -33,6 +33,7 @@ class OrganizationResolver
         ?string $countryCode = null,
         bool $queueReview = false,
         ?string $type = null,
+        ?string $website = null,
     ): ?Organization {
         if (! $name || trim($name) === '') {
             return null;
@@ -78,6 +79,7 @@ class OrganizationResolver
             'normalized_name' => $normalizedKey,
             'type' => $type ?? OrganizationType::Other->value,
             'country_code' => $countryCode,
+            'website' => $website,
             'entity_type' => 'organizations',
         ]);
 

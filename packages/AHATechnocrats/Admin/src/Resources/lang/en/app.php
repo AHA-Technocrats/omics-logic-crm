@@ -306,6 +306,7 @@ return [
                     ],
                 ],
                 'custom-filters' => [
+                    'apply' => 'Apply',
                     'clear-all' => 'Clear All',
                     'title' => 'Custom Filters',
                 ],

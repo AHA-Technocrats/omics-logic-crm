@@ -278,8 +278,11 @@
                         manualOrgName: '',
                         manualOrgCountry: '',
                         manualOrgType: '',
+                        manualOrgWebsite: '',
                         selectedOrganizationType: '',
+                        selectedOrganizationWebsite: '',
                         organizationSearchTimeout: null,
+                        isSelectingOrganization: false,
                     };
                 },
 
@@ -293,6 +296,10 @@
                     },
 
                     onOrganizationInput(event, field) {
+                        if (this.isSelectingOrganization) {
+                            return;
+                        }
+
                         if (field?.onChange) {
                             field.onChange(event);
                         }
@@ -327,9 +334,12 @@
                     },
 
                     selectOrganization(organization) {
+                        this.isSelectingOrganization = true;
+                        
                         this.selectedOrganizationId = String(organization.id);
                         this.selectedOrganizationCountry = String(organization.country_code || '');
                         this.selectedOrganizationType = String(organization.type || '');
+                        this.selectedOrganizationWebsite = String(organization.website || '');
 
                         const input = this.$refs.webForm?.querySelector('[name="persons[organization_name]"]');
 
@@ -341,6 +351,10 @@
 
                         this.organizationSuggestions = [];
                         this.showOrganizationSuggestions = false;
+                        
+                        setTimeout(() => {
+                            this.isSelectingOrganization = false;
+                        }, 100);
                     },
 
                     hideOrganizationSuggestions() {
@@ -379,6 +393,9 @@
                         this.selectedOrganizationId = ''; 
                         this.selectedOrganizationCountry = this.manualOrgCountry;
                         this.selectedOrganizationType = this.manualOrgType;
+                        this.selectedOrganizationWebsite = this.manualOrgWebsite;
+                        
+                        this.isSelectingOrganization = true;
                         
                         const input = this.$refs.webForm?.querySelector('[name="persons[organization_name]"]');
                         if (input) {
@@ -387,7 +404,12 @@
                             input.dispatchEvent(new Event('change', { bubbles: true }));
                         }
                         
+                        this.showOrganizationSuggestions = false;
                         this.closeManualOrgModal();
+                        
+                        setTimeout(() => {
+                            this.isSelectingOrganization = false;
+                        }, 100);
                     },
 
                     honeypotsFilled(formData) {

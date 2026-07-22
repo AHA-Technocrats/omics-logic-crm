@@ -23,13 +23,14 @@ class OrganizationSearchService
             ->where('name', 'like', '%'.$query.'%')
             ->orderBy('name')
             ->limit($limit)
-            ->get(['id', 'name', 'type', 'country_code'])
+            ->get(['id', 'name', 'type', 'country_code', 'website'])
             ->map(function ($org) {
                 return [
                     'id' => $org->id,
                     'name' => $org->name,
                     'type' => $org->type,
                     'country_code' => $org->country_code,
+                    'website' => $org->website,
                 ];
             });
 
@@ -45,6 +46,7 @@ class OrganizationSearchService
                         'name' => $jsonOrg['name'],
                         'type' => \AHATechnocrats\OmicsLogic\Enums\OrganizationType::University->value,
                         'country_code' => $jsonOrg['country_code'],
+                        'website' => $jsonOrg['web_pages'][0] ?? null,
                     ]);
                 }
             }

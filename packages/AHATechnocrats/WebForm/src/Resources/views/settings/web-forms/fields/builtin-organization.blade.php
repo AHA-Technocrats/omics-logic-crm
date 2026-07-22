@@ -52,6 +52,12 @@
                     name="persons[organization_type]"
                     :value="selectedOrganizationType"
                 />
+                
+                <input
+                    type="hidden"
+                    name="persons[organization_website]"
+                    :value="selectedOrganizationWebsite"
+                />
 
                 <ul
                     v-if="showOrganizationSuggestions"
@@ -97,6 +103,11 @@
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500; color: #374151; font-family: inherit;">Name <span style="color: #ef4444;">*</span></label>
                     <input type="text" v-model="manualOrgName" style="width: 100%; border-radius: 6px; border: 1px solid #d1d5db; padding: 10px 12px; font-size: 14px; outline: none; box-sizing: border-box; font-family: inherit; color: #111827;" placeholder="University Name" />
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500; color: #374151; font-family: inherit;">Website <span style="font-weight: 400; color: #6b7280;">(Optional)</span></label>
+                    <input type="url" v-model="manualOrgWebsite" style="width: 100%; border-radius: 6px; border: 1px solid #d1d5db; padding: 10px 12px; font-size: 14px; outline: none; box-sizing: border-box; font-family: inherit; color: #111827;" placeholder="https://..." />
                 </div>
                 
                 <div style="margin-bottom: 24px; display: flex; gap: 12px;">
