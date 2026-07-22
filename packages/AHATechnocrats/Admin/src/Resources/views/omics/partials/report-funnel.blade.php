@@ -1,10 +1,11 @@
-@props(['items', 'total' => 0, 'engaged' => 0, 'customers' => 0])
+@props(['items', 'total' => 0, 'leads' => 0, 'engaged' => 0, 'customers' => 0])
 
 @php
     $steps = collect($items);
-    $colors = ['#6b7280', '#9333ea', '#16a34a'];
-    $widths = [100, 74, 48];
-    $leadToEngaged = $total > 0 ? round(($engaged / $total) * 100) : 0;
+    $colors = ['#6b7280', '#2563eb', '#9333ea', '#16a34a'];
+    $widths = [100, 85, 65, 48];
+    $contactToLead = $total > 0 ? round(($leads / $total) * 100) : 0;
+    $leadToEngaged = $leads > 0 ? round(($engaged / $leads) * 100) : 0;
     $engagedToCustomer = $engaged > 0 ? round(($customers / $engaged) * 100) : 0;
 @endphp
 

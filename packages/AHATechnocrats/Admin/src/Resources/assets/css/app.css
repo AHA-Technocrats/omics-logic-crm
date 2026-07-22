@@ -706,3 +706,333 @@
 .tox.tox-silver-sink.tox-tinymce-aux {
     z-index: 99999;
 }
+
+/**
+ * Customer Analytics page styles.
+ * Scoped to avoid affecting the admin sidebar, header, or other pages.
+ */
+.omics-customer-analytics {
+    --ca-card: #ffffff;
+    --ca-line: #e4e8eb;
+    --ca-teal: #2158c9;
+    --ca-teal-deep: #123b8f;
+    --ca-teal-mist: #e1eafb;
+    --ca-amber: #4f8fe0;
+    --ca-slate: #6b7686;
+    --ca-red: #b5493f;
+    --ca-text-primary: #171d24;
+    --ca-text-muted: #6b7686;
+    --ca-radius: 10px;
+    --ca-shadow: 0 1px 2px rgba(18, 24, 31, 0.04), 0 4px 16px rgba(18, 24, 31, 0.05);
+}
+
+.dark .omics-customer-analytics {
+    --ca-card: #111827;
+    --ca-line: #374151;
+    --ca-teal-mist: #172554;
+    --ca-slate: #9ca3af;
+    --ca-text-primary: #f9fafb;
+    --ca-text-muted: #d1d5db;
+    --ca-shadow: none;
+}
+
+.omics-customer-analytics *,
+.omics-customer-analytics *::before,
+.omics-customer-analytics *::after {
+    box-sizing: border-box;
+}
+
+.omics-customer-analytics h1,
+.omics-customer-analytics h2,
+.omics-customer-analytics h3 {
+    letter-spacing: -0.01em;
+    font-weight: 700;
+}
+
+.omics-customer-analytics .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 30px 0 14px;
+}
+
+.omics-customer-analytics .section-head .num {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12px;
+    color: var(--ca-teal);
+    font-weight: 600;
+}
+
+.omics-customer-analytics .section-head h2 {
+    font-size: 15.5px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.omics-customer-analytics .section-head .rule {
+    flex: 1;
+    height: 1px;
+    background: var(--ca-line);
+}
+
+.omics-customer-analytics .grid {
+    display: grid;
+    gap: 16px;
+}
+
+.omics-customer-analytics .grid.cols-2 {
+    grid-template-columns: 1.3fr 1fr;
+}
+
+.omics-customer-analytics .grid.cols-equal {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.omics-customer-analytics .grid.cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.omics-customer-analytics .card {
+    background: var(--ca-card);
+    border: 1px solid var(--ca-line);
+    border-radius: var(--ca-radius);
+    padding: 18px 18px 14px;
+    box-shadow: var(--ca-shadow);
+}
+
+.omics-customer-analytics .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.omics-customer-analytics .card-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ca-text-primary);
+    margin: 0;
+}
+
+.omics-customer-analytics .card-title .hint {
+    display: block;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--ca-text-muted);
+    margin-top: 2px;
+}
+
+.omics-customer-analytics .card-kpi {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12px;
+    color: var(--ca-teal);
+    background: var(--ca-teal-mist);
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.omics-customer-analytics .chart-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.omics-customer-analytics .h-220 {
+    height: 220px;
+}
+
+.omics-customer-analytics .h-260 {
+    height: 260px;
+}
+
+.omics-customer-analytics .h-300 {
+    height: 300px;
+}
+
+.omics-customer-analytics .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.omics-customer-analytics .kpi {
+    background: var(--ca-card);
+    border: 1px solid var(--ca-line);
+    border-radius: var(--ca-radius);
+    padding: 16px 18px;
+    box-shadow: var(--ca-shadow);
+}
+
+.omics-customer-analytics .kpi .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ca-slate);
+    font-weight: 600;
+}
+
+.omics-customer-analytics .kpi .value {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin-top: 6px;
+    color: var(--ca-text-primary);
+}
+
+.omics-customer-analytics .kpi .delta {
+    font-size: 11.5px;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.omics-customer-analytics .kpi .delta.up {
+    color: var(--ca-teal);
+}
+
+.omics-customer-analytics .kpi .delta.down {
+    color: var(--ca-red);
+}
+
+.omics-customer-analytics .map-box {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2.2 / 1;
+    height: auto;
+    min-height: 360px;
+    max-height: 620px;
+    overflow: hidden;
+}
+
+.omics-customer-analytics .map-box .jvm-container {
+    width: 100%;
+    height: 100%;
+}
+
+.omics-customer-analytics .map-legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--ca-text-muted);
+    margin-top: 10px;
+}
+
+.omics-customer-analytics .map-legend .swatch {
+    width: 60px;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #e1eafb, #2158c9);
+}
+
+.omics-customer-analytics .analytics-table-wrap {
+    overflow-x: auto;
+    background: var(--ca-card);
+    border-radius: 8px;
+    border: 1px solid var(--ca-line);
+    margin-top: 16px;
+}
+
+.omics-customer-analytics .analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+}
+
+.omics-customer-analytics .analytics-table th {
+    background: #f9fafb;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: var(--ca-slate);
+    border-bottom: 1px solid var(--ca-line);
+    white-space: nowrap;
+}
+
+.omics-customer-analytics .analytics-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ca-line);
+    color: var(--ca-text-primary);
+    vertical-align: middle;
+}
+
+.omics-customer-analytics .analytics-table tr:last-child td {
+    border-bottom: none;
+}
+
+.omics-customer-analytics .analytics-table tr:hover {
+    background: #f8fafc;
+}
+
+.dark .omics-customer-analytics .analytics-table th,
+.dark .omics-customer-analytics .analytics-table tr:hover {
+    background: #1f2937;
+}
+
+.omics-customer-analytics .analytics-table .progress-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.omics-customer-analytics .analytics-table .bar-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--ca-line);
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 80px;
+}
+
+.omics-customer-analytics .analytics-table .bar-fg {
+    height: 100%;
+    background: var(--ca-teal);
+    border-radius: 4px;
+}
+
+.omics-customer-analytics .analytics-table .num {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-weight: 600;
+}
+
+.omics-customer-analytics .analytics-table .stars-text {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12px;
+    color: var(--ca-amber);
+}
+
+.omics-customer-analytics .badge-type {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 7px;
+    border-radius: 20px;
+    background: var(--ca-teal-mist);
+    color: var(--ca-teal-deep);
+    flex-shrink: 0;
+}
+
+@media (max-width: 1100px) {
+    .omics-customer-analytics .grid.cols-2,
+    .omics-customer-analytics .grid.cols-equal,
+    .omics-customer-analytics .grid.cols-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .omics-customer-analytics .kpi-strip {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .omics-customer-analytics .map-box {
+        aspect-ratio: 1.6 / 1;
+        min-height: 260px;
+        max-height: 360px;
+    }
+
+    .omics-customer-analytics .kpi-strip {
+        grid-template-columns: 1fr;
+    }
+}

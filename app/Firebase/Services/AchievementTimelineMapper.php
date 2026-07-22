@@ -36,12 +36,13 @@ class AchievementTimelineMapper
             ?? $achievement['name']
             ?? $this->buildLessonTitle($achievement);
 
-        $detail = $achievement['platform']
-            ?? $achievement['course']
+        $detail = $achievement['course']
             ?? $achievement['courseName']
+            ?? $this->formatCourseSlug($achievement['courseSlug'] ?? null)
             ?? $achievement['program']
             ?? $achievement['category']
-            ?? $this->formatCourseSlug($achievement['courseSlug'] ?? null);
+            ?? $achievement['platform']
+            ?? null;
 
         $occurredAt = $this->resolveTimestamp($achievement);
 

@@ -22,3 +22,5 @@ Artisan::command('inspire', function () {
 Schedule::command('inbound-emails:process')->everyFiveMinutes();
 
 Schedule::command('firebase:sync-forms')->everyFiveMinutes();
+
+Schedule::command('omics:sync-customer-analytics')->hourly();

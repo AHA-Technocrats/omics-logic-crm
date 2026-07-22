@@ -6,6 +6,7 @@ use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\MergeReviewController;
 use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\OrganizationMergeReviewController;
 use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\ReportController;
 use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\SegmentController;
+use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\CustomerAnalyticsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('omics')->group(function () {
@@ -15,6 +16,7 @@ Route::prefix('omics')->group(function () {
         Route::put('edit/{id}', 'update')->name('admin.omics.connectors.update');
         Route::post('{id}/sync', 'sync')->name('admin.omics.connectors.sync');
         Route::post('{id}/reset-sync', 'resetSync')->name('admin.omics.connectors.reset-sync');
+        Route::get('logs', 'logs')->name('admin.omics.connectors.logs');
     });
 
     Route::controller(SegmentController::class)->prefix('segments')->group(function () {
@@ -42,4 +44,9 @@ Route::prefix('omics')->group(function () {
     Route::get('audit-log', [AuditLogController::class, 'index'])->name('admin.omics.audit.index');
     Route::get('audit-log/{id}', [AuditLogController::class, 'show'])->name('admin.omics.audit.view');
     Route::post('audit-log/{id}/undo', [AuditLogController::class, 'undo'])->name('admin.omics.audit.undo');
+
+    Route::controller(CustomerAnalyticsController::class)->prefix('customer-analytics')->group(function () {
+        Route::get('', 'index')->name('admin.omics.analytics.customer');
+        Route::post('sync', 'sync')->name('admin.omics.analytics.sync');
+    });
 });

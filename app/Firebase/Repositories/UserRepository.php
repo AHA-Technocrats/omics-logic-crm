@@ -48,4 +48,27 @@ class UserRepository extends BaseFirestoreRepository
             return $user;
         });
     }
+
+    /**
+     * @return array{items: array<int, array<string, mixed>>, meta: array<string, mixed>}
+     */
+    public function getUsers(int $limit = 100, ?string $cursor = null): array
+    {
+        return $this->runQuery(function () use ($limit, $cursor) {
+            $startAfter = $this->decodeCursor($cursor)['id'] ?? null;
+
+            $items = $this->firebase->firestore()->queryCollection(
+                $this->usersCollection(),
+                limit: $limit + 1,
+                startAfterDocumentId: $startAfter,
+            );
+
+            // Ensure uid is populated for each user
+            foreach ($items as &$item) {
+                $item['uid'] = $item['id'] ?? null;
+            }
+
+            return $this->paginatedResult($items, $limit);
+        });
+    }
 }
