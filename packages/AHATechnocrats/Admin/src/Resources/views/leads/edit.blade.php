@@ -126,7 +126,7 @@
 
                             {!! view_render_event('admin.leads.edit.lead_details.attributes.after', ['lead' => $lead]) !!}
 
-                            @include('admin::omics.partials.lead-owner-profile', ['lead' => $lead])
+
                         </div>
                     </div>
 

@@ -80,22 +80,7 @@
             </x-admin::form.control-group.control>
         </x-admin::form.control-group>
 
-        @if (! $isNested)
-            <x-admin::form.control-group class="md:col-span-2">
-                <x-admin::form.control-group.label>
-                    @lang('omicslogic::app.fields.owner-profile')
-                </x-admin::form.control-group.label>
 
-                <x-admin::media.images
-                    name="account_owner_image"
-                    :uploaded-images="$ownerProfileImages"
-                />
-
-                <p class="mt-2 text-xs text-gray-600 dark:text-gray-300">
-                    @lang('omicslogic::app.fields.owner-profile-help')
-                </p>
-            </x-admin::form.control-group>
-        @endif
 
         <x-admin::form.control-group>
             <x-admin::form.control-group.label>

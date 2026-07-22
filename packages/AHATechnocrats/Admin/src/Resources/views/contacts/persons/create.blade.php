@@ -48,20 +48,22 @@
             <div class="box-shadow rounded-lg border border-gray-300 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
                 {!! view_render_event('admin.persons.create.form_controls.before') !!}
 
-                <x-admin::attributes
-                    :custom-attributes="app('AHATechnocrats\Attribute\Repositories\AttributeRepository')->findWhere([
-                        ['code', 'IN', ['name', 'emails', 'contact_numbers']],
-                        'entity_type' => 'persons',
-                    ])"
-                    :custom-validations="[
-                        'name' => [
-                            'min:2',
-                            'max:100',
-                        ],
-                    ]"
-                />
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <x-admin::attributes
+                        :custom-attributes="app('AHATechnocrats\Attribute\Repositories\AttributeRepository')->findWhere([
+                            ['code', 'IN', ['name', 'emails', 'contact_numbers']],
+                            'entity_type' => 'persons',
+                        ])"
+                        :custom-validations="[
+                            'name' => [
+                                'min:2',
+                                'max:100',
+                            ],
+                        ]"
+                    />
 
-                <v-organization></v-organization>
+                    <v-organization></v-organization>
+                </div>
 
                 @include('admin::omics.partials.person-fields')
 
