@@ -331,24 +331,31 @@ class WebFormController extends Controller
             }
         }
 
+        $orgCountryCode = $persons['organization_country'] ?? null;
+        $orgType = $persons['organization_type'] ?? null;
+
         if (! $organization) {
             $organization = $this->organizationResolver->resolve(
                 $orgName,
                 (bool) $webForm->allow_org_create,
-                $countryCode,
+                $orgCountryCode ?: $countryCode,
+                false,
+                $orgType
             );
-        } elseif ($countryCode) {
+        } elseif ($orgCountryCode || $countryCode) {
             $organization = $this->organizationResolver->resolve(
                 $organization->name,
                 false,
-                $countryCode,
+                $orgCountryCode ?: $countryCode,
             ) ?? $organization;
         }
 
         if ($organization) {
             $persons['organization_id'] = $organization->id;
             $persons['organization_name'] = $organization->name;
-            $persons['country_code'] = $organization->country_code ?? $countryCode;
+            $persons['organization_country'] = $orgCountryCode; // Ensure it stays in request if needed
+            $persons['organization_type'] = $orgType; // Ensure it stays in request if needed
+            $persons['country_code'] = $persons['country_code'] ?? $countryCode; // Preserve student's country
 
             $assigneeId = $this->organizationAssigneeResolver->resolve($organization);
 

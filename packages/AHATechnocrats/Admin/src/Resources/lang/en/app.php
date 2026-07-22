@@ -526,6 +526,7 @@ return [
                 'create-btn' => 'Create Person',
                 'create-success' => 'Person created successfully.',
                 'update-success' => 'Person updated successfully.',
+                'delete-success' => 'Person deleted successfully.',
                 'all-delete-success' => 'All selected persons were deleted successfully.',
                 'partial-delete-warning' => 'Some persons were deleted successfully. Others could not be deleted due to insufficient access or a system error.',
                 'none-delete-warning' => 'None of the selected persons could be deleted due to insufficient access or a system error.',

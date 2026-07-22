@@ -2,6 +2,7 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers\OmicsLogic;
 
+use AHATechnocrats\Admin\DataGrids\OmicsLogic\ConnectorSyncRunDataGrid;
 use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\OmicsLogic\Models\Connector;
 use AHATechnocrats\OmicsLogic\Models\ConnectorSyncRun;
@@ -186,6 +187,6 @@ class ConnectorController extends Controller
 
     public function logs(): JsonResponse
     {
-        return datagrid(\AHATechnocrats\Admin\DataGrids\OmicsLogic\ConnectorSyncRunDataGrid::class)->process();
+        return datagrid(ConnectorSyncRunDataGrid::class)->process();
     }
 }

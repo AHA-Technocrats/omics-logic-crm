@@ -4,6 +4,7 @@ namespace AHATechnocrats\OmicsLogic\Services;
 
 use AHATechnocrats\Contact\Models\Organization;
 use AHATechnocrats\Contact\Models\Person;
+use AHATechnocrats\Lead\Models\Lead;
 use AHATechnocrats\Lead\Models\Source;
 use AHATechnocrats\Product\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,7 +17,7 @@ class ReportAnalyticsService
         $query = $this->baseQuery($filters);
 
         $total = (clone $query)->count();
-        $leads = \AHATechnocrats\Lead\Models\Lead::whereIn('person_id', (clone $query)->select('persons.id'))->count();
+        $leads = Lead::whereIn('person_id', (clone $query)->select('persons.id'))->count();
         $engaged = (clone $query)->where('engagement_lessons', '>', 0)->count();
         $customers = (clone $query)->whereHas('leads.stage', function ($q) {
             $q->where('code', 'won');

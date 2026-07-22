@@ -32,6 +32,7 @@ class OrganizationResolver
         bool $allowCreate = true,
         ?string $countryCode = null,
         bool $queueReview = false,
+        ?string $type = null,
     ): ?Organization {
         if (! $name || trim($name) === '') {
             return null;
@@ -75,7 +76,7 @@ class OrganizationResolver
         $organization = $this->organizationRepository->create([
             'name' => trim($name),
             'normalized_name' => $normalizedKey,
-            'type' => OrganizationType::Other->value,
+            'type' => $type ?? OrganizationType::Other->value,
             'country_code' => $countryCode,
             'entity_type' => 'organizations',
         ]);

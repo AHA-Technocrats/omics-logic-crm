@@ -2,11 +2,11 @@
 
 use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\AuditLogController;
 use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\ConnectorController;
+use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\CustomerAnalyticsController;
 use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\MergeReviewController;
 use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\OrganizationMergeReviewController;
 use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\ReportController;
 use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\SegmentController;
-use AHATechnocrats\Admin\Http\Controllers\OmicsLogic\CustomerAnalyticsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('omics')->group(function () {

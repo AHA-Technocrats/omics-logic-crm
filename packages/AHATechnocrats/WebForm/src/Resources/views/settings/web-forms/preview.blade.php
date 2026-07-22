@@ -273,6 +273,13 @@
                         selectedOrganizationId: '',
                         organizationSearchTimer: null,
                         honeypotRejectMessage: @json($honeypotRejectMessage),
+                        selectedOrganizationCountry: '',
+                        showManualOrgModal: false,
+                        manualOrgName: '',
+                        manualOrgCountry: '',
+                        manualOrgType: '',
+                        selectedOrganizationType: '',
+                        organizationSearchTimeout: null,
                     };
                 },
 
@@ -307,7 +314,7 @@
 
                         this.organizationSearchTimer = setTimeout(() => {
                             this.fetchOrganizationSuggestions(query);
-                        }, 250);
+                        }, 350);
                     },
 
                     fetchOrganizationSuggestions(query) {
@@ -315,12 +322,14 @@
                             params: { q: query },
                         }).then((response) => {
                             this.organizationSuggestions = response.data.data || [];
-                            this.showOrganizationSuggestions = this.organizationSuggestions.length > 0;
+                            this.showOrganizationSuggestions = true;
                         });
                     },
 
                     selectOrganization(organization) {
                         this.selectedOrganizationId = String(organization.id);
+                        this.selectedOrganizationCountry = String(organization.country_code || '');
+                        this.selectedOrganizationType = String(organization.type || '');
 
                         const input = this.$refs.webForm?.querySelector('[name="persons[organization_name]"]');
 
@@ -336,8 +345,49 @@
 
                     hideOrganizationSuggestions() {
                         setTimeout(() => {
-                            this.showOrganizationSuggestions = false;
+                            // Only hide if the manual modal is not being opened
+                            if (!this.showManualOrgModal) {
+                                this.showOrganizationSuggestions = false;
+                            }
                         }, 150);
+                    },
+
+                    openManualOrgModal() {
+                        this.showManualOrgModal = true;
+                        this.showOrganizationSuggestions = false;
+                        
+                        // Pre-fill the name with what the user already typed
+                        const input = this.$refs.webForm?.querySelector('[name="persons[organization_name]"]');
+                        if (input) {
+                            this.manualOrgName = input.value;
+                        }
+                    },
+
+                    closeManualOrgModal() {
+                        this.showManualOrgModal = false;
+                    },
+
+                    saveManualOrg() {
+                        if (!this.manualOrgName || !this.manualOrgCountry || !this.manualOrgType) {
+                            this.$emitter.emit('add-flash', {
+                                type: 'warning',
+                                message: 'Please enter the name, country, and type.',
+                            });
+                            return;
+                        }
+                        
+                        this.selectedOrganizationId = ''; 
+                        this.selectedOrganizationCountry = this.manualOrgCountry;
+                        this.selectedOrganizationType = this.manualOrgType;
+                        
+                        const input = this.$refs.webForm?.querySelector('[name="persons[organization_name]"]');
+                        if (input) {
+                            input.value = this.manualOrgName;
+                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                            input.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                        
+                        this.closeManualOrgModal();
                     },
 
                     honeypotsFilled(formData) {
