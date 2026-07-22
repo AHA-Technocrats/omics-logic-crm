@@ -75,6 +75,7 @@ class OrganizationDataGrid extends DataGrid
         $this->addColumn([
             'index' => 'contacts_count',
             'label' => trans('omicslogic::app.datagrid.contacts'),
+            'tooltip' => trans('omicslogic::app.datagrid.tooltip.contacts'),
             'type' => 'integer',
             'sortable' => true,
             'closure' => fn ($row) => '<span class="font-bold">'.(int) ($row->contacts_count ?? 0).'</span>',
@@ -83,6 +84,7 @@ class OrganizationDataGrid extends DataGrid
         $this->addColumn([
             'index' => 'engaged_count',
             'label' => trans('omicslogic::app.datagrid.engaged'),
+            'tooltip' => trans('omicslogic::app.datagrid.tooltip.engaged'),
             'type' => 'integer',
             'sortable' => true,
             'closure' => fn ($row) => $this->engagedCell((int) ($row->engaged_count ?? 0)),
@@ -91,6 +93,7 @@ class OrganizationDataGrid extends DataGrid
         $this->addColumn([
             'index' => 'customers_count',
             'label' => trans('omicslogic::app.datagrid.customers'),
+            'tooltip' => trans('omicslogic::app.datagrid.tooltip.customers'),
             'type' => 'integer',
             'sortable' => true,
             'closure' => fn ($row) => $this->customersCell((int) ($row->customers_count ?? 0)),

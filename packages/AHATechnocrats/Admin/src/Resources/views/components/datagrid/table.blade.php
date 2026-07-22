@@ -68,6 +68,7 @@
                                 <div
                                     class="flex items-center gap-1.5 break-words"
                                     :class="{'cursor-pointer select-none hover:text-gray-800 dark:hover:text-white': column.sortable}"
+                                    :title="column.tooltip"
                                     @click="sort(column)"
                                     v-if="column.visibility"
                                 > 

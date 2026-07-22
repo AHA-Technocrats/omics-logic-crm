@@ -62,13 +62,19 @@ return [
         'last-activity' => 'Last activity',
         'contacts' => 'Contacts',
         'engaged' => 'Engaged',
-        'customers' => 'Customers',
+        'customers' => 'Won Leads',
         'canonical-campaign' => 'Canonical campaign',
         'category' => 'Category',
         'aliases' => 'Aliases',
         'leads' => 'Leads',
         'conversion' => 'Conversion',
         'status' => 'Status',
+        'tooltip' => [
+            'leads' => 'Total number of leads associated with this person',
+            'customers' => 'Total number of won leads associated with this record',
+            'contacts' => 'Total number of contacts in this organization',
+            'engaged' => 'Total number of engaged leads in this organization',
+        ],
     ],
 
     'fields' => [

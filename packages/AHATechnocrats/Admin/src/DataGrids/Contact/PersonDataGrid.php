@@ -131,6 +131,7 @@ class PersonDataGrid extends DataGrid
         $this->addColumn([
             'index' => 'leads_count',
             'label' => trans('omicslogic::app.datagrid.leads'),
+            'tooltip' => trans('omicslogic::app.datagrid.tooltip.leads'),
             'type' => 'integer',
             'sortable' => true,
             'closure' => function ($row) {
@@ -150,6 +151,7 @@ class PersonDataGrid extends DataGrid
         $this->addColumn([
             'index' => 'won_leads_count',
             'label' => trans('omicslogic::app.datagrid.customers') !== 'omicslogic::app.datagrid.customers' ? trans('omicslogic::app.datagrid.customers') : 'Customers',
+            'tooltip' => trans('omicslogic::app.datagrid.tooltip.customers'),
             'type' => 'integer',
             'sortable' => true,
             'closure' => function ($row) {

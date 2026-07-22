@@ -63,6 +63,11 @@ class Column
     protected bool $visibility = true;
 
     /**
+     * Column's tooltip.
+     */
+    protected ?string $tooltip = null;
+
+    /**
      * Column's closure.
      */
     protected mixed $closure = null;
@@ -104,6 +109,8 @@ class Column
         $this->setSortable($column['sortable'] ?? $this->sortable);
 
         $this->setVisibility($column['visibility'] ?? $this->visibility);
+
+        $this->setTooltip($column['tooltip'] ?? $this->tooltip);
 
         $this->setClosure($column['closure'] ?? $this->closure);
 
@@ -148,6 +155,22 @@ class Column
     public function setType(string $type): void
     {
         $this->type = $type;
+    }
+
+    /**
+     * Get tooltip.
+     */
+    public function getTooltip(): ?string
+    {
+        return $this->tooltip;
+    }
+
+    /**
+     * Set tooltip.
+     */
+    public function setTooltip(?string $tooltip): void
+    {
+        $this->tooltip = $tooltip;
     }
 
     /**
@@ -339,6 +362,7 @@ class Column
             'allow_multiple_values' => $this->allowMultipleValues,
             'sortable' => $this->sortable,
             'visibility' => $this->visibility,
+            'tooltip' => $this->tooltip,
         ];
     }
 
