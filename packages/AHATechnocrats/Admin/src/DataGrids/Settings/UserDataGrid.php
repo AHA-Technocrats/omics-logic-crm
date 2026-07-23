@@ -17,17 +17,20 @@ class UserDataGrid extends DataGrid
         $queryBuilder = DB::table('users')
             ->distinct()
             ->addSelect(
-                'id',
-                'name',
-                'email',
-                'image',
-                'status',
-                'created_at'
+                'users.id',
+                'users.name',
+                'users.email',
+                'users.image',
+                'users.status',
+                'users.created_at',
+                'users.view_permission',
+                'roles.name as role_name'
             )
-            ->leftJoin('user_groups', 'id', '=', 'user_groups.user_id');
+            ->leftJoin('user_groups', 'users.id', '=', 'user_groups.user_id')
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id');
 
         if ($userIds = bouncer()->getAuthorizedUserIds()) {
-            $queryBuilder->whereIn('id', $userIds);
+            $queryBuilder->whereIn('users.id', $userIds);
         }
 
         return $queryBuilder;
@@ -43,6 +46,7 @@ class UserDataGrid extends DataGrid
             'label' => trans('admin::app.settings.users.index.datagrid.id'),
             'type' => 'string',
             'sortable' => true,
+            'width' => '60px',
         ]);
 
         $this->addColumn([
@@ -52,12 +56,36 @@ class UserDataGrid extends DataGrid
             'sortable' => true,
             'searchable' => true,
             'filterable' => true,
+            'width' => '200px',
             'closure' => function ($row) {
                 return [
                     'image' => $row->image ? Storage::url($row->image) : null,
                     'name' => $row->name,
                 ];
             },
+        ]);
+
+        $this->addColumn([
+            'index' => 'role_name',
+            'label' => trans('admin::app.settings.users.index.datagrid.role') !== 'admin::app.settings.users.index.datagrid.role' ? trans('admin::app.settings.users.index.datagrid.role') : 'Role',
+            'type' => 'string',
+            'sortable' => true,
+            'searchable' => true,
+            'filterable' => true,
+            'width' => '150px',
+        ]);
+
+        $this->addColumn([
+            'index' => 'view_permission',
+            'label' => trans('admin::app.settings.users.index.create.view-permission') ?: 'View Permission',
+            'type' => 'string',
+            'sortable' => true,
+            'searchable' => true,
+            'filterable' => true,
+            'width' => '150px',
+            'closure' => function ($row) {
+                return ucfirst($row->view_permission);
+            }
         ]);
 
         $this->addColumn([
@@ -76,6 +104,7 @@ class UserDataGrid extends DataGrid
             'filterable' => true,
             'sortable' => true,
             'searchable' => true,
+            'width' => '100px',
         ]);
 
         $this->addColumn([
@@ -86,7 +115,16 @@ class UserDataGrid extends DataGrid
             'searchable' => true,
             'filterable_type' => 'date_range',
             'filterable' => true,
+            'width' => '150px',
         ]);
+
+        $this->addFilter('id', 'users.id');
+        $this->addFilter('name', 'users.name');
+        $this->addFilter('email', 'users.email');
+        $this->addFilter('status', 'users.status');
+        $this->addFilter('created_at', 'users.created_at');
+        $this->addFilter('view_permission', 'users.view_permission');
+        $this->addFilter('role_name', 'roles.name');
     }
 
     /**

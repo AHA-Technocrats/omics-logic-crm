@@ -63,6 +63,11 @@ class Column
     protected bool $visibility = true;
 
     /**
+     * Column's width.
+     */
+    protected ?string $width = null;
+
+    /**
      * Column's tooltip.
      */
     protected ?string $tooltip = null;
@@ -109,6 +114,8 @@ class Column
         $this->setSortable($column['sortable'] ?? $this->sortable);
 
         $this->setVisibility($column['visibility'] ?? $this->visibility);
+
+        $this->setWidth($column['width'] ?? $this->width);
 
         $this->setTooltip($column['tooltip'] ?? $this->tooltip);
 
@@ -171,6 +178,22 @@ class Column
     public function setTooltip(?string $tooltip): void
     {
         $this->tooltip = $tooltip;
+    }
+
+    /**
+     * Get width.
+     */
+    public function getWidth(): ?string
+    {
+        return $this->width;
+    }
+
+    /**
+     * Set width.
+     */
+    public function setWidth(?string $width): void
+    {
+        $this->width = $width;
     }
 
     /**
@@ -363,6 +386,7 @@ class Column
             'sortable' => $this->sortable,
             'visibility' => $this->visibility,
             'tooltip' => $this->tooltip,
+            'width' => $this->width,
         ];
     }
 
