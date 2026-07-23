@@ -110,14 +110,14 @@
                                 </div>
                             </div>
 
+                            <!-- Users Email -->
+                            <p class="truncate">@{{ record.email }}</p>
+
                             <!-- Users Role -->
                             <p>@{{ record.role_name }}</p>
 
                             <!-- Users View Permission -->
                             <p>@{{ record.view_permission }}</p>
-
-                            <!-- Users Email -->
-                            <p class="truncate">@{{ record.email }}</p>
 
                             <!-- Users Status -->
                             <span

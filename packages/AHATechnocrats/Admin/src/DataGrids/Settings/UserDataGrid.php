@@ -66,6 +66,16 @@ class UserDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
+            'index' => 'email',
+            'label' => trans('admin::app.settings.users.index.datagrid.email'),
+            'type' => 'string',
+            'sortable' => true,
+            'searchable' => true,
+            'filterable' => true,
+            'width' => '2fr',
+        ]);
+
+        $this->addColumn([
             'index' => 'role_name',
             'label' => trans('admin::app.settings.users.index.datagrid.role') !== 'admin::app.settings.users.index.datagrid.role' ? trans('admin::app.settings.users.index.datagrid.role') : 'Role',
             'type' => 'string',
@@ -86,16 +96,6 @@ class UserDataGrid extends DataGrid
             'closure' => function ($row) {
                 return ucfirst($row->view_permission);
             }
-        ]);
-
-        $this->addColumn([
-            'index' => 'email',
-            'label' => trans('admin::app.settings.users.index.datagrid.email'),
-            'type' => 'string',
-            'sortable' => true,
-            'searchable' => true,
-            'filterable' => true,
-            'width' => '2fr',
         ]);
 
         $this->addColumn([
