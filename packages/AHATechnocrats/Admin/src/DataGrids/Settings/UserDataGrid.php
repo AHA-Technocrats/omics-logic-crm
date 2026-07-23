@@ -46,7 +46,7 @@ class UserDataGrid extends DataGrid
             'label' => trans('admin::app.settings.users.index.datagrid.id'),
             'type' => 'string',
             'sortable' => true,
-            'width' => '60px',
+            'width' => '40px',
         ]);
 
         $this->addColumn([
@@ -56,7 +56,7 @@ class UserDataGrid extends DataGrid
             'sortable' => true,
             'searchable' => true,
             'filterable' => true,
-            'width' => '200px',
+            'width' => '2fr',
             'closure' => function ($row) {
                 return [
                     'image' => $row->image ? Storage::url($row->image) : null,
@@ -72,7 +72,7 @@ class UserDataGrid extends DataGrid
             'sortable' => true,
             'searchable' => true,
             'filterable' => true,
-            'width' => '150px',
+            'width' => '1.5fr',
         ]);
 
         $this->addColumn([
@@ -82,7 +82,7 @@ class UserDataGrid extends DataGrid
             'sortable' => true,
             'searchable' => true,
             'filterable' => true,
-            'width' => '150px',
+            'width' => '1fr',
             'closure' => function ($row) {
                 return ucfirst($row->view_permission);
             }
@@ -95,6 +95,7 @@ class UserDataGrid extends DataGrid
             'sortable' => true,
             'searchable' => true,
             'filterable' => true,
+            'width' => '2fr',
         ]);
 
         $this->addColumn([

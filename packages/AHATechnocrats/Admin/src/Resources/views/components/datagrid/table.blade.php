@@ -319,7 +319,11 @@
 
                     this.available.columns.forEach((column) => {
                         if (column.visibility) {
-                            columns.push('minmax(0, 1fr)');
+                            if (column.width) {
+                                columns.push(column.width);
+                            } else {
+                                columns.push('minmax(0, 1fr)');
+                            }
                         }
                     });
 
