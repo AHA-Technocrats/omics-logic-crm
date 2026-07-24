@@ -78,6 +78,7 @@
                                 ref="importType"
                                 rules="required"
                                 :label="trans('admin::app.settings.data-transfer.imports.edit.type')"
+                                onchange="document.getElementById('source-sample-link').href = '{{ route('admin.settings.data_transfer.imports.download_sample') }}/' + this.value"
                             >
                                 @foreach (config('importers') as $code => $importer)
                                     <option value="{{ $code }}">@lang($importer['title'])</option>
@@ -278,54 +279,5 @@
         {!! view_render_event('admin.settings.data_transfer.imports.edit.edit_form_controls.after', ['import' => $import]) !!}
     </x-admin::form>
 
-    @pushOnce('scripts')
-        <script>
-            (function () {
-                var wired = false;
 
-                function wireSampleLink() {
-                    if (wired) {
-                        return;
-                    }
-
-                    var link = document.getElementById('source-sample-link');
-
-                    if (! link) {
-                        return;
-                    }
-
-                    var selectId = link.getAttribute('data-sample-select');
-                    
-                    if (! selectId) {
-                        return;
-                    }
-
-                    wired = true;
-
-                    var base = link.getAttribute('data-sample-base');
-
-                    var update = function (value) {
-                        link.setAttribute('href', base + '/' + (value || ''));
-                    };
-                    
-                    var initialSelect = document.getElementById(selectId);
-                    if (initialSelect) {
-                        update(initialSelect.value);
-                    }
-
-                    document.addEventListener('change', function(e) {
-                        if (e.target && e.target.id === selectId) {
-                            update(e.target.value);
-                        }
-                    });
-                }
-
-                window.addEventListener('load', wireSampleLink);
-
-                if (document.readyState === 'complete') {
-                    wireSampleLink();
-                }
-            })();
-        </script>
-    @endpushOnce
 </x-admin::layouts>
