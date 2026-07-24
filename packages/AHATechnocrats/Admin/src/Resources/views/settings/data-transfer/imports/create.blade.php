@@ -275,9 +275,9 @@
                         return;
                     }
 
-                    var select = document.getElementById(link.getAttribute('data-sample-select'));
-
-                    if (! select) {
+                    var selectId = link.getAttribute('data-sample-select');
+                    
+                    if (! selectId) {
                         return;
                     }
 
@@ -285,13 +285,20 @@
 
                     var base = link.getAttribute('data-sample-base');
 
-                    var update = function () {
-                        link.setAttribute('href', base + '/' + (select.value || ''));
+                    var update = function (value) {
+                        link.setAttribute('href', base + '/' + (value || ''));
                     };
+                    
+                    var initialSelect = document.getElementById(selectId);
+                    if (initialSelect) {
+                        update(initialSelect.value);
+                    }
 
-                    update();
-
-                    select.addEventListener('change', update);
+                    document.addEventListener('change', function(e) {
+                        if (e.target && e.target.id === selectId) {
+                            update(e.target.value);
+                        }
+                    });
                 }
 
                 window.addEventListener('load', wireSampleLink);
