@@ -30,6 +30,8 @@ jobs:
             cd /home/ahatech1/domains/omics.ahatech1.com/public_html
 
             echo "📥 Pulling latest code"
+            git fetch origin live
+            git checkout -- .
             git pull origin live
 
             echo "📦 Composer install"
