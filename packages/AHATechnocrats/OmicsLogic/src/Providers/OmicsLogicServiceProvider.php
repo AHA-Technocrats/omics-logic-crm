@@ -2,6 +2,7 @@
 
 namespace AHATechnocrats\OmicsLogic\Providers;
 
+use AHATechnocrats\OmicsLogic\Console\Commands\RescorePersonsCommand;
 use AHATechnocrats\OmicsLogic\Services\Audit\AuditDescriber;
 use AHATechnocrats\OmicsLogic\Services\Audit\AuditDiffer;
 use AHATechnocrats\OmicsLogic\Services\Audit\AuditEventSubscriber;
@@ -22,8 +23,21 @@ class OmicsLogicServiceProvider extends ServiceProvider
 
         $this->registerAuditListeners();
 
+        // Append Lead Score configuration after other packages have merged theirs
+        // (numeric array_merge keys would otherwise overwrite sections).
+        $this->app->booted(function () {
+            config([
+                'core_config' => array_merge(
+                    config('core_config', []),
+                    require dirname(__DIR__).'/Config/core_config.php'
+                ),
+            ]);
+        });
+
         if ($this->app->runningInConsole()) {
-            $this->commands([]);
+            $this->commands([
+                RescorePersonsCommand::class,
+            ]);
         }
     }
 

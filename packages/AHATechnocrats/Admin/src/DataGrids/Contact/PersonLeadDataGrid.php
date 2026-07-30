@@ -35,6 +35,7 @@ class PersonLeadDataGrid extends LeadDataGrid
                 'users.image as sales_person_image',
                 'persons.id as person_id',
                 'persons.lead_score',
+                'persons.score_band',
                 DB::raw('GROUP_CONCAT(DISTINCT '.$tablePrefix.'products.name SEPARATOR ", ") as campaign_name'),
             )
             ->leftJoin('users', 'leads.user_id', '=', 'users.id')
@@ -125,7 +126,10 @@ class PersonLeadDataGrid extends LeadDataGrid
             'type' => 'integer',
             'sortable' => true,
             'filterable' => true,
-            'closure' => fn ($row) => $this->scoreBadge((int) ($row->lead_score ?? 0)),
+            'closure' => fn ($row) => \AHATechnocrats\OmicsLogic\Support\LeadScoreBadge::html(
+                (int) ($row->lead_score ?? 0),
+                $row->score_band ?? null,
+            ),
         ]);
 
         $this->addColumn([

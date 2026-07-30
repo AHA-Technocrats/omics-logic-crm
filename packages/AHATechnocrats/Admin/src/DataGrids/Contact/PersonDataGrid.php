@@ -27,6 +27,8 @@ class PersonDataGrid extends DataGrid
                 'persons.name as person_name',
                 'persons.emails',
                 'persons.education_level',
+                'persons.lead_score',
+                'persons.score_band',
                 'persons.last_activity_at',
                 'organizations.name as organization',
                 'organizations.id as organization_id',
@@ -54,6 +56,8 @@ class PersonDataGrid extends DataGrid
         $this->addFilter('organization', 'organizations.name');
         $this->addFilter('country_code', 'organizations.country_code');
         $this->addFilter('education_level', 'persons.education_level');
+        $this->addFilter('lead_score', 'persons.lead_score');
+        $this->addFilter('score_band', 'persons.score_band');
         $this->addFilter('owner_name', 'users.name');
 
         return $queryBuilder;
@@ -165,6 +169,34 @@ class PersonDataGrid extends DataGrid
         ]);
 
         $this->addColumn([
+            'index' => 'lead_score',
+            'label' => trans('omicslogic::app.datagrid.score'),
+            'type' => 'integer',
+            'sortable' => true,
+            'filterable' => true,
+            'closure' => fn ($row) => \AHATechnocrats\OmicsLogic\Support\LeadScoreBadge::html(
+                (int) ($row->lead_score ?? 0),
+                $row->score_band ?? null,
+            ),
+        ]);
+
+        $this->addColumn([
+            'index' => 'score_band',
+            'label' => trans('omicslogic::app.datagrid.score-band'),
+            'type' => 'string',
+            'sortable' => true,
+            'filterable' => true,
+            'filterable_type' => 'dropdown',
+            'filterable_options' => [
+                ['label' => 'Hot', 'value' => 'hot'],
+                ['label' => 'Warm', 'value' => 'warm'],
+                ['label' => 'Nurture', 'value' => 'nurture'],
+                ['label' => 'Low', 'value' => 'low'],
+            ],
+            'closure' => fn ($row) => $row->score_band ? ucfirst((string) $row->score_band) : '—',
+        ]);
+
+        $this->addColumn([
             'index' => 'owner_name',
             'label' => trans('omicslogic::app.datagrid.owner'),
             'type' => 'string',
@@ -177,7 +209,6 @@ class PersonDataGrid extends DataGrid
                 (int) $row->id,
             ),
         ]);
-
         $this->addColumn([
             'index' => 'last_activity_at',
             'label' => trans('omicslogic::app.datagrid.last-activity'),

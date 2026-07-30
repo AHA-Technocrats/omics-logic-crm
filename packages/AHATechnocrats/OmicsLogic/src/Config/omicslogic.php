@@ -23,10 +23,22 @@ return [
     ],
 
     'lead_score' => [
-        'profile_weight' => 0.30,
-        'engagement_weight' => 0.40,
-        'intent_weight' => 0.20,
-        'recency_weight' => 0.10,
+        'domains' => [
+            'institutional' => "edu\nac.uk\nac.in\ngov\nres.in\nharvard.edu\nox.ac.uk\niitb.ac.in\ndu.ac.in\nnih.gov\ncsir.res.in",
+            'company' => "pfizer.com\nnovartis.com\nthermofisher.com\nillumina.com\nbiocon.com",
+            'personal' => "gmail.com\noutlook.com\nhotmail.com\nyahoo.com\nicloud.com\nproton.me\nzoho.com\nmail.com",
+        ],
+        'country_tiers' => [
+            'tier1' => "United States\nUnited Kingdom\nCanada\nAustralia\nGermany\nFrance\nDenmark\nFinland\nItaly\nPoland\nSingapore\nUnited Arab Emirates\nUAE\nQatar\nSaudi Arabia\nPuerto Rico\nAnguilla\nNetherlands\nSwitzerland\nAustria\nNorway\nRomania\nBelgium\nIreland\nJapan\nNew Zealand",
+            'tier2' => "India\nChina\nMalaysia\nBrazil\nMexico\nSouth Africa\nThailand\nColombia\nPeru\nAlgeria\nCzech Republic\nIndonesia\nTurkey\nSpain\nTaiwan\nHong Kong\nSouth Korea",
+            'tier3' => "Philippines\nVietnam\nMorocco\nEgypt\nSri Lanka\nKenya\nNepal\nBhutan\nBolivia\nCambodia\nCameroon\nIraq\nUkraine\nAngola\nNigeria\nEthiopia\nUganda\nTanzania\nSenegal\nPakistan\nBangladesh\nOman\nKuwait\nBahrain\nJordan",
+            'tier4' => "Iran\nSudan\nGhana\nZimbabwe\nMalawi\nMali\nMadagascar\nBenin\nTunisia",
+        ],
+        'bands' => [
+            'hot_min' => 75,
+            'warm_min' => 55,
+            'nurture_min' => 35,
+        ],
     ],
 
     'countries' => [

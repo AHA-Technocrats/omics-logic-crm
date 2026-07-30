@@ -24,8 +24,6 @@ package-lock.json
 /lang/vendor
 /storage/*.key
 /storage/dcc-data/
-/storage/app/private/firebase/service-account.json
-!/storage/app/cacert.pem
 /vendor
 yarn.lock
 yarn-error.log
@@ -35,3 +33,12 @@ node_modules/
 /test-results/
 /blob-report/
 /playwright/.cache/
+
+# Agent Skills
+.github/skills/
+/.ai/skills
+/.claude/skills
+/.codex/skills
+/.cursor/skills
+/.kilocode/skills
+/.gemini/skills

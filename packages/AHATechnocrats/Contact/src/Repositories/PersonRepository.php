@@ -92,7 +92,7 @@ class PersonRepository extends Repository
 
         $person = parent::create($data);
 
-        $person->lead_score = app(LeadScoreCalculator::class)->calculate($person);
+        app(LeadScoreCalculator::class)->applyToPerson($person);
         $person->save();
 
         $this->attributeValueRepository->save(array_merge($data, [
@@ -102,6 +102,23 @@ class PersonRepository extends Repository
         $this->syncLeadSideEffects($person, $data);
 
         $this->syncOwnerProfileImage($data);
+
+        return $person;
+    }
+
+    /**
+     * Recompute and persist Lead Score for an existing Person.
+     */
+    public function rescore(int $personId): ?Person
+    {
+        $person = $this->find($personId);
+
+        if (! $person) {
+            return null;
+        }
+
+        app(LeadScoreCalculator::class)->applyToPerson($person);
+        $person->save();
 
         return $person;
     }
@@ -148,7 +165,7 @@ class PersonRepository extends Repository
 
         $person = parent::update($data, $id);
 
-        $person->lead_score = app(LeadScoreCalculator::class)->calculate($person);
+        app(LeadScoreCalculator::class)->applyToPerson($person);
         $person->save();
 
         /**

@@ -64,6 +64,26 @@
         </div>
 
         <div class="flex justify-between gap-4">
+            <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.lead-score')</dt>
+            <dd class="text-right font-medium dark:text-white">{{ $person->lead_score ?? 0 }}</dd>
+        </div>
+
+        <div class="flex justify-between gap-4">
+            <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.score-band')</dt>
+            <dd class="text-right font-medium dark:text-white">{{ $person->score_band ? ucfirst($person->score_band) : '—' }}</dd>
+        </div>
+
+        <div class="flex justify-between gap-4">
+            <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.score-breakdown')</dt>
+            <dd class="text-right text-xs font-medium dark:text-white">
+                PI {{ $person->product_interest_points ?? 0 }}
+                · ED {{ $person->email_domain_points ?? 0 }}
+                · CO {{ $person->country_points ?? 0 }}
+                · PR {{ $person->profile_points ?? 0 }}
+            </dd>
+        </div>
+
+        <div class="flex justify-between gap-4">
             <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.owner')</dt>
             <dd class="text-right font-medium dark:text-white">{{ $person->user?->name ?? __('omicslogic::app.fields.unassigned') }}</dd>
         </div>

@@ -1,0 +1,125 @@
+<?php
+
+return [
+    [
+        'key' => 'lead_score',
+        'name' => 'omicslogic::app.configuration.lead-score.title',
+        'info' => 'omicslogic::app.configuration.lead-score.info',
+        'sort' => 3,
+    ], [
+        'key' => 'lead_score.domains',
+        'name' => 'omicslogic::app.configuration.lead-score.domains.title',
+        'info' => 'omicslogic::app.configuration.lead-score.domains.info',
+        'icon' => 'icon-mail',
+        'sort' => 1,
+    ], [
+        'key' => 'lead_score.domains.lists',
+        'name' => 'omicslogic::app.configuration.lead-score.domains.lists-title',
+        'info' => 'omicslogic::app.configuration.lead-score.domains.lists-info',
+        'sort' => 1,
+        'fields' => [
+            [
+                'name' => 'institutional',
+                'title' => 'omicslogic::app.configuration.lead-score.domains.institutional',
+                'type' => 'textarea',
+                'default' => "edu\nac.uk\nac.in\ngov\nres.in\nharvard.edu\nox.ac.uk\niitb.ac.in\ndu.ac.in\nnih.gov\ncsir.res.in",
+                'channel_based' => false,
+                'locale_based' => false,
+            ], [
+                'name' => 'company',
+                'title' => 'omicslogic::app.configuration.lead-score.domains.company',
+                'type' => 'textarea',
+                'default' => "pfizer.com\nnovartis.com\nthermofisher.com\nillumina.com\nbiocon.com",
+                'channel_based' => false,
+                'locale_based' => false,
+            ], [
+                'name' => 'personal',
+                'title' => 'omicslogic::app.configuration.lead-score.domains.personal',
+                'type' => 'textarea',
+                'default' => "gmail.com\noutlook.com\nhotmail.com\nyahoo.com\nicloud.com\nproton.me\nzoho.com\nmail.com",
+                'channel_based' => false,
+                'locale_based' => false,
+            ],
+        ],
+    ], [
+        'key' => 'lead_score.country_tiers',
+        'name' => 'omicslogic::app.configuration.lead-score.country-tiers.title',
+        'info' => 'omicslogic::app.configuration.lead-score.country-tiers.info',
+        'icon' => 'icon-location',
+        'sort' => 2,
+    ], [
+        'key' => 'lead_score.country_tiers.lists',
+        'name' => 'omicslogic::app.configuration.lead-score.country-tiers.lists-title',
+        'info' => 'omicslogic::app.configuration.lead-score.country-tiers.lists-info',
+        'sort' => 1,
+        'fields' => [
+            [
+                'name' => 'tier1',
+                'title' => 'omicslogic::app.configuration.lead-score.country-tiers.tier1',
+                'type' => 'textarea',
+                'default' => "United States\nUnited Kingdom\nCanada\nAustralia\nGermany\nFrance\nDenmark\nFinland\nItaly\nPoland\nSingapore\nUnited Arab Emirates\nUAE\nQatar\nSaudi Arabia\nPuerto Rico\nAnguilla\nNetherlands\nSwitzerland\nAustria\nNorway\nRomania\nBelgium\nIreland\nJapan\nNew Zealand",
+                'channel_based' => false,
+                'locale_based' => false,
+            ], [
+                'name' => 'tier2',
+                'title' => 'omicslogic::app.configuration.lead-score.country-tiers.tier2',
+                'type' => 'textarea',
+                'default' => "India\nChina\nMalaysia\nBrazil\nMexico\nSouth Africa\nThailand\nColombia\nPeru\nAlgeria\nCzech Republic\nIndonesia\nTurkey\nSpain\nTaiwan\nHong Kong\nSouth Korea",
+                'channel_based' => false,
+                'locale_based' => false,
+            ], [
+                'name' => 'tier3',
+                'title' => 'omicslogic::app.configuration.lead-score.country-tiers.tier3',
+                'type' => 'textarea',
+                'default' => "Philippines\nVietnam\nMorocco\nEgypt\nSri Lanka\nKenya\nNepal\nBhutan\nBolivia\nCambodia\nCameroon\nIraq\nUkraine\nAngola\nNigeria\nEthiopia\nUganda\nTanzania\nSenegal\nPakistan\nBangladesh\nOman\nKuwait\nBahrain\nJordan",
+                'channel_based' => false,
+                'locale_based' => false,
+            ], [
+                'name' => 'tier4',
+                'title' => 'omicslogic::app.configuration.lead-score.country-tiers.tier4',
+                'type' => 'textarea',
+                'default' => "Iran\nSudan\nGhana\nZimbabwe\nMalawi\nMali\nMadagascar\nBenin\nTunisia",
+                'channel_based' => false,
+                'locale_based' => false,
+            ],
+        ],
+    ], [
+        'key' => 'lead_score.bands',
+        'name' => 'omicslogic::app.configuration.lead-score.bands.title',
+        'info' => 'omicslogic::app.configuration.lead-score.bands.info',
+        'icon' => 'icon-attribute',
+        'sort' => 3,
+    ], [
+        'key' => 'lead_score.bands.thresholds',
+        'name' => 'omicslogic::app.configuration.lead-score.bands.thresholds-title',
+        'info' => 'omicslogic::app.configuration.lead-score.bands.thresholds-info',
+        'sort' => 1,
+        'fields' => [
+            [
+                'name' => 'hot_min',
+                'title' => 'omicslogic::app.configuration.lead-score.bands.hot-min',
+                'type' => 'text',
+                'default' => '75',
+                'validation' => 'numeric|min:0|max:100',
+                'channel_based' => false,
+                'locale_based' => false,
+            ], [
+                'name' => 'warm_min',
+                'title' => 'omicslogic::app.configuration.lead-score.bands.warm-min',
+                'type' => 'text',
+                'default' => '55',
+                'validation' => 'numeric|min:0|max:100',
+                'channel_based' => false,
+                'locale_based' => false,
+            ], [
+                'name' => 'nurture_min',
+                'title' => 'omicslogic::app.configuration.lead-score.bands.nurture-min',
+                'type' => 'text',
+                'default' => '35',
+                'validation' => 'numeric|min:0|max:100',
+                'channel_based' => false,
+                'locale_based' => false,
+            ],
+        ],
+    ],
+];
