@@ -63,6 +63,7 @@ return [
         'contacts' => 'Contacts',
         'engaged' => 'Engaged',
         'customers' => 'Won Leads',
+        'customer' => 'Customer',
         'canonical-campaign' => 'Canonical campaign',
         'category' => 'Category',
         'aliases' => 'Aliases',

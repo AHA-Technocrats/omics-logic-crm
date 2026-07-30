@@ -21,6 +21,13 @@ class PersonDataGrid extends DataGrid
     {
         $tablePrefix = DB::getTablePrefix();
 
+        $isCustomerExpression = '(EXISTS (
+                SELECT 1 FROM '.$tablePrefix.'leads
+                JOIN '.$tablePrefix.'lead_pipeline_stages ON '.$tablePrefix.'lead_pipeline_stages.id = '.$tablePrefix.'leads.lead_pipeline_stage_id
+                WHERE '.$tablePrefix.'leads.person_id = '.$tablePrefix.'persons.id
+                  AND '.$tablePrefix.'lead_pipeline_stages.code = \'won\'
+            ))';
+
         $queryBuilder = DB::table('persons')
             ->select(
                 'persons.id',
@@ -40,6 +47,7 @@ class PersonDataGrid extends DataGrid
                 WHERE '.$tablePrefix.'leads.person_id = '.$tablePrefix.'persons.id
                   AND '.$tablePrefix.'lead_pipeline_stages.code = \'won\'
             ) as won_leads_count')
+            ->selectRaw('CASE WHEN '.$isCustomerExpression.' THEN 1 ELSE 0 END as is_customer')
             ->selectRaw('COALESCE(organizations.country_code, persons.country_code) as country_code')
             ->leftJoin('organizations', 'persons.organization_id', '=', 'organizations.id')
             ->leftJoin('users', 'persons.user_id', '=', 'users.id')
@@ -55,6 +63,7 @@ class PersonDataGrid extends DataGrid
         $this->addFilter('country_code', 'organizations.country_code');
         $this->addFilter('education_level', 'persons.education_level');
         $this->addFilter('owner_name', 'users.name');
+        $this->addFilter('is_customer', DB::raw('CASE WHEN '.$isCustomerExpression.' THEN 1 ELSE 0 END'));
 
         return $queryBuilder;
     }
@@ -162,6 +171,17 @@ class PersonDataGrid extends DataGrid
                     .'<span class="text-gray-800 dark:text-white">'.$count.'</span>'
                     .'</span>';
             },
+        ]);
+
+        $this->addColumn([
+            'index' => 'is_customer',
+            'label' => trans('omicslogic::app.datagrid.customer'),
+            'type' => 'boolean',
+            'filterable' => true,
+            'sortable' => false,
+            'searchable' => false,
+            'visibility' => false,
+            'exportable' => false,
         ]);
 
         $this->addColumn([

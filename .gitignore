@@ -35,3 +35,16 @@ node_modules/
 /test-results/
 /blob-report/
 /playwright/.cache/
+
+# Markdown (keep README for GitHub)
+*.md
+!README.md
+
+# Agent Skills
+.github/skills/
+/.ai/skills
+/.claude/skills
+/.codex/skills
+/.cursor/skills
+/.kilocode/skills
+/.gemini/skills
