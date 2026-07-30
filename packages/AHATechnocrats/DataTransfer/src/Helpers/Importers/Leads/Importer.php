@@ -83,6 +83,12 @@ class Importer extends AbstractImporter
         'campaignname' => 'campaign',
         'product' => 'campaign',
         'jobtitle' => 'job_title',
+        'owner' => 'owner',
+        'assignedsalesrep' => 'owner',
+        'salesrep' => 'owner',
+        'salesowner' => 'owner',
+        'userid' => 'owner',
+        'user_id' => 'owner',
     ];
 
     /**
@@ -273,10 +279,11 @@ class Importer extends AbstractImporter
     protected function saveLeads(ImportBatchContract $batch): bool
     {
         $defaultSourceId = $this->import->source_id ?? null;
+        $defaultOwnerId = $this->import->user_id ?? null;
 
         foreach ($batch->data as $rowData) {
             try {
-                $lead = $this->leadImportProcessor->process($rowData, $defaultSourceId);
+                $lead = $this->leadImportProcessor->process($rowData, $defaultSourceId, $defaultOwnerId);
 
                 if ($lead) {
                     $this->createdItemsCount++;

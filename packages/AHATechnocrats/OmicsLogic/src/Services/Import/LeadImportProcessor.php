@@ -60,7 +60,7 @@ class LeadImportProcessor
      * organization and contact, deduping by email, inheriting ownership, and
      * preserving the original submission as a web form submission.
      */
-    public function process(array $row, ?int $defaultSourceId = null): ?Lead
+    public function process(array $row, ?int $defaultSourceId = null, ?int $defaultOwnerId = null): ?Lead
     {
         $row = array_map(fn ($value) => is_string($value) ? trim($value) : $value, $row);
 
@@ -95,11 +95,11 @@ class LeadImportProcessor
         $existingPerson = $this->matchPersonByEmail($email);
 
         /**
-         * Ownership precedence: an explicit owner column wins, otherwise the
-         * existing contact's owner, then the organization's owner, and finally
-         * the super admin (handled by the assignee resolver).
+         * Ownership precedence: CSV owner, then import-form sales rep, then
+         * existing contact owner, then organization assignee / super admin.
          */
         $ownerId = $this->resolveOwner($this->clean($row['owner'] ?? null))
+            ?? $defaultOwnerId
             ?? $existingPerson?->user_id
             ?? $this->assigneeResolver->resolve($organization);
 

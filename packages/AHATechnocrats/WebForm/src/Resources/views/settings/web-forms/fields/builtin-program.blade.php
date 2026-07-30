@@ -15,7 +15,7 @@
             class="{{ $isRequired ? 'required' : '' }}"
             style="color: {{ $webForm->attribute_label_color }} !important;"
         >
-            Interested in Campaign
+            Interested in Program
         </x-web_form::form.control-group.label>
 
         <div style="display: flex !important; flex-direction: column !important; gap: 12px !important; margin-top: 8px !important; width: 100% !important;">

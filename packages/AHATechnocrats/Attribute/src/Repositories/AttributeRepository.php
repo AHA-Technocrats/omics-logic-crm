@@ -160,6 +160,26 @@ class AttributeRepository extends Repository
             return $this->getOwnerScopedLookupOptions($lookup, $query, $columns, ['account_owner_id', 'user_id']);
         }
 
+        if (Str::contains($lookup['repository'], 'StageRepository')) {
+            if (! count($columns)) {
+                $columns = [
+                    ($lookup['value_column'] ?? 'id').' as id',
+                    ($lookup['label_column'] ?? 'name').' as name',
+                ];
+            }
+
+            $labelColumn = $lookup['label_column'] ?? 'name';
+            $decodedQuery = urldecode($query);
+
+            return app($lookup['repository'])
+                ->makeModel()
+                ->newQuery()
+                ->when($decodedQuery !== '', fn ($queryBuilder) => $queryBuilder->where($labelColumn, 'like', '%'.$decodedQuery.'%'))
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get($columns);
+        }
+
         return app($lookup['repository'])->findWhere([
             [$lookup['label_column'] ?? 'name', 'like', '%'.urldecode($query).'%'],
         ], $columns);

@@ -45,7 +45,7 @@ class PersonImportProcessor
      *
      * @param  array<string, mixed>  $row
      */
-    public function process(array $row, ?int $defaultSourceId = null): ?Person
+    public function process(array $row, ?int $defaultSourceId = null, ?int $defaultOwnerId = null): ?Person
     {
         $row = array_map(fn ($value) => is_string($value) ? trim($value) : $value, $row);
 
@@ -74,6 +74,7 @@ class PersonImportProcessor
         $existingPerson = $this->matchPersonByEmail($email);
 
         $ownerId = $this->resolveOwner($this->clean($row['owner'] ?? null))
+            ?? $defaultOwnerId
             ?? $existingPerson?->user_id
             ?? $this->assigneeResolver->resolve($organization);
 
@@ -399,6 +400,14 @@ class PersonImportProcessor
     {
         if (! $value) {
             return null;
+        }
+
+        if (ctype_digit($value)) {
+            $user = $this->userRepository->find((int) $value);
+
+            if ($user) {
+                return $user->id;
+            }
         }
 
         $user = $this->userRepository->findOneByField('email', $value)

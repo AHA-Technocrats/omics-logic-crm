@@ -18,6 +18,7 @@ class Import extends Model implements ImportContract
         'process_in_queue',
         'type',
         'source_id',
+        'user_id',
         'action',
         'validation_strategy',
         'validation_strategy',

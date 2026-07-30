@@ -117,15 +117,15 @@
                 />
             @else
                 <img
-                    style="max-height: 64px; width: auto;"
-                    src="{{ vite()->asset('images/logo.svg') }}"
-                    alt="{{ config('app.name') }}"
+                    style="max-height: 56px; width: auto;"
+                    src="{{ asset('images/omics-logic-logo.png') }}"
+                    alt="OmicsLogic"
                 />
             @endif
 
             <div
                 class="webform-card"
-                style="background-color: {{ $webForm->form_background_color }}; border-top: 8px solid {{ $webForm->form_submit_button_color }}"
+                style="background-color: {{ $webForm->form_background_color }}; border-top: 4px solid {{ $webForm->form_submit_button_color }}"
             >
                 <div class="webform-header">
                     <h1

@@ -86,7 +86,7 @@ class WebFormFieldOrder
 
         if (WebFormPrograms::isEnabled($webForm)) {
             $fields['builtin:program'] = [
-                'label' => 'Interested in Campaign',
+                'label' => 'Interested in Program',
                 'locked' => false,
                 'removable' => false,
             ];

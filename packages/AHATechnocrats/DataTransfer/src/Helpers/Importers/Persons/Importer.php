@@ -76,6 +76,11 @@ class Importer extends AbstractImporter
         'queries' => 'inquiry_details',
         'jobtitle' => 'job_title',
         'owner' => 'owner',
+        'assignedsalesrep' => 'owner',
+        'salesrep' => 'owner',
+        'salesowner' => 'owner',
+        'userid' => 'owner',
+        'user_id' => 'owner',
         'source' => 'source',
     ];
 
@@ -273,6 +278,7 @@ class Importer extends AbstractImporter
     protected function savePersons(ImportBatchContract $batch): bool
     {
         $defaultSourceId = $this->import->source_id ?? null;
+        $defaultOwnerId = $this->import->user_id ?? null;
 
         foreach ($batch->data as $rowData) {
             try {
@@ -287,7 +293,7 @@ class Importer extends AbstractImporter
                     $existed = $existing;
                 }
 
-                $person = $this->personImportProcessor->process($rowData, $defaultSourceId);
+                $person = $this->personImportProcessor->process($rowData, $defaultSourceId, $defaultOwnerId);
 
                 if (! $person) {
                     continue;
