@@ -34,4 +34,30 @@ class PurchaseRepository extends BaseFirestoreRepository
             return $this->paginatedResult($items, $limit);
         });
     }
+
+    /**
+     * Fallback when ordered Purchases queries fail (missing field / index).
+     *
+     * @return array{items: array<int, array<string, mixed>>, meta: array<string, mixed>}
+     */
+    public function getUserPurchasesUnordered(string $uid, int $limit = 100): array
+    {
+        return $this->runQuery(function () use ($uid, $limit) {
+            $parent = sprintf(
+                'projects/%s/databases/(default)/documents/%s/%s',
+                $this->firebase->firestore()->projectId,
+                $this->usersCollection(),
+                $uid,
+            );
+
+            $items = $this->firebase->firestore()->queryCollection(
+                $this->purchasesCollection(),
+                parentDocumentPath: $parent,
+                orderByField: null,
+                limit: $limit + 1,
+            );
+
+            return $this->paginatedResult($items, $limit);
+        });
+    }
 }

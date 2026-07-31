@@ -108,11 +108,16 @@ return [
         'title_fields' => ['productName', 'product', 'name', 'title', 'courseName', 'course', 'programName', 'program', 'achievementTitle'],
         'status_fields' => ['status', 'paymentStatus', 'payment_status'],
         'currency_fields' => ['currency', 'currencyCode', 'currency_code'],
-        'achievement_types' => ['purchase', 'course'],
+        // Portal admin grants and Stripe enrollments often store type=null with these titles.
+        'achievement_types' => ['purchase', 'course', 'enrollment', 'enrolled', 'subscription', 'program', 'workshop', 'track'],
+        // Explicitly ignore lesson/step completions even if the title contains "Completed".
+        'ignored_achievement_types' => ['step', 'lesson', 'lesson_completed'],
         'achievement_title_patterns' => [
-            '/^Completed\s*\(/i',
+            '/^Program enrolled\s*\(/i',
             '/^Enrolled\s+in\s+/i',
             '/^Purchased\s+/i',
+            '/^Subscription\b/i',
+            '/\bUnlimited\b.*\b(Courses|Yearly|months?)\b/i',
         ],
     ],
 

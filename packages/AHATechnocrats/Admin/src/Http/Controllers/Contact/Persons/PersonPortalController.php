@@ -37,7 +37,7 @@ class PersonPortalController extends Controller
         }
 
         try {
-            $result = $this->userService->getByEmail($email, 50);
+            $result = $this->userService->getByEmail($email, 200, null, 200);
         } catch (ValidationException) {
             return response()->json([
                 'success' => false,

@@ -62,15 +62,25 @@ class UserService
                 $purchasesLimit,
                 $purchasesCursor,
             );
-        } catch (FirebaseConnectionException) {
-            $purchases = [
-                'items' => [],
-                'meta' => [
-                    'limit' => $purchasesLimit,
-                    'has_more' => false,
-                    'next_cursor' => null,
-                ],
-            ];
+        } catch (FirebaseConnectionException $exception) {
+            report($exception);
+
+            // Ordered Purchases queries can fail when documents lack the order
+            // field. Retry without ordering so real purchases still surface.
+            try {
+                $purchases = $this->purchaseRepository->getUserPurchasesUnordered($uid, $purchasesLimit);
+            } catch (FirebaseConnectionException $retryException) {
+                report($retryException);
+
+                $purchases = [
+                    'items' => [],
+                    'meta' => [
+                        'limit' => $purchasesLimit,
+                        'has_more' => false,
+                        'next_cursor' => null,
+                    ],
+                ];
+            }
         }
 
         $timeline = $this->timelineMapper->mapMany($achievements['items']);
@@ -115,14 +125,24 @@ class UserService
         $combined = [];
 
         foreach (array_merge($mappedPurchases, $mappedFromAchievements) as $item) {
-            $key = (string) ($item['id'] ?? $item['title']);
+            $key = implode('|', [
+                (string) ($item['id'] ?? ''),
+                (string) ($item['title'] ?? ''),
+                (string) ($item['occurred_at'] ?? ''),
+            ]);
 
             if (! isset($combined[$key])) {
                 $combined[$key] = $item;
             }
         }
 
-        return array_values($combined);
+        $items = array_values($combined);
+
+        usort($items, function (array $a, array $b) {
+            return strcmp((string) ($b['occurred_at'] ?? ''), (string) ($a['occurred_at'] ?? ''));
+        });
+
+        return $items;
     }
 
     /**

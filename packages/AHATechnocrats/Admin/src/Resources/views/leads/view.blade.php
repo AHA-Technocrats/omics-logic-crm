@@ -3,6 +3,11 @@
         @lang('admin::app.leads.view.title', ['title' => strip_tags($lead->title)])
     </x-slot>
 
+    @if ($lead->person)
+        @include('admin::contacts.persons.view.portal-host', ['person' => $lead->person])
+        @include('admin::contacts.persons.view.portal-panel')
+    @endif
+
     <!-- Content -->
     <div class="relative flex gap-4 max-lg:flex-wrap">
 
@@ -140,6 +145,10 @@
                     </div>
                 </x-slot>
             </x-admin::activities>
+
+            @if ($lead->person)
+                @include('admin::contacts.persons.view.portal-panel-section', ['person' => $lead->person])
+            @endif
 
             {!! view_render_event('admin.leads.view.activities.after', ['lead' => $lead]) !!}
         </div>

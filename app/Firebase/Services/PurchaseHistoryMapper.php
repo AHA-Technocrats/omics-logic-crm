@@ -42,11 +42,13 @@ class PurchaseHistoryMapper
 
         $status = strtolower($this->firstString($purchase, (array) config('firebase.purchases.status_fields', [])) ?? 'completed');
         $occurredAt = $this->resolveTimestamp($purchase);
+        $productType = $this->resolveProductType($purchase, $title);
 
         return [
             'id' => $purchase['id'] ?? null,
             'title' => $title,
-            'detail' => $this->resolveDetail($purchase),
+            'detail' => $this->resolveDetail($purchase, $productType),
+            'product_type' => $productType,
             'amount' => $amount,
             'currency' => $currency,
             'amount_label' => $this->formatAmount($amount, $currency),
@@ -79,10 +81,17 @@ class PurchaseHistoryMapper
         $grouped = [];
 
         foreach ($achievements as $achievement) {
-            $key = $achievement['lessonId']
+            // Keep every distinct enrollment/purchase document. Only collapse
+            // true duplicates that share the same stable product identity.
+            $key = $achievement['id']
+                ?? $achievement['orderId']
+                ?? $achievement['order_id']
+                ?? $achievement['transactionId']
+                ?? $achievement['lessonId']
                 ?? $achievement['courseId']
                 ?? $achievement['courseSlug']
-                ?? $achievement['id']
+                ?? $achievement['programId']
+                ?? $achievement['productId']
                 ?? spl_object_hash((object) $achievement);
 
             if (! isset($grouped[$key]) || $this->isNewerAchievement($achievement, $grouped[$key])) {
@@ -99,12 +108,21 @@ class PurchaseHistoryMapper
     protected function isPurchaseAchievement(array $achievement): bool
     {
         $type = strtolower((string) ($achievement['type'] ?? $achievement['eventType'] ?? ''));
+        $ignoredTypes = array_map(
+            'strtolower',
+            (array) config('firebase.purchases.ignored_achievement_types', ['step', 'lesson', 'lesson_completed']),
+        );
+
+        if ($type !== '' && in_array($type, $ignoredTypes, true)) {
+            return false;
+        }
+
         $purchaseTypes = array_map(
             'strtolower',
             (array) config('firebase.purchases.achievement_types', ['purchase', 'course']),
         );
 
-        if (in_array($type, $purchaseTypes, true)) {
+        if ($type !== '' && in_array($type, $purchaseTypes, true)) {
             return true;
         }
 
@@ -161,9 +179,13 @@ class PurchaseHistoryMapper
     /**
      * @param  array<string, mixed>  $purchase
      */
-    protected function resolveDetail(array $purchase): ?string
+    protected function resolveDetail(array $purchase, ?string $productType = null): ?string
     {
-        $platform = $this->firstString($purchase, ['platform', 'paymentMethod', 'payment_method', 'category', 'program']);
+        if ($productType) {
+            return $productType;
+        }
+
+        $platform = $this->firstString($purchase, ['platform', 'paymentMethod', 'payment_method', 'category', 'program', 'programType', 'productType']);
 
         if ($platform) {
             return $platform;
@@ -179,8 +201,72 @@ class PurchaseHistoryMapper
         return $parentCourse;
     }
 
+    /**
+     * @param  array<string, mixed>  $purchase
+     */
+    protected function resolveProductType(array $purchase, string $title): ?string
+    {
+        $haystack = trim(implode(' ', array_filter([
+            $title,
+            $this->firstString($purchase, [
+                'achievementTitle',
+                'title',
+                'productName',
+                'productType',
+                'programType',
+                'category',
+                'type',
+                'program',
+            ]),
+        ])));
+
+        $explicit = $this->firstString($purchase, ['productType', 'programType', 'category']);
+
+        if ($explicit) {
+            $normalized = $this->normalizeProductType($explicit);
+
+            if ($normalized) {
+                return $normalized;
+            }
+        }
+
+        $normalized = $this->normalizeProductType($haystack);
+
+        if ($normalized) {
+            return $normalized;
+        }
+
+        // Admin-granted portal access is stored as "Program enrolled (...)" with no type.
+        if (preg_match('/^Program enrolled\s*\(/i', (string) ($purchase['achievementTitle'] ?? $purchase['title'] ?? ''))) {
+            return 'Training Program';
+        }
+
+        return null;
+    }
+
+    protected function normalizeProductType(string $value): ?string
+    {
+        $value = strtolower(trim($value));
+
+        return match (true) {
+            str_contains($value, 'subscription') || str_contains($value, 'unlimited') => 'Subscription',
+            str_contains($value, 'research') => 'Research Program',
+            str_contains($value, 'workshop') => 'Workshop',
+            str_contains($value, 'track') => 'Track',
+            str_contains($value, 'training') => 'Training Program',
+            str_contains($value, 'program enrolled') || str_contains($value, 'program') => 'Program',
+            default => null,
+        };
+    }
+
     protected function extractCourseNameFromTitle(string $title): ?string
     {
+        if (preg_match('/^Program enrolled\s*\((.+)\)\s*$/i', $title, $matches) === 1) {
+            $name = trim($matches[1]);
+
+            return $name !== '' ? $name : null;
+        }
+
         if (preg_match('/^Completed\s*\(([^)]+)\)/i', $title, $matches) === 1) {
             $name = trim($matches[1]);
 
