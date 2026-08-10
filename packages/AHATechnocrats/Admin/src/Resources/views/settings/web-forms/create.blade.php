@@ -821,7 +821,7 @@
                             const programField = {
                                 key: programKey,
                                 type: 'builtin',
-                                label: 'Interested in Campaign',
+                                label: 'Interested in Program',
                                 locked: false,
                                 removable: false,
                             };

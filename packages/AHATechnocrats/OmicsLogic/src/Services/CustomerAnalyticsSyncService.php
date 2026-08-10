@@ -8,7 +8,6 @@ use App\Firebase\Repositories\AchievementRepository;
 use App\Firebase\Repositories\FormRepository;
 use App\Firebase\Repositories\PurchaseRepository;
 use App\Firebase\Repositories\UserRepository;
-use App\Firebase\Services\AchievementTimelineMapper;
 use App\Firebase\Services\PurchaseHistoryMapper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -21,7 +20,6 @@ class CustomerAnalyticsSyncService
         protected UserRepository $userRepository,
         protected AchievementRepository $achievementRepository,
         protected PurchaseRepository $purchaseRepository,
-        protected AchievementTimelineMapper $timelineMapper,
         protected PurchaseHistoryMapper $purchaseMapper,
     ) {}
 
@@ -121,13 +119,14 @@ class CustomerAnalyticsSyncService
             foreach ($users as $user) {
                 $uid = $user->uid;
                 
-                // Fetch achievements
+                // Fetch achievements — program enrollments / admin grants live here
+                // when the Purchases subcollection is empty.
                 $achievementsRes = $this->achievementRepository->getUserAchievements($uid, 1000);
                 $achievements = $achievementsRes['items'];
-                $mappedAchievements = $this->timelineMapper->mapMany($achievements);
-                
-                foreach ($mappedAchievements as $item) {
-                    $this->upsertEnrollment($user, $item, 'achievement');
+                $mappedPurchaseAchievements = $this->purchaseMapper->mapManyFromAchievements($achievements);
+
+                foreach ($mappedPurchaseAchievements as $item) {
+                    $this->upsertEnrollment($user, $item, 'purchase');
                     $stats['enrollments_synced']++;
                 }
 
@@ -136,13 +135,25 @@ class CustomerAnalyticsSyncService
                     $purchasesRes = $this->purchaseRepository->getUserPurchases($uid, 1000);
                     $purchases = $purchasesRes['items'];
                     $mappedPurchases = $this->purchaseMapper->mapMany($purchases);
-                    
+
                     foreach ($mappedPurchases as $item) {
                         $this->upsertEnrollment($user, $item, 'purchase');
                         $stats['enrollments_synced']++;
                     }
                 } catch (\Throwable $e) {
-                    // Purchase collection might not exist for this user, safely ignore
+                    report($e);
+
+                    try {
+                        $purchasesRes = $this->purchaseRepository->getUserPurchasesUnordered($uid, 1000);
+                        $mappedPurchases = $this->purchaseMapper->mapMany($purchasesRes['items']);
+
+                        foreach ($mappedPurchases as $item) {
+                            $this->upsertEnrollment($user, $item, 'purchase');
+                            $stats['enrollments_synced']++;
+                        }
+                    } catch (\Throwable $retryException) {
+                        report($retryException);
+                    }
                 }
             }
         });
@@ -157,17 +168,27 @@ class CustomerAnalyticsSyncService
         // Generate a deterministic ID if none provided by Firebase
         $enrollmentId = $item['id'] ?? md5($user->uid . '-' . $item['title'] . '-' . ($item['occurred_at'] ?? ''));
 
-        // Try to guess product type from title if not explicitly set
-        $productType = null;
-        $title = strtolower($item['detail'] ?? $item['title'] ?? '');
-        if (str_contains($title, 'workshop')) {
-            $productType = 'workshop';
-        } elseif (str_contains($title, 'track')) {
-            $productType = 'track';
-        } elseif (str_contains($title, 'program')) {
-            $productType = 'program';
-        } else {
-            $productType = 'course';
+        // Prefer mapper-resolved product type (Workshop / Track / Subscription / ...)
+        $productType = strtolower((string) ($item['product_type'] ?? ''));
+
+        if ($productType === '') {
+            $title = strtolower($item['detail'] ?? $item['title'] ?? '');
+
+            if (str_contains($title, 'subscription') || str_contains($title, 'unlimited')) {
+                $productType = 'subscription';
+            } elseif (str_contains($title, 'research')) {
+                $productType = 'research';
+            } elseif (str_contains($title, 'workshop')) {
+                $productType = 'workshop';
+            } elseif (str_contains($title, 'track')) {
+                $productType = 'track';
+            } elseif (str_contains($title, 'training')) {
+                $productType = 'training';
+            } elseif (str_contains($title, 'program')) {
+                $productType = 'program';
+            } else {
+                $productType = 'course';
+            }
         }
 
         AnalyticsEnrollment::updateOrCreate(
@@ -176,7 +197,7 @@ class CustomerAnalyticsSyncService
                 'enrollment_id' => (string) $enrollmentId,
             ],
             [
-                'product_name' => $item['detail'] ?? $item['title'] ?? 'Unknown',
+                'product_name' => $item['title'] ?? $item['detail'] ?? 'Unknown',
                 'product_type' => $productType,
                 'rating' => $item['rating'] ?? null,
                 'feedback' => $item['quote'] ?? null,

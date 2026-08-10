@@ -128,6 +128,33 @@
                         <x-admin::form.control-group.error control-name="source_id" />
                     </x-admin::form.control-group>
 
+                    <!-- Assigned Sales Rep (owner for imported records) -->
+                    <x-admin::form.control-group>
+                        <x-admin::form.control-group.label>
+                            @lang('admin::app.settings.data-transfer.imports.edit.assigned-sales-rep')
+                        </x-admin::form.control-group.label>
+
+                        <x-admin::form.control-group.control
+                            type="select"
+                            name="user_id"
+                            id="user_id"
+                            :value="old('user_id') ?? $import->user_id"
+                            :label="trans('admin::app.settings.data-transfer.imports.edit.assigned-sales-rep')"
+                        >
+                            <option value="">@lang('admin::app.settings.data-transfer.imports.edit.assigned-sales-rep-none')</option>
+
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                            @endforeach
+                        </x-admin::form.control-group.control>
+
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            @lang('admin::app.settings.data-transfer.imports.edit.assigned-sales-rep-info')
+                        </p>
+
+                        <x-admin::form.control-group.error control-name="user_id" />
+                    </x-admin::form.control-group>
+
                     <!-- Images Directory Path -->
                     <x-admin::form.control-group>
                         <x-admin::form.control-group.label>

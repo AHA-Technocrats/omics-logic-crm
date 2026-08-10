@@ -241,7 +241,7 @@
                     this.showPopup = ! this.showPopup;
 
                     if (this.showPopup) {
-                        this.fetchLookupResults(this.searchTerm.trim(), 5);
+                        this.fetchLookupResults(this.searchTerm.trim());
 
                         this.$nextTick(() => this.$refs.searchInput.focus());
                     }
@@ -252,15 +252,7 @@
                         return;
                     }
 
-                    const query = this.searchTerm.trim();
-
-                    if (! query) {
-                        this.fetchLookupResults('', 5);
-
-                        return;
-                    }
-
-                    this.fetchLookupResults(query);
+                    this.fetchLookupResults(this.searchTerm.trim());
                 },
 
                 fetchLookupResults(query = '', limit = null) {

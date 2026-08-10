@@ -16,20 +16,15 @@
                 <div style="margin-bottom: 45px;">
                     <a href="{{ config('app.url') }}">
                         <img
-                            src="{{ vite()->asset('images/logo.svg') }}"
-                            alt="{{ config('app.name') }}"
-                            style="height: 40px; width: 110px;"
+                            src="{{ asset('images/omics-logic-logo.png') }}"
+                            alt="OmicsLogic"
+                            style="height: 48px; width: auto;"
                         />
                     </a>
                 </div>
 
                 <!-- Email Content -->
                 {{ $slot }}
-
-                <!-- Email Footer -->
-                <p style="font-size: 16px;color: #202B3C;line-height: 24px;">
-                    @lang('admin::app.emails.common.cheers', ['app_name' => config('app.name')])
-                </p>
             </div>
         </div>
     </body>

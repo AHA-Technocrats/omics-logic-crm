@@ -28,45 +28,50 @@
                 justify-content: center;
                 padding: 48px 16px;
                 box-sizing: border-box;
+                background:
+                    radial-gradient(ellipse at top, rgba(14, 165, 233, 0.12), transparent 55%),
+                    linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
             }
 
             .webform-inner {
                 display: flex;
                 width: 100%;
-                max-width: 640px;
+                max-width: 560px;
                 flex-direction: column;
                 align-items: center;
-                gap: 20px;
+                gap: 24px;
             }
 
             .webform-card {
                 width: 100%;
-                border: 1px solid #e5e7eb;
-                border-radius: 12px;
+                border: none;
+                border-radius: 16px;
                 background: #fff;
-                padding: 24px;
-                box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+                padding: 32px 28px 28px;
+                box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
                 box-sizing: border-box;
             }
 
             .webform-header {
-                margin-bottom: 24px;
-                padding-bottom: 20px;
-                border-bottom: 1px solid #e5e7eb;
+                margin-bottom: 28px;
+                padding-bottom: 0;
+                border-bottom: none;
+                text-align: center;
             }
 
             .webform-title {
-                margin: 0 0 12px;
-                font-size: 28px;
-                line-height: 1.25;
+                margin: 0 0 10px;
+                font-size: 30px;
+                line-height: 1.2;
                 font-weight: 700;
+                letter-spacing: -0.02em;
             }
 
             .webform-description {
                 margin: 0;
-                font-size: 14px;
+                font-size: 15px;
                 line-height: 1.6;
-                color: #6b7280;
+                color: #64748b;
             }
 
             .webform-description p {
@@ -94,11 +99,11 @@
             }
 
             .webform-field {
-                margin-bottom: 16px;
-                padding: 18px 20px;
-                border: 1px solid #e5e7eb;
-                border-radius: 8px;
-                background: #fff;
+                margin-bottom: 18px;
+                padding: 0;
+                border: none;
+                border-radius: 0;
+                background: transparent;
             }
 
             .webform-field:last-child {
@@ -111,10 +116,10 @@
 
             .webform-field label {
                 display: block;
-                margin-bottom: 10px;
-                font-size: 15px;
-                font-weight: 500;
-                color: #374151;
+                margin-bottom: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                color: #334155;
             }
 
             .webform-field input,
@@ -123,27 +128,75 @@
                 width: 100%;
                 max-width: 100%;
                 box-sizing: border-box;
+                border-radius: 10px !important;
+                border: 1px solid #dbe3f0 !important;
+                padding: 12px 14px !important;
+                font-size: 15px !important;
+                line-height: 1.4 !important;
+                background: #fff !important;
+                transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            }
+
+            .webform-field input:focus,
+            .webform-field select:focus,
+            .webform-field textarea:focus {
+                border-color: #0ea5e9 !important;
+                box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15) !important;
+                outline: none !important;
             }
 
             .webform-actions {
                 display: flex;
-                justify-content: flex-start;
-                margin-top: 24px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                margin-top: 28px;
             }
 
             .webform-actions .primary-button {
-                min-width: 140px;
-                padding: 10px 24px;
+                width: 100%;
+                min-width: 0;
+                padding: 14px 24px;
+                border-radius: 10px;
+                font-size: 16px;
+                font-weight: 600;
+            }
+
+            .webform-privacy {
+                margin: 0;
+                text-align: center;
+                font-size: 13px;
+                line-height: 1.5;
+                color: #64748b;
+            }
+
+            .dark .webform-shell {
+                background:
+                    radial-gradient(ellipse at top, rgba(14, 165, 233, 0.18), transparent 55%),
+                    linear-gradient(180deg, #0f172a 0%, #111827 100%);
             }
 
             .dark .webform-card,
             .dark .webform-field {
                 background: #111827;
-                border-color: #374151;
+                border-color: transparent;
             }
 
-            .dark .webform-description {
-                color: #9ca3af;
+            .dark .webform-description,
+            .dark .webform-privacy {
+                color: #94a3b8;
+            }
+
+            .dark .webform-field label {
+                color: #e2e8f0;
+            }
+
+            .dark .webform-field input,
+            .dark .webform-field select,
+            .dark .webform-field textarea {
+                background: #0f172a !important;
+                border-color: #334155 !important;
+                color: #f8fafc !important;
             }
         </style>
     @endpush
@@ -160,21 +213,21 @@
                 <div class="webform-inner">
                     @if ($logo = core()->getConfigData('general.general.admin_logo.logo_image'))
                         <img
-                            style="max-height: 64px; width: auto;"
+                            style="max-height: 56px; width: auto;"
                             src="{{ Storage::url($logo) }}"
                             alt="{{ config('app.name') }}"
                         />
                     @else
                         <img
-                            style="max-height: 64px; width: auto;"
-                            src="{{ vite()->asset('images/logo.svg') }}"
-                            alt="{{ config('app.name') }}"
+                            style="max-height: 56px; width: auto;"
+                            src="{{ asset('images/omics-logic-logo.png') }}"
+                            alt="OmicsLogic"
                         />
                     @endif
 
                     <div
                         class="webform-card"
-                        style="background-color: {{ $webForm->form_background_color }}; border-top: 8px solid {{ $webForm->form_submit_button_color }}"
+                        style="background-color: {{ $webForm->form_background_color }}; border-top: 4px solid {{ $webForm->form_submit_button_color }}"
                     >
                         <div class="webform-header">
                             <h1
@@ -250,6 +303,10 @@
                                         ::disabled="isStoring"
                                         style="background-color: {{ $webForm->form_submit_button_color }} !important"
                                     />
+
+                                    <p class="webform-privacy">
+                                        Your data is safe. We respect your privacy and will never share your information.
+                                    </p>
                                 </div>
                             </form>
                         </x-web_form::form>
@@ -382,16 +439,19 @@
                     },
 
                     saveManualOrg() {
-                        if (!this.manualOrgName || !this.manualOrgCountry || !this.manualOrgType) {
+                        if (!this.manualOrgName || !this.manualOrgType) {
                             this.$emitter.emit('add-flash', {
                                 type: 'warning',
-                                message: 'Please enter the name, country, and type.',
+                                message: 'Please enter the name and type.',
                             });
                             return;
                         }
+
+                        const personCountryInput = this.$refs.webForm?.querySelector('[name="persons[country_code]"]');
+                        const personCountry = personCountryInput?.value || '';
                         
                         this.selectedOrganizationId = ''; 
-                        this.selectedOrganizationCountry = this.manualOrgCountry;
+                        this.selectedOrganizationCountry = personCountry;
                         this.selectedOrganizationType = this.manualOrgType;
                         this.selectedOrganizationWebsite = this.manualOrgWebsite;
                         

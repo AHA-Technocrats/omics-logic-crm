@@ -110,25 +110,14 @@
                     <input type="url" v-model="manualOrgWebsite" style="width: 100%; border-radius: 6px; border: 1px solid #d1d5db; padding: 10px 12px; font-size: 14px; outline: none; box-sizing: border-box; font-family: inherit; color: #111827;" placeholder="https://..." />
                 </div>
                 
-                <div style="margin-bottom: 24px; display: flex; gap: 12px;">
-                    <div style="flex: 1;">
-                        <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500; color: #374151; font-family: inherit;">Country <span style="color: #ef4444;">*</span></label>
-                        <select v-model="manualOrgCountry" style="width: 100%; border-radius: 6px; border: 1px solid #d1d5db; padding: 10px 12px; font-size: 14px; outline: none; box-sizing: border-box; font-family: inherit; color: #111827; background-color: #fff;">
-                            <option value="">Select country</option>
-                            @foreach (config('omicslogic.countries', []) as $country)
-                                <option value="{{ $country }}">{{ $country }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div style="flex: 1;">
-                        <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500; color: #374151; font-family: inherit;">Type <span style="color: #ef4444;">*</span></label>
-                        <select v-model="manualOrgType" style="width: 100%; border-radius: 6px; border: 1px solid #d1d5db; padding: 10px 12px; font-size: 14px; outline: none; box-sizing: border-box; font-family: inherit; color: #111827; background-color: #fff;">
-                            <option value="">Select type</option>
-                            @foreach (\AHATechnocrats\OmicsLogic\Enums\OrganizationType::cases() as $type)
-                                <option value="{{ $type->value }}">{{ $type->label() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; margin-bottom: 4px; font-size: 14px; font-weight: 500; color: #374151; font-family: inherit;">Type <span style="color: #ef4444;">*</span></label>
+                    <select v-model="manualOrgType" style="width: 100%; border-radius: 6px; border: 1px solid #d1d5db; padding: 10px 12px; font-size: 14px; outline: none; box-sizing: border-box; font-family: inherit; color: #111827; background-color: #fff;">
+                        <option value="">Select type</option>
+                        @foreach (\AHATechnocrats\OmicsLogic\Enums\OrganizationType::cases() as $type)
+                            <option value="{{ $type->value }}">{{ $type->label() }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 
                 <div style="display: flex; justify-content: flex-end; gap: 12px;">

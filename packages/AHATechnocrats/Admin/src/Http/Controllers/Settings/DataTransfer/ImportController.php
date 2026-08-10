@@ -7,6 +7,7 @@ use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\DataTransfer\Helpers\Import;
 use AHATechnocrats\DataTransfer\Repositories\ImportRepository;
 use AHATechnocrats\Lead\Repositories\SourceRepository;
+use AHATechnocrats\User\Repositories\UserRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Event;
@@ -23,6 +24,7 @@ class ImportController extends Controller
     public function __construct(
         protected ImportRepository $importRepository,
         protected SourceRepository $sourceRepository,
+        protected UserRepository $userRepository,
         protected Import $importHelper
     ) {}
 
@@ -44,8 +46,9 @@ class ImportController extends Controller
     public function create(): View
     {
         $sources = $this->sourceRepository->all();
+        $users = $this->userRepository->all(['id', 'name', 'email']);
 
-        return view('admin::settings.data-transfer.imports.create', compact('sources'));
+        return view('admin::settings.data-transfer.imports.create', compact('sources', 'users'));
     }
 
     /**
@@ -58,6 +61,7 @@ class ImportController extends Controller
         $this->validate(request(), [
             'type' => 'required|in:'.implode(',', $importers),
             'source_id' => 'nullable|integer|exists:lead_sources,id',
+            'user_id' => 'nullable|integer|exists:users,id',
             'action' => 'required:in:append,delete',
             'validation_strategy' => 'required:in:stop-on-errors,skip-errors',
             'allowed_errors' => 'required|integer|min:0',
@@ -70,6 +74,7 @@ class ImportController extends Controller
         $data = request()->only([
             'type',
             'source_id',
+            'user_id',
             'action',
             'process_in_queue',
             'validation_strategy',
@@ -80,6 +85,10 @@ class ImportController extends Controller
 
         if (empty($data['source_id'])) {
             $data['source_id'] = null;
+        }
+
+        if (empty($data['user_id'])) {
+            $data['user_id'] = null;
         }
 
         if (! isset($data['process_in_queue'])) {
@@ -116,8 +125,9 @@ class ImportController extends Controller
         $import = $this->importRepository->findOrFail($id);
 
         $sources = $this->sourceRepository->all();
+        $users = $this->userRepository->all(['id', 'name', 'email']);
 
-        return view('admin::settings.data-transfer.imports.edit', compact('import', 'sources'));
+        return view('admin::settings.data-transfer.imports.edit', compact('import', 'sources', 'users'));
     }
 
     /**
@@ -132,6 +142,7 @@ class ImportController extends Controller
         $this->validate(request(), [
             'type' => 'required|in:'.implode(',', $importers),
             'source_id' => 'nullable|integer|exists:lead_sources,id',
+            'user_id' => 'nullable|integer|exists:users,id',
             'action' => 'required:in:append,delete',
             'validation_strategy' => 'required:in:stop-on-errors,skip-errors',
             'allowed_errors' => 'required|integer|min:0',
@@ -145,6 +156,7 @@ class ImportController extends Controller
             request()->only([
                 'type',
                 'source_id',
+                'user_id',
                 'action',
                 'process_in_queue',
                 'validation_strategy',
@@ -154,6 +166,7 @@ class ImportController extends Controller
             ]),
             [
                 'source_id' => request()->input('source_id') ?: null,
+                'user_id' => request()->input('user_id') ?: null,
                 'state' => 'pending',
                 'processed_rows_count' => 0,
                 'invalid_rows_count' => 0,

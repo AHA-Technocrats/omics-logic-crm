@@ -44,23 +44,23 @@
             </x-admin::form.control-group.control>
         </x-admin::form.control-group>
 
-        <x-admin::form.control-group>
-            <x-admin::form.control-group.label>
-                @lang('omicslogic::app.fields.country')
-            </x-admin::form.control-group.label>
-            <x-admin::form.control-group.control
-                type="select"
-                name="{{ $fieldName('country_code') }}"
-                :value="$selectedCountry"
-                :v-model="$isNested ? 'person.organization.country_code' : null"
-                ::disabled="$isNested ? 'person.id || person.organization?.id' : null"
-            >
-                <option value="">@lang('omicslogic::app.fields.any')</option>
-                @foreach ($countries as $country)
-                    <option value="{{ $country }}" @selected($selectedCountry === $country)>{{ $country }}</option>
-                @endforeach
-            </x-admin::form.control-group.control>
-        </x-admin::form.control-group>
+        @unless ($isNested)
+            <x-admin::form.control-group>
+                <x-admin::form.control-group.label>
+                    @lang('omicslogic::app.fields.country')
+                </x-admin::form.control-group.label>
+                <x-admin::form.control-group.control
+                    type="select"
+                    name="{{ $fieldName('country_code') }}"
+                    :value="$selectedCountry"
+                >
+                    <option value="">@lang('omicslogic::app.fields.any')</option>
+                    @foreach ($countries as $country)
+                        <option value="{{ $country }}" @selected($selectedCountry === $country)>{{ $country }}</option>
+                    @endforeach
+                </x-admin::form.control-group.control>
+            </x-admin::form.control-group>
+        @endunless
 
         <x-admin::form.control-group>
             <x-admin::form.control-group.label>

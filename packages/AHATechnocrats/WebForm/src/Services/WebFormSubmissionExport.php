@@ -80,7 +80,7 @@ class WebFormSubmissionExport implements FromCollection, ShouldAutoSize, WithHea
             'builtin:phone' => 'Phone number',
             'builtin:country' => 'Country',
             'builtin:education' => 'Level of Education',
-            'builtin:program' => 'Interested in Campaign',
+            'builtin:program' => 'Interested in Program',
             WebFormFieldOrder::INQUIRY_DETAILS => 'Other details / queries',
         ];
 
