@@ -41,6 +41,7 @@ class Product extends Model implements ProductContract
         'description',
         'quantity',
         'price',
+        'product_interest_score',
         'category',
         'category_id',
         'is_active',

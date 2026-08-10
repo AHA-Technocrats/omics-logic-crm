@@ -253,6 +253,7 @@ class ProductController extends Controller
         return array_merge($request->all(), [
             'category_id' => $categoryId ?: null,
             'category' => $categoryName,
+            'product_interest_score' => (int) $request->input('product_interest_score', 5),
             'mapping_status' => $request->input('mapping_status', 'mapped'),
             'is_active' => $request->boolean('is_active'),
         ]);
