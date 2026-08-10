@@ -42,30 +42,25 @@
             @php
                 $scorePresets = [35, 30, 25, 20, 15, 10, 5];
                 $currentScore = (int) old('product_interest_score', $record?->product_interest_score ?? 5);
+                if ($currentScore < 0) {
+                    $currentScore = 0;
+                }
+                if ($currentScore > 35) {
+                    $currentScore = 35;
+                }
             @endphp
-            <div class="flex flex-wrap items-center gap-2">
-                <x-admin::form.control-group.control
-                    type="select"
-                    name="product_interest_score_preset"
-                    id="product_interest_score_preset"
-                    :value="in_array($currentScore, $scorePresets, true) ? (string) $currentScore : 'custom'"
-                    onchange="(function(el){ var t=document.getElementById('product_interest_score'); if(el.value!=='custom'){ t.value=el.value; } })(this)"
-                >
-                    @foreach ($scorePresets as $preset)
-                        <option value="{{ $preset }}" @selected($currentScore === $preset)>{{ $preset }}</option>
-                    @endforeach
-                    <option value="custom" @selected(! in_array($currentScore, $scorePresets, true))>@lang('omicslogic::app.fields.product-interest-custom')</option>
-                </x-admin::form.control-group.control>
-                <x-admin::form.control-group.control
-                    type="number"
-                    name="product_interest_score"
-                    id="product_interest_score"
-                    :value="$currentScore"
-                    min="0"
-                    max="35"
-                    class="!w-24"
-                />
-            </div>
+            <x-admin::form.control-group.control
+                type="select"
+                name="product_interest_score"
+                :value="(string) $currentScore"
+            >
+                @if (! in_array($currentScore, $scorePresets, true))
+                    <option value="{{ $currentScore }}" selected>{{ $currentScore }}</option>
+                @endif
+                @foreach ($scorePresets as $preset)
+                    <option value="{{ $preset }}" @selected($currentScore === $preset)>{{ $preset }}</option>
+                @endforeach
+            </x-admin::form.control-group.control>
             <x-admin::form.control-group.label class="!text-xs !text-gray-400 !font-normal">
                 @lang('omicslogic::app.fields.product-interest-score-help')
             </x-admin::form.control-group.label>
