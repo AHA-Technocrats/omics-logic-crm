@@ -423,6 +423,10 @@
                                     search: 'person.name',
                                     searchFields: 'person.name:like',
                                 },
+                                {
+                                    search: 'person.emails',
+                                    searchFields: 'person.emails:like',
+                                },
                             ],
                         },
 
@@ -447,6 +451,10 @@
                                 {
                                     search: 'person.name',
                                     searchFields: 'person.name:like',
+                                },
+                                {
+                                    search: 'person.emails',
+                                    searchFields: 'person.emails:like',
                                 },
                             ],
                         },
@@ -481,6 +489,10 @@
                                 {
                                     search: 'name',
                                     searchFields: 'name:like',
+                                },
+                                {
+                                    search: 'emails',
+                                    searchFields: 'emails:like',
                                 },
                                 {
                                     search: 'job_title',

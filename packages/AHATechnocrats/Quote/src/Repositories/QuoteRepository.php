@@ -20,6 +20,7 @@ class QuoteRepository extends Repository
         'description',
         'person_id',
         'person.name',
+        'person.emails',
         'user_id',
         'user.name',
     ];

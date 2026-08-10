@@ -153,9 +153,22 @@ class OrganizationController extends Controller
      */
     public function search(): AnonymousResourceCollection
     {
-        $results = $this->organizationRepository->findWhere([
-            ['name', 'like', '%'.urldecode(request()->input('query')).'%'],
-        ]);
+        $term = trim(urldecode((string) request()->input('query', '')));
+
+        if ($term === '') {
+            return JsonResource::collection(collect());
+        }
+
+        $results = $this->organizationRepository
+            ->scopeQuery(function ($query) use ($term) {
+                return $query->where(function ($q) use ($term) {
+                    $q->where('name', 'like', '%'.$term.'%')
+                        ->orWhereHas('persons', function ($personQuery) use ($term) {
+                            $personQuery->where('emails', 'like', '%'.$term.'%');
+                        });
+                });
+            })
+            ->get();
 
         return JsonResource::collection($results);
     }

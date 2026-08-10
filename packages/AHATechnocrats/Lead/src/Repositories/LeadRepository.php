@@ -30,6 +30,7 @@ class LeadRepository extends Repository
         'user.name',
         'person_id',
         'person.name',
+        'person.emails',
         'lead_source_id',
         'lead_type_id',
         'lead_pipeline_id',
