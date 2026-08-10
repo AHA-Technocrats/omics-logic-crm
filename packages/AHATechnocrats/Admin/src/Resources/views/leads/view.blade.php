@@ -18,11 +18,23 @@
             <!-- Lead Information -->
             <div class="flex w-full flex-col gap-2 border-b border-gray-300 p-4 dark:border-gray-800">
                 <!-- Breadcrumb's -->
-                <div class="flex items-center justify-between">
+                <div class="flex items-start justify-between gap-2">
                     <x-admin::breadcrumbs
                         name="leads.view"
                         :entity="$lead"
                     />
+
+                    <div class="flex shrink-0 items-center gap-1.5">
+                        @if ($lead->person)
+                            <x-admin::lead-score-tip :person="$lead->person" />
+                        @endif
+
+                        @if ($lead->type)
+                            <span class="inline-flex items-center rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium dark:bg-gray-800 dark:text-white">
+                                {{ $lead->type->name }}
+                            </span>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="mb-2">

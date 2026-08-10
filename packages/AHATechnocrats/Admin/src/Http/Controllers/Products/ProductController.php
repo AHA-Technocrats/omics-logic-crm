@@ -7,6 +7,7 @@ use AHATechnocrats\Admin\Http\Controllers\Controller;
 use AHATechnocrats\Admin\Http\Requests\AttributeForm;
 use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
 use AHATechnocrats\Admin\Http\Resources\ProductResource;
+use AHATechnocrats\Product\Repositories\CampaignCategoryRepository;
 use AHATechnocrats\Product\Repositories\ProductRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,8 +22,10 @@ class ProductController extends Controller
      *
      * @return void
      */
-    public function __construct(protected ProductRepository $productRepository)
-    {
+    public function __construct(
+        protected ProductRepository $productRepository,
+        protected CampaignCategoryRepository $campaignCategoryRepository,
+    ) {
         request()->request->add(['entity_type' => 'products']);
     }
 
@@ -238,8 +241,18 @@ class ProductController extends Controller
      */
     private function campaignPayload(AttributeForm $request): array
     {
+        $categoryId = $request->input('category_id');
+        $categoryName = null;
+
+        if ($categoryId) {
+            $category = $this->campaignCategoryRepository->find($categoryId);
+            $categoryId = $category?->id;
+            $categoryName = $category?->name;
+        }
+
         return array_merge($request->all(), [
-            'category' => $request->input('category'),
+            'category_id' => $categoryId ?: null,
+            'category' => $categoryName,
             'mapping_status' => $request->input('mapping_status', 'mapped'),
             'is_active' => $request->boolean('is_active'),
         ]);

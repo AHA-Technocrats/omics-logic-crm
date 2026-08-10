@@ -51,16 +51,7 @@ return [
         'Mexico', 'Argentina', 'Colombia', 'Chile', 'Russia', 'Poland', 'Ukraine', 'Other',
     ],
 
-    'campaign_categories' => [
-        'Transcriptomics',
-        'NGS Wet Lab',
-        'AI / Cheminformatics',
-        'Clinical',
-        'Metagenomics',
-        'ML',
-        'Cheminformatics',
-        'Oncology',
-    ],
+    'campaign_categories' => [],
 
     'portal' => [
         'leads_path' => env('OMICS_PORTAL_LEADS_PATH', '/api/crm/leads'),

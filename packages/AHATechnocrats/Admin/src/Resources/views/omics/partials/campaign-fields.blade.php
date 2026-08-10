@@ -1,6 +1,11 @@
 @php
     $record = $record ?? null;
-    $categories = config('omicslogic.campaign_categories', []);
+    $categories = app(\AHATechnocrats\Product\Repositories\CampaignCategoryRepository::class)
+        ->getModel()
+        ->newQuery()
+        ->orderBy('name')
+        ->get(['id', 'name']);
+    $selectedCategoryId = old('category_id', $record?->category_id);
     $aliases = $aliases ?? ($record ? \DB::table('omics_product_aliases')->where('product_id', $record->id)->pluck('alias_name')->implode(', ') : '');
 @endphp
 
@@ -14,12 +19,20 @@
             <x-admin::form.control-group.label>
                 @lang('omicslogic::app.datagrid.category')
             </x-admin::form.control-group.label>
-            <x-admin::form.control-group.control type="select" name="category" :value="old('category', $record?->category)">
+            <x-admin::form.control-group.control
+                type="select"
+                name="category_id"
+                :value="old('category_id', $selectedCategoryId)"
+            >
                 <option value="">@lang('omicslogic::app.fields.any')</option>
                 @foreach ($categories as $category)
-                    <option value="{{ $category }}" @selected(old('category', $record?->category) === $category)>{{ $category }}</option>
+                    <option
+                        value="{{ $category->id }}"
+                        @selected((string) $selectedCategoryId === (string) $category->id)
+                    >{{ $category->name }}</option>
                 @endforeach
             </x-admin::form.control-group.control>
+            <x-admin::form.control-group.error control-name="category_id" />
         </x-admin::form.control-group>
 
         <x-admin::form.control-group>

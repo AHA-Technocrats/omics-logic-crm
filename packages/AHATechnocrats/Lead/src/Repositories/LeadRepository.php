@@ -165,6 +165,10 @@ class LeadRepository extends Repository
             }
         }
 
+        if ($lead->person_id) {
+            $this->personRepository->rescore((int) $lead->person_id);
+        }
+
         return $lead;
     }
 
@@ -232,6 +236,8 @@ class LeadRepository extends Repository
 
             $this->syncPersonSideEffects($lead, $data);
 
+            $this->maybeRescorePerson($lead, $data);
+
             return $lead;
         }
 
@@ -265,6 +271,8 @@ class LeadRepository extends Repository
 
         $this->syncLeadOwnerProfileImage($data, $lead);
 
+        $this->maybeRescorePerson($lead, $data);
+
         return $lead;
     }
 
@@ -291,6 +299,25 @@ class LeadRepository extends Repository
             app(LeadPersonSyncService::class)->syncOwnerFromLead($lead->fresh());
         }
     }
+
+    /**
+     * Recompute Person Lead Score after lead/campaign linkage changes.
+     */
+    protected function maybeRescorePerson(Lead $lead, array $data): void
+    {
+        if (! $lead->person_id) {
+            return;
+        }
+
+        if (
+            isset($data['person'])
+            || isset($data['products'])
+            || array_key_exists('person_id', $data)
+        ) {
+            $this->personRepository->rescore((int) $lead->person_id);
+        }
+    }
+
     /**
      * Create or update the linked person record from lead form data.
      */

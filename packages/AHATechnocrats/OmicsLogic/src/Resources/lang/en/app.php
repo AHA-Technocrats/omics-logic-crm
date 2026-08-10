@@ -90,6 +90,13 @@ return [
         'lead-score' => 'Lead Score',
         'score-band' => 'Score Band',
         'score-breakdown' => 'Score breakdown',
+        'score-tip' => [
+            'product-interest' => 'Product Interest',
+            'email-domain' => 'Email Domain',
+            'country' => 'Country',
+            'profile' => 'Profile',
+            'total' => 'Total',
+        ],
         'country' => 'Country',
         'email' => 'Email',
         'phone' => 'Phone',

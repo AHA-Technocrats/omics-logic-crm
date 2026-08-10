@@ -297,6 +297,7 @@ class LeadController extends Controller
     public function view(int $id)
     {
         $lead = $this->leadRepository->with([
+            'type',
             'person.primaryProduct',
             'person.primarySource',
             'person.user',

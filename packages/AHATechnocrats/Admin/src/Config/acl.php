@@ -652,6 +652,26 @@ return [
         'route' => ['admin.settings.tags.delete', 'admin.settings.tags.mass_delete', 'admin.leads.tags.detach'],
         'sort' => 2,
     ], [
+        'key' => 'settings.other_settings.campaign_categories',
+        'name' => 'admin::app.acl.campaign-categories',
+        'route' => ['admin.settings.campaign_categories.index', 'admin.settings.campaign_categories.options'],
+        'sort' => 2,
+    ], [
+        'key' => 'settings.other_settings.campaign_categories.create',
+        'name' => 'admin::app.acl.create',
+        'route' => 'admin.settings.campaign_categories.store',
+        'sort' => 1,
+    ], [
+        'key' => 'settings.other_settings.campaign_categories.edit',
+        'name' => 'admin::app.acl.edit',
+        'route' => ['admin.settings.campaign_categories.edit', 'admin.settings.campaign_categories.update'],
+        'sort' => 2,
+    ], [
+        'key' => 'settings.other_settings.campaign_categories.delete',
+        'name' => 'admin::app.acl.delete',
+        'route' => 'admin.settings.campaign_categories.delete',
+        'sort' => 3,
+    ], [
         'key' => 'configuration',
         'name' => 'admin::app.acl.configuration',
         'route' => 'admin.configuration.index',

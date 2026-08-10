@@ -216,8 +216,6 @@ class PersonDataGrid extends DataGrid
             'closure' => fn ($row) => $row->score_band ? ucfirst((string) $row->score_band) : '—',
         ]);
 
-        ]);
-
         $this->addColumn([
             'index' => 'owner_name',
             'label' => trans('omicslogic::app.datagrid.owner'),

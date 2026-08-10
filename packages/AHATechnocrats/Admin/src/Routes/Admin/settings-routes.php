@@ -1,6 +1,7 @@
 <?php
 
 use AHATechnocrats\Admin\Http\Controllers\Settings\AttributeController;
+use AHATechnocrats\Admin\Http\Controllers\Settings\CampaignCategoryController;
 use AHATechnocrats\Admin\Http\Controllers\Settings\DataTransfer\ImportController;
 use AHATechnocrats\Admin\Http\Controllers\Settings\EmailTemplateController;
 use AHATechnocrats\Admin\Http\Controllers\Settings\GroupController;
@@ -150,6 +151,23 @@ Route::prefix('settings')->group(function () {
         Route::delete('{id}', 'destroy')->name('admin.settings.tags.delete');
 
         Route::post('mass-destroy', 'massDestroy')->name('admin.settings.tags.mass_delete');
+    });
+
+    /**
+     * Campaign Categories Routes.
+     */
+    Route::controller(CampaignCategoryController::class)->prefix('campaign-categories')->group(function () {
+        Route::get('', 'index')->name('admin.settings.campaign_categories.index');
+
+        Route::get('options', 'options')->name('admin.settings.campaign_categories.options');
+
+        Route::post('create', 'store')->name('admin.settings.campaign_categories.store');
+
+        Route::get('edit/{id?}', 'edit')->name('admin.settings.campaign_categories.edit');
+
+        Route::put('edit/{id}', 'update')->name('admin.settings.campaign_categories.update');
+
+        Route::delete('{id}', 'destroy')->name('admin.settings.campaign_categories.delete');
     });
 
     /**

@@ -31,6 +31,7 @@
                     <!-- Stage Cards -->
                     <div
                         class="flex min-w-[275px] max-w-[275px] flex-col gap-1 rounded-lg border border-gray-300 bg-white dark:border-gray-800 dark:bg-gray-900"
+                        data-kanban-stage
                         v-for="(stage, index) in stageLeads"
                     >
                         {!! view_render_event('admin.leads.index.kanban.content.stage.header.before') !!}
@@ -124,39 +125,54 @@
                                 {!! view_render_event('admin.leads.index.kanban.content.stage.body.card.before') !!}
 
                                 <a
-                                    class="lead-item flex cursor-pointer flex-col gap-5 rounded-lg border border-gray-300 shadow-xl shadow-slate-200 bg-gray-100 p-2 dark:border-gray-400 dark:bg-gray-400"
+                                    class="lead-item flex cursor-pointer flex-col gap-5 rounded-lg border border-gray-300 bg-gray-100 p-2 shadow-xl shadow-slate-200 dark:border-gray-400 dark:bg-gray-400"
                                     :href="'{{ route('admin.leads.view', 'replaceId') }}'.replace('replaceId', element.id)"
                                 >
                                     {!! view_render_event('admin.leads.index.kanban.content.stage.body.card.header.before') !!}
 
                                     <!-- Header -->
-                                    <div class="flex items-start justify-between">
-                                        <div class="flex items-center gap-1">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="flex min-w-0 items-center gap-1">
                                             <x-admin::avatar ::name="element.person ? element.person.name : 'Unknown'" />
 
-                                            <div class="flex flex-col gap-0.5">
-                                                <span class="text-xs font-medium">
+                                            <div class="flex min-w-0 flex-col gap-0.5">
+                                                <span class="truncate text-xs font-medium">
                                                     @{{ element.person ? element.person.name : 'Unknown' }}
                                                 </span>
 
-                                                <span class="text-[10px] leading-normal">
+                                                <span class="truncate text-[10px] leading-normal">
                                                     @{{ element.person && element.person.organization ? element.person.organization.name : '' }}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        <div
-                                            class="group relative"
-                                            v-if="element.rotten_days > 0"
-                                        >
-                                            <span class="icon-rotten cursor-default text-xl text-rose-600"></span>
+                                        <div class="flex shrink-0 items-start gap-1.5">
+                                            <button
+                                                v-if="element.person"
+                                                type="button"
+                                                data-kanban-score-trigger
+                                                class="inline-flex cursor-pointer items-center rounded-full px-2 py-0.5 text-[10px] font-semibold leading-none"
+                                                :class="element.person.score_badge?.class"
+                                                @mouseenter="openScoreTip(element, $event)"
+                                                @mouseleave="scheduleCloseScoreTip"
+                                                @click.stop.prevent="toggleScoreTip(element, $event)"
+                                            >
+                                                @{{ element.person.lead_score ?? 0 }} · @{{ element.person.score_badge?.label }}
+                                            </button>
 
-                                            <div class="absolute -top-1 right-7 hidden w-max flex-col items-center group-hover:flex">
-                                                <span class="whitespace-no-wrap relative rounded-md bg-black px-4 py-2 text-xs leading-none text-white shadow-lg">
-                                                    @{{ "@lang('admin::app.leads.index.kanban.rotten-days', ['days' => 'replaceDays'])".replace('replaceDays', element.rotten_days) }}
-                                                </span>
+                                            <div
+                                                class="group relative"
+                                                v-if="element.rotten_days > 0"
+                                            >
+                                                <span class="icon-rotten cursor-default text-xl text-rose-600"></span>
 
-                                                <div class="absolute -right-1 top-2 h-3 w-3 rotate-45 bg-black"></div>
+                                                <div class="absolute -top-1 right-7 hidden w-max flex-col items-center group-hover:flex">
+                                                    <span class="whitespace-no-wrap relative rounded-md bg-black px-4 py-2 text-xs leading-none text-white shadow-lg">
+                                                        @{{ "@lang('admin::app.leads.index.kanban.rotten-days', ['days' => 'replaceDays'])".replace('replaceDays', element.rotten_days) }}
+                                                    </span>
+
+                                                    <div class="absolute -right-1 top-2 h-3 w-3 rotate-45 bg-black"></div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -229,6 +245,46 @@
 
                 {!! view_render_event('admin.leads.index.kanban.content.after') !!}
             </div>
+
+            <Teleport to="body">
+                <div
+                    v-if="scoreTip.open && scoreTip.person"
+                    data-kanban-score-tip
+                    class="fixed box-border rounded-md border border-gray-200 bg-white p-2.5 text-left shadow-2xl dark:border-gray-700 dark:bg-gray-900"
+                    :style="{
+                        top: scoreTip.top + 'px',
+                        left: scoreTip.left + 'px',
+                        width: scoreTip.width + 'px',
+                        maxWidth: 'calc(100vw - 16px)',
+                        zIndex: 9999,
+                    }"
+                    @mouseenter="cancelCloseScoreTip"
+                    @mouseleave="scheduleCloseScoreTip"
+                    @click.stop.prevent
+                >
+                    <div class="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                        @lang('omicslogic::app.fields.score-breakdown')
+                    </div>
+
+                    <div
+                        v-for="factor in (scoreTip.person.score_breakdown?.factors || [])"
+                        :key="factor.key"
+                        class="flex items-center justify-between gap-2 py-0.5 text-[11px] text-gray-700 dark:text-gray-200"
+                    >
+                        <span class="min-w-0 truncate pr-2">@{{ factor.label }}</span>
+                        <span class="shrink-0 whitespace-nowrap font-medium tabular-nums">@{{ factor.points }}/@{{ factor.max }}</span>
+                    </div>
+
+                    <div class="mt-1.5 flex items-center justify-between gap-2 border-t border-gray-200 pt-1.5 text-[11px] font-semibold dark:border-gray-700 dark:text-white">
+                        <span>@lang('omicslogic::app.fields.score-tip.total')</span>
+                        <span class="shrink-0 whitespace-nowrap tabular-nums">
+                            @{{ scoreTip.person.score_breakdown?.total ?? scoreTip.person.lead_score ?? 0 }}
+                            ·
+                            @{{ scoreTip.person.score_breakdown?.label ?? scoreTip.person.score_badge?.label }}
+                        </span>
+                    </div>
+                </div>
+            </Teleport>
 
             <!-- Show modal for additional information while updating the leads into won or lost stage. -->
             <x-admin::form
@@ -345,6 +401,18 @@
 
                     isLoading: true,
 
+                    scoreTip: {
+                        open: false,
+                        pinned: false,
+                        leadId: null,
+                        person: null,
+                        top: 0,
+                        left: 0,
+                        width: 200,
+                    },
+
+                    scoreTipCloseTimer: null,
+
                     tagTextColor: {
                         '#FEE2E2': '#DC2626',
                         '#FFEDD5': '#EA580C',
@@ -377,13 +445,138 @@
                 this.boot();
 
                 this.$emitter.on('refresh-kanban', this.refreshFromUrl);
+
+                document.addEventListener('click', this.onDocumentClickForScoreTip);
             },
 
             beforeUnmount() {
                 this.$emitter.off('refresh-kanban', this.refreshFromUrl);
+
+                document.removeEventListener('click', this.onDocumentClickForScoreTip);
             },
 
             methods: {
+                positionScoreTip(event) {
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    const stageEl = event.currentTarget.closest('[data-kanban-stage]');
+                    const stageRect = stageEl
+                        ? stageEl.getBoundingClientRect()
+                        : { left: 0, right: window.innerWidth, width: window.innerWidth };
+
+                    const gutter = 8;
+                    const preferredWidth = 200;
+                    const width = Math.max(
+                        160,
+                        Math.min(
+                            preferredWidth,
+                            stageRect.width - gutter * 2,
+                            window.innerWidth - gutter * 2,
+                        ),
+                    );
+
+                    let left = rect.right - width;
+                    const minLeft = Math.max(gutter, stageRect.left + gutter);
+                    const maxLeft = Math.min(
+                        window.innerWidth - width - gutter,
+                        stageRect.right - width - gutter,
+                    );
+
+                    left = Math.min(Math.max(left, minLeft), Math.max(minLeft, maxLeft));
+
+                    const estimatedHeight = 150;
+                    let top = rect.bottom + 6;
+
+                    if (top + estimatedHeight > window.innerHeight - gutter) {
+                        top = Math.max(gutter, rect.top - estimatedHeight - 6);
+                    }
+
+                    return {
+                        top,
+                        left,
+                        width,
+                    };
+                },
+
+                openScoreTip(element, event) {
+                    if (! element?.person) {
+                        return;
+                    }
+
+                    this.cancelCloseScoreTip();
+
+                    const position = this.positionScoreTip(event);
+                    const keepPinned = this.scoreTip.pinned && this.scoreTip.leadId === element.id;
+
+                    this.scoreTip = {
+                        open: true,
+                        pinned: keepPinned,
+                        leadId: element.id,
+                        person: element.person,
+                        top: position.top,
+                        left: position.left,
+                        width: position.width,
+                    };
+                },
+
+                toggleScoreTip(element, event) {
+                    if (
+                        this.scoreTip.open
+                        && this.scoreTip.pinned
+                        && this.scoreTip.leadId === element.id
+                    ) {
+                        this.closeScoreTip();
+
+                        return;
+                    }
+
+                    this.openScoreTip(element, event);
+                    this.scoreTip.pinned = true;
+                },
+
+                scheduleCloseScoreTip() {
+                    if (this.scoreTip.pinned) {
+                        return;
+                    }
+
+                    this.cancelCloseScoreTip();
+
+                    this.scoreTipCloseTimer = setTimeout(() => {
+                        this.closeScoreTip();
+                    }, 150);
+                },
+
+                cancelCloseScoreTip() {
+                    if (this.scoreTipCloseTimer) {
+                        clearTimeout(this.scoreTipCloseTimer);
+                        this.scoreTipCloseTimer = null;
+                    }
+                },
+
+                closeScoreTip() {
+                    this.cancelCloseScoreTip();
+
+                    this.scoreTip = {
+                        open: false,
+                        pinned: false,
+                        leadId: null,
+                        person: null,
+                        top: 0,
+                        left: 0,
+                        width: 200,
+                    };
+                },
+
+                onDocumentClickForScoreTip(event) {
+                    if (
+                        event.target.closest('[data-kanban-score-tip]')
+                        || event.target.closest('[data-kanban-score-trigger]')
+                    ) {
+                        return;
+                    }
+
+                    this.closeScoreTip();
+                },
+
                 /**
                  * Refresh from URL parameters
                  */
@@ -705,6 +898,8 @@
                  * @returns {void}
                  */
                 handleScroll(stage, event) {
+                    this.closeScoreTip();
+
                     const bottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
 
                     if (! bottom) {

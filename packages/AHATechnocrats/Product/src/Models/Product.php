@@ -10,6 +10,7 @@ use AHATechnocrats\Tag\Models\TagProxy;
 use AHATechnocrats\Warehouse\Models\LocationProxy;
 use AHATechnocrats\Warehouse\Models\WarehouseProxy;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -41,6 +42,7 @@ class Product extends Model implements ProductContract
         'quantity',
         'price',
         'category',
+        'category_id',
         'is_active',
         'canonical_product_id',
         'mapping_status',
@@ -51,6 +53,11 @@ class Product extends Model implements ProductContract
         'is_active' => 'boolean',
         'mapping_confidence' => 'decimal:2',
     ];
+
+    public function campaignCategory(): BelongsTo
+    {
+        return $this->belongsTo(CampaignCategoryProxy::modelClass(), 'category_id');
+    }
 
     /**
      * Get the product warehouses that owns the product.

@@ -344,6 +344,13 @@ return [
         'route' => 'admin.settings.tags.index',
         'sort' => 1,
         'icon-class' => 'icon-settings-tag',
+    ], [
+        'key' => 'settings.other_settings.campaign_categories',
+        'name' => 'admin::app.layouts.campaign-categories',
+        'info' => 'admin::app.layouts.campaign-categories-info',
+        'route' => 'admin.settings.campaign_categories.index',
+        'sort' => 2,
+        'icon-class' => 'icon-settings-tag',
     ],
 
     /**
