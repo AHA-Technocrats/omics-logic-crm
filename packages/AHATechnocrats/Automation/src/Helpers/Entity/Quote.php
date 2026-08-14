@@ -47,6 +47,25 @@ class Quote extends AbstractEntity
         return $entity;
     }
 
+    public function replacePlaceholders(mixed $entity, string $content): string
+    {
+        $content = parent::replacePlaceholders($entity, $content);
+
+        if ($entity->person) {
+            $content = app(Person::class)->replacePlaceholders($entity->person, $content);
+        }
+
+        if (str_contains($content, '{%leads.') || str_contains($content, '{% leads.')) {
+            $lead = $entity->leads()->latest('leads.id')->first();
+
+            if ($lead) {
+                $content = app(Lead::class)->replacePlaceholders($lead, $content);
+            }
+        }
+
+        return $content;
+    }
+
     /**
      * Returns workflow actions.
      */

@@ -84,6 +84,32 @@ class WebFormCampaigns
     }
 
     /**
+     * Keep "selected campaigns only" forms in sync when a new/active campaign is added.
+     */
+    public static function appendToSelectedForms(Product $product): void
+    {
+        if (! $product->is_active) {
+            return;
+        }
+
+        $forms = \AHATechnocrats\WebForm\Models\WebForm::query()
+            ->where('campaign_scope', 'selected')
+            ->get();
+
+        foreach ($forms as $form) {
+            $ids = self::selectedIds($form);
+
+            if (in_array((int) $product->id, $ids, true)) {
+                continue;
+            }
+
+            $ids[] = (int) $product->id;
+            $form->program_options = $ids;
+            $form->save();
+        }
+    }
+
+    /**
      * @return list<int>|null
      */
     public static function normalizeOptionsInput(mixed $input, string $scope = 'all'): ?array

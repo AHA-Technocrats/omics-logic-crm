@@ -9,6 +9,7 @@ use AHATechnocrats\Admin\Http\Requests\MassDestroyRequest;
 use AHATechnocrats\Admin\Http\Resources\ProductResource;
 use AHATechnocrats\Product\Repositories\CampaignCategoryRepository;
 use AHATechnocrats\Product\Repositories\ProductRepository;
+use AHATechnocrats\WebForm\Helpers\WebFormCampaigns;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Event;
@@ -59,6 +60,7 @@ class ProductController extends Controller
         $product = $this->productRepository->create($this->campaignPayload($request));
 
         $this->syncCampaignAliases($product->id, $request->input('aliases'));
+        WebFormCampaigns::appendToSelectedForms($product);
 
         Event::dispatch('product.create.after', $product);
 
@@ -118,6 +120,7 @@ class ProductController extends Controller
         $product = $this->productRepository->update($this->campaignPayload($request), $id);
 
         $this->syncCampaignAliases($id, $request->input('aliases'));
+        WebFormCampaigns::appendToSelectedForms($product);
 
         Event::dispatch('product.update.after', $product);
 

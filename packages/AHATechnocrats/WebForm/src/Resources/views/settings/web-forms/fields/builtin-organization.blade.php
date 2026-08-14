@@ -76,12 +76,6 @@
                         @mousedown.prevent="selectOrganization(organization)"
                     >
                         @{{ organization.name }}
-                        <span
-                            v-if="organization.country_code"
-                            class="ml-1 text-xs text-gray-500 dark:text-gray-400"
-                        >
-                            (@{{ organization.country_code }})
-                        </span>
                     </li>
                     <li
                         class="cursor-pointer border-t border-gray-200 px-3 py-2 text-center text-sm font-medium text-blue-600 hover:bg-gray-50 dark:border-gray-700 dark:text-blue-400 dark:hover:bg-gray-800"

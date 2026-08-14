@@ -20,9 +20,9 @@ class Common extends Mailable
     {
         $message = $this
             ->to($this->data['to'])
-            ->subject($this->data['subject'])
+            ->subject($this->stripUnresolvedPlaceholders($this->data['subject']))
             ->view('admin::emails.common.index', [
-                'body' => $this->data['body'],
+                'body' => $this->stripUnresolvedPlaceholders($this->data['body']),
             ]);
 
         if (isset($this->data['attachments'])) {
@@ -34,5 +34,14 @@ class Common extends Mailable
         }
 
         return $message;
+    }
+
+    protected function stripUnresolvedPlaceholders(string $content): string
+    {
+        return preg_replace(
+            ['/\{%\s*[\w.]+\s*%\}/', '/\{\{\s*[\w.]+\s*\}\}/'],
+            '',
+            $content
+        ) ?? $content;
     }
 }

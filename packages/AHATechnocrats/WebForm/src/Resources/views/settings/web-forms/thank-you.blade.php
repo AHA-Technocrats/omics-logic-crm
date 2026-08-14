@@ -109,20 +109,6 @@
         style="background-color: {{ $webForm->background_color }}"
     >
         <div class="webform-inner">
-            @if ($logo = core()->getConfigData('general.general.admin_logo.logo_image'))
-                <img
-                    style="max-height: 64px; width: auto;"
-                    src="{{ Storage::url($logo) }}"
-                    alt="{{ config('app.name') }}"
-                />
-            @else
-                <img
-                    style="max-height: 56px; width: auto;"
-                    src="{{ asset('images/omics-logic-logo.png') }}"
-                    alt="OmicsLogic"
-                />
-            @endif
-
             <div
                 class="webform-card"
                 style="background-color: {{ $webForm->form_background_color }}; border-top: 4px solid {{ $webForm->form_submit_button_color }}"

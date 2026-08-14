@@ -72,7 +72,12 @@ class WebFormController extends Controller
 
         $guardResult = $this->formSubmissionGuard->validate(request(), $webForm);
 
-        $this->resolveOrganizationFromRequest($webForm, $mapped['organization']['country_code'] ?? null);
+        // Org country only — never the person's country (that caused Benin overwrites).
+        $this->resolveOrganizationFromRequest(
+            $webForm,
+            $mapped['organization']['country_code']
+                ?? request('persons.organization_country')
+        );
 
         $email = $mapped['person']['emails'][0]['value'] ?? null;
 
@@ -170,7 +175,7 @@ class WebFormController extends Controller
         ]);
 
         if ($guardResult['spam_score'] < 30) {
-            $this->submitterMailer->sendIfConfigured($webForm, $submissionPayload);
+            $this->submitterMailer->sendIfConfigured($webForm, $submissionPayload, $person, $lead);
         }
 
         if ($webForm->submit_success_action == 'message') {
@@ -317,9 +322,11 @@ class WebFormController extends Controller
             return;
         }
 
-        $countryCode = $countryCode
-            ?: $persons['country_code'] ?? null
-            ?: request('country');
+        $personCountry = $persons['country_code'] ?? request('country');
+        $orgCountryCode = $countryCode
+            ?: ($persons['organization_country'] ?? null);
+        $orgType = $persons['organization_type'] ?? null;
+        $orgWebsite = $persons['organization_website'] ?? null;
 
         $organization = null;
 
@@ -331,34 +338,30 @@ class WebFormController extends Controller
             }
         }
 
-        $orgCountryCode = $persons['organization_country'] ?? null;
-        $orgType = $persons['organization_type'] ?? null;
-        $orgWebsite = $persons['organization_website'] ?? null;
-
         if (! $organization) {
             $organization = $this->organizationResolver->resolve(
                 $orgName,
                 (bool) $webForm->allow_org_create,
-                $orgCountryCode ?: $countryCode,
+                $orgCountryCode,
                 false,
                 $orgType,
                 $orgWebsite
             );
-        } elseif ($orgCountryCode || $countryCode) {
+        } elseif ($orgCountryCode) {
             $organization = $this->organizationResolver->resolve(
                 $organization->name,
                 false,
-                $orgCountryCode ?: $countryCode,
+                $orgCountryCode,
             ) ?? $organization;
         }
 
         if ($organization) {
             $persons['organization_id'] = $organization->id;
             $persons['organization_name'] = $organization->name;
-            $persons['organization_country'] = $orgCountryCode; // Ensure it stays in request if needed
-            $persons['organization_type'] = $orgType; // Ensure it stays in request if needed
-            $persons['organization_website'] = $orgWebsite; // Ensure it stays in request if needed
-            $persons['country_code'] = $persons['country_code'] ?? $countryCode; // Preserve student's country
+            $persons['organization_country'] = $orgCountryCode;
+            $persons['organization_type'] = $orgType;
+            $persons['organization_website'] = $orgWebsite;
+            $persons['country_code'] = $persons['country_code'] ?? $personCountry;
 
             $assigneeId = $this->organizationAssigneeResolver->resolve($organization);
 

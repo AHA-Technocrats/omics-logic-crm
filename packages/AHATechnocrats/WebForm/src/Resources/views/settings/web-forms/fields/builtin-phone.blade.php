@@ -2,6 +2,7 @@
     <x-web_form::form.control-group>
         <x-web_form::form.control-group.label
             for="persons[contact_numbers][0][value]"
+            class="required"
             style="color: {{ $webForm->attribute_label_color }} !important;"
         >
             Phone number
@@ -11,7 +12,7 @@
             type="text"
             name="persons[contact_numbers][0][value]"
             id="persons[contact_numbers][0][value]"
-            rules="phone"
+            rules="required|phone"
             label="Phone number"
             placeholder="Phone number"
         />

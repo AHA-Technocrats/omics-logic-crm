@@ -6,6 +6,7 @@
     <x-web_form::form.control-group>
         <x-web_form::form.control-group.label
             for="persons[education_level]"
+            class="required"
             style="color: {{ $webForm->attribute_label_color }} !important;"
         >
             Level of Education
@@ -15,6 +16,7 @@
             type="select"
             name="persons[education_level]"
             id="persons[education_level]"
+            rules="required"
             label="Level of Education"
         >
             <option value="">Select education level</option>

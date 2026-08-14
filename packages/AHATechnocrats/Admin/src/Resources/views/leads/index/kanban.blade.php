@@ -655,8 +655,9 @@
                                 return;
                             }
 
-                            params['search'] += `title:${column.value.join(',')};`;
-                            params['searchFields'] += `title:like;`;
+                            const q = column.value.join(',');
+                            params['search'] += `title:${q};person.name:${q};person.emails:${q};person.normalized_email:${q};`;
+                            params['searchFields'] += `title:like;person.name:like;person.emails:like;person.normalized_email:like;`;
 
                             return;
                         }

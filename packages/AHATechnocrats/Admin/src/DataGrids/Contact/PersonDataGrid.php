@@ -33,6 +33,7 @@ class PersonDataGrid extends DataGrid
                 'persons.id',
                 'persons.name as person_name',
                 'persons.emails',
+                'persons.normalized_email',
                 'persons.education_level',
                 'persons.lead_score',
                 'persons.score_band',
@@ -61,6 +62,7 @@ class PersonDataGrid extends DataGrid
 
         $this->addFilter('id', 'persons.id');
         $this->addFilter('person_name', 'persons.name');
+        $this->addFilter('normalized_email', 'persons.normalized_email');
         $this->addFilter('organization', 'organizations.name');
         $this->addFilter('country_code', 'organizations.country_code');
         $this->addFilter('education_level', 'persons.education_level');
@@ -97,6 +99,17 @@ class PersonDataGrid extends DataGrid
                 </div>
                 HTML;
             },
+        ]);
+
+        $this->addColumn([
+            'index' => 'normalized_email',
+            'label' => 'Email',
+            'type' => 'string',
+            'sortable' => false,
+            'filterable' => false,
+            'searchable' => true,
+            'visibility' => false,
+            'exportable' => false,
         ]);
 
         $this->addColumn([

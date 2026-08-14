@@ -68,6 +68,7 @@ class LeadDataGrid extends DataGrid
                 'users.name as sales_person',
                 'persons.id as person_id',
                 'persons.name as person_name',
+                'persons.normalized_email as person_email',
                 'persons.lead_score',
                 'tags.name as tag_name',
                 'lead_pipelines.rotten_days as pipeline_rotten_days',
@@ -150,6 +151,7 @@ class LeadDataGrid extends DataGrid
         $this->addFilter('lead_source_name', 'lead_sources.id');
         $this->addFilter('lead_type_name', 'lead_types.id');
         $this->addFilter('person_name', 'persons.name');
+        $this->addFilter('person_email', 'persons.normalized_email');
         $this->addFilter('type', 'lead_pipeline_stages.code');
         $this->addFilter('stage', 'lead_pipeline_stages.id');
         $this->addFilter('tag_name', 'tags.name');
@@ -198,6 +200,17 @@ class LeadDataGrid extends DataGrid
             'type' => 'string',
             'searchable' => true,
             'sortable' => true,
+        ]);
+
+        $this->addColumn([
+            'index' => 'person_email',
+            'label' => 'Email',
+            'type' => 'string',
+            'searchable' => true,
+            'sortable' => false,
+            'filterable' => false,
+            'visibility' => false,
+            'exportable' => false,
         ]);
 
         $this->addColumn([

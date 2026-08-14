@@ -139,14 +139,11 @@ class OrganizationResolver
 
     protected function applyCountry(Organization $organization, ?string $countryCode): Organization
     {
-        if ($countryCode && $organization->country_code !== $countryCode) {
+        // Only fill blank org country — never overwrite or cascade onto persons.
+        // Person country and org country are different fields.
+        if ($countryCode && ! $organization->country_code) {
             $organization->country_code = $countryCode;
             $organization->save();
-
-            \DB::table('persons')
-                ->where('organization_id', $organization->id)
-                ->whereNull('merged_into_id')
-                ->update(['country_code' => $countryCode]);
         }
 
         return $organization;

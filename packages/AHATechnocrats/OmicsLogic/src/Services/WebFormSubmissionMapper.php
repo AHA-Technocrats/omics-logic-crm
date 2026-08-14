@@ -46,6 +46,11 @@ class WebFormSubmissionMapper
             'country:',
             'country_code',
             'persons.country_code',
+        ]);
+
+        $organizationCountry = $this->value($input, $personInput, [
+            'organization_country',
+            'persons.organization_country',
             'organizations.country_code',
         ]);
 
@@ -143,7 +148,7 @@ class WebFormSubmissionMapper
             'person' => $person,
             'organization' => array_filter([
                 'name' => $organizationName,
-                'country_code' => $country,
+                'country_code' => $organizationCountry,
             ]),
             'lead' => array_filter([
                 'title' => $leadTitle,

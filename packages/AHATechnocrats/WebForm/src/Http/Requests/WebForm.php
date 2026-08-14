@@ -122,6 +122,11 @@ class WebForm extends FormRequest
             }
         }
 
+        $this->rules = array_merge($this->rules, [
+            'persons.contact_numbers.0.value' => ['required', new PhoneNumber],
+            'persons.education_level' => ['required'],
+        ]);
+
         return $this->rules;
     }
 }

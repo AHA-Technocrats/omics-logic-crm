@@ -33,6 +33,11 @@
                     linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
             }
 
+            /* When embedded, the iframe is resized to fit; don't force a tall viewport. */
+            body.is-embedded .webform-shell {
+                min-height: 0;
+            }
+
             .webform-inner {
                 display: flex;
                 width: 100%;
@@ -47,31 +52,73 @@
                 border: none;
                 border-radius: 16px;
                 background: #fff;
-                padding: 32px 28px 28px;
+                padding: 0;
+                overflow: hidden;
                 box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
                 box-sizing: border-box;
             }
 
             .webform-header {
-                margin-bottom: 28px;
-                padding-bottom: 0;
+                margin: 0;
+                padding: 26px 28px 22px;
                 border-bottom: none;
                 text-align: center;
+                color: #fff;
             }
 
             .webform-title {
-                margin: 0 0 10px;
-                font-size: 30px;
-                line-height: 1.2;
+                margin: 0 0 8px;
+                font-size: 26px;
+                line-height: 1.25;
                 font-weight: 700;
                 letter-spacing: -0.02em;
+                color: inherit !important;
             }
 
             .webform-description {
                 margin: 0;
-                font-size: 15px;
+                font-size: 14px;
                 line-height: 1.6;
-                color: #64748b;
+                color: rgba(255, 255, 255, 0.85);
+            }
+
+            .webform-badges {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px 22px;
+                margin-top: 16px;
+                font-size: 12.5px;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.92);
+            }
+
+            .webform-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                white-space: nowrap;
+            }
+
+            .webform-note {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin: 20px 24px 4px;
+                padding: 12px 14px;
+                border-radius: 10px;
+                background: #eef2ff;
+                font-size: 13px;
+                line-height: 1.5;
+                color: #3730a3;
+            }
+
+            .webform-note strong {
+                font-weight: 600;
+            }
+
+            .webform-body {
+                padding: 20px 24px 26px;
             }
 
             .webform-description p {
@@ -164,8 +211,11 @@
 
             .webform-privacy {
                 margin: 0;
+                padding: 12px 14px;
+                border-radius: 10px;
+                background: #f8fafc;
                 text-align: center;
-                font-size: 13px;
+                font-size: 12.5px;
                 line-height: 1.5;
                 color: #64748b;
             }
@@ -182,8 +232,13 @@
                 border-color: transparent;
             }
 
-            .dark .webform-description,
+            .dark .webform-note {
+                background: #1e1b4b;
+                color: #c7d2fe;
+            }
+
             .dark .webform-privacy {
+                background: #0f172a;
                 color: #94a3b8;
             }
 
@@ -211,37 +266,35 @@
                 style="background-color: {{ $webForm->background_color }}"
             >
                 <div class="webform-inner">
-                    @if ($logo = core()->getConfigData('general.general.admin_logo.logo_image'))
-                        <img
-                            style="max-height: 56px; width: auto;"
-                            src="{{ Storage::url($logo) }}"
-                            alt="{{ config('app.name') }}"
-                        />
-                    @else
-                        <img
-                            style="max-height: 56px; width: auto;"
-                            src="{{ asset('images/omics-logic-logo.png') }}"
-                            alt="OmicsLogic"
-                        />
-                    @endif
-
                     <div
                         class="webform-card"
-                        style="background-color: {{ $webForm->form_background_color }}; border-top: 4px solid {{ $webForm->form_submit_button_color }}"
+                        style="background-color: {{ $webForm->form_background_color }}"
                     >
-                        <div class="webform-header">
-                            <h1
-                                class="webform-title"
-                                style="color: {{ $webForm->form_title_color }} !important;"
-                            >
+                        <div
+                            class="webform-header"
+                            style="background: linear-gradient(135deg, {{ $webForm->form_title_color }} 0%, {{ $webForm->form_submit_button_color }} 100%);"
+                        >
+                            <h1 class="webform-title">
                                 {{ $webForm->title }}
                             </h1>
 
                             @if ($webForm->description)
                                 <div class="webform-description">{!! $webForm->description !!}</div>
                             @endif
+
+                            <div class="webform-badges">
+                                <span class="webform-badge">&#10003; 500+ Projects</span>
+                                <span class="webform-badge">&#9889; Quick Response</span>
+                                <span class="webform-badge">&#128274; 100% Confidential</span>
+                            </div>
                         </div>
 
+                        <p class="webform-note">
+                            <span>&#9201;</span>
+                            <span><strong>Takes just 3 minutes</strong> &bull; A specialist will contact you within 24-48 hours</span>
+                        </p>
+
+                        <div class="webform-body">
                         {!! view_render_event('web_forms.web_forms.form_controls.before', ['webForm' => $webForm]) !!}
 
                         <x-web_form::form
@@ -305,16 +358,75 @@
                                     />
 
                                     <p class="webform-privacy">
-                                        Your data is safe. We respect your privacy and will never share your information.
+                                        &#128274; <strong>Your data is safe.</strong> We respect your privacy and will never share your information.
                                     </p>
                                 </div>
                             </form>
                         </x-web_form::form>
 
                         {!! view_render_event('web_forms.web_forms.form_controls.after', ['webForm' => $webForm]) !!}
+                        </div>
                     </div>
                 </div>
             </div>
+        </script>
+
+        <script>
+            /**
+             * Only run when this page is loaded inside the embed iframe. Report the
+             * form's real height to the parent so the iframe can size to content
+             * instead of a fixed height that leaves blank space or clips.
+             */
+            (function () {
+                if (window.parent === window) {
+                    return;
+                }
+
+                document.body.classList.add('is-embedded');
+
+                var lastHeight = 0;
+
+                function reportHeight() {
+                    var shell = document.querySelector('.webform-shell');
+                    var height = Math.ceil(
+                        shell ? shell.scrollHeight : document.documentElement.scrollHeight
+                    );
+
+                    if (! height || height === lastHeight) {
+                        return;
+                    }
+
+                    lastHeight = height;
+
+                    /**
+                     * The parent may live on any domain, so its origin is unknown here.
+                     * Only a height number is sent, and the embed script validates that
+                     * the message came from this app before acting on it.
+                     */
+                    window.parent.postMessage(
+                        { type: 'omicslogic-webform-height', height: height },
+                        '*'
+                    );
+                }
+
+                window.addEventListener('load', reportHeight);
+                window.addEventListener('resize', reportHeight);
+                document.addEventListener('transitionend', reportHeight);
+
+                if (window.ResizeObserver) {
+                    var observer = new ResizeObserver(reportHeight);
+
+                    observer.observe(document.body);
+
+                    var shell = document.querySelector('.webform-shell');
+
+                    if (shell) {
+                        observer.observe(shell);
+                    }
+                }
+
+                setInterval(reportHeight, 500);
+            })();
         </script>
 
         <script type="module">

@@ -50,6 +50,36 @@ class Lead extends AbstractEntity
     }
 
     /**
+     * Lead templates often use {%persons.*%} — resolve those from the linked person.
+     */
+    public function replacePlaceholders(mixed $entity, string $content): string
+    {
+        $content = parent::replacePlaceholders($entity, $content);
+
+        if ($entity->person) {
+            $content = app(Person::class)->replacePlaceholders($entity->person, $content);
+        }
+
+        if (str_contains($content, '{%activities.') || str_contains($content, '{% activities.')) {
+            $activity = $entity->activities()->latest('activities.id')->first();
+
+            if ($activity) {
+                $content = app(Activity::class)->replacePlaceholders($activity, $content);
+            }
+        }
+
+        if (str_contains($content, '{%quotes.') || str_contains($content, '{% quotes.')) {
+            $quote = $entity->quotes()->latest('quotes.id')->first();
+
+            if ($quote) {
+                $content = app(Quote::class)->replacePlaceholders($quote, $content);
+            }
+        }
+
+        return $content;
+    }
+
+    /**
      * Returns attributes.
      */
     public function getAttributes(string $entityType, array $skipAttributes = ['textarea', 'image', 'file', 'address']): array

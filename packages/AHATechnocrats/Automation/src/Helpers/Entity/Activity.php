@@ -139,10 +139,29 @@ class Activity extends AbstractEntity
 
         $value .= '</ul>';
 
-        return strtr($content, [
+        $content = strtr($content, [
             '{%'.$this->entityType.'.participants%}' => $value,
             '{% '.$this->entityType.'.participants %}' => $value,
         ]);
+
+        if (str_contains($content, '{%leads.') || str_contains($content, '{% leads.')) {
+            $lead = $entity->leads()->latest('leads.id')->first();
+
+            if ($lead) {
+                $content = app(Lead::class)->replacePlaceholders($lead, $content);
+            }
+        }
+
+        if (str_contains($content, '{%persons.') || str_contains($content, '{% persons.')) {
+            $person = $entity->persons()->latest('persons.id')->first()
+                ?? $entity->participants()->whereNotNull('person_id')->first()?->person;
+
+            if ($person) {
+                $content = app(Person::class)->replacePlaceholders($person, $content);
+            }
+        }
+
+        return $content;
     }
 
     /**
