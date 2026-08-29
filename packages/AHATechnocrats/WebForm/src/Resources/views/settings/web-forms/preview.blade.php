@@ -82,41 +82,6 @@
                 color: rgba(255, 255, 255, 0.85);
             }
 
-            .webform-badges {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px 22px;
-                margin-top: 16px;
-                font-size: 12.5px;
-                font-weight: 500;
-                color: rgba(255, 255, 255, 0.92);
-            }
-
-            .webform-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                white-space: nowrap;
-            }
-
-            .webform-note {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin: 20px 24px 4px;
-                padding: 12px 14px;
-                border-radius: 10px;
-                background: #eef2ff;
-                font-size: 13px;
-                line-height: 1.5;
-                color: #3730a3;
-            }
-
-            .webform-note strong {
-                font-weight: 600;
-            }
-
             .webform-body {
                 padding: 20px 24px 26px;
             }
@@ -232,11 +197,6 @@
                 border-color: transparent;
             }
 
-            .dark .webform-note {
-                background: #1e1b4b;
-                color: #c7d2fe;
-            }
-
             .dark .webform-privacy {
                 background: #0f172a;
                 color: #94a3b8;
@@ -281,18 +241,7 @@
                             @if ($webForm->description)
                                 <div class="webform-description">{!! $webForm->description !!}</div>
                             @endif
-
-                            <div class="webform-badges">
-                                <span class="webform-badge">&#10003; 500+ Projects</span>
-                                <span class="webform-badge">&#9889; Quick Response</span>
-                                <span class="webform-badge">&#128274; 100% Confidential</span>
-                            </div>
                         </div>
-
-                        <p class="webform-note">
-                            <span>&#9201;</span>
-                            <span><strong>Takes just 3 minutes</strong> &bull; A specialist will contact you within 24-48 hours</span>
-                        </p>
 
                         <div class="webform-body">
                         {!! view_render_event('web_forms.web_forms.form_controls.before', ['webForm' => $webForm]) !!}

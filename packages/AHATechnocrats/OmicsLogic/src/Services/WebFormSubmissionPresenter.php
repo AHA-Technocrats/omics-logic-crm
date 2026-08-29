@@ -32,6 +32,7 @@ class WebFormSubmissionPresenter
         'courseSlug',
         'lessonSlug',
         'submittedAt',
+        'organization_country',
     ];
 
     /**
@@ -42,6 +43,7 @@ class WebFormSubmissionPresenter
     protected array $skipInternalKeys = [
         'id',
         'organization_id',
+        'organization_country',
         'primary_product_id',
         'primary_source_id',
         'entity_type',
@@ -278,6 +280,10 @@ class WebFormSubmissionPresenter
 
         if (! empty($payload['raw']) && is_array($payload['raw'])) {
             foreach ($payload['raw'] as $key => $value) {
+                if (in_array((string) $key, $this->skipInternalKeys, true)) {
+                    continue;
+                }
+
                 $formatted = $this->formatDisplayValue($value);
 
                 if ($formatted === null) {
