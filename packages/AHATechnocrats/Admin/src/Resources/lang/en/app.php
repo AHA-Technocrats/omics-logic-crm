@@ -2538,6 +2538,6 @@ return [
         'title' => 'Mass Assign',
         'btn' => 'Mass Assign',
         'success' => 'Mass assignment completed successfully.',
-        'no-selection' => 'No organizations or users selected.',
+        'no-selection' => 'No leads or users selected.',
     ],
 ];

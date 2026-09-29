@@ -103,19 +103,6 @@ class LeadImportProcessor
             ?? $existingPerson?->user_id
             ?? $this->assigneeResolver->resolve($organization);
 
-        /**
-         * A freshly created organization inherits the resolved lead owner.
-         */
-        if (
-            $organization
-            && $organization->wasRecentlyCreated
-            && empty($organization->account_owner_id)
-            && $ownerId
-        ) {
-            $organization->account_owner_id = $ownerId;
-            $organization->save();
-        }
-
         $sourceId = $this->resolveSource($this->clean($row['source'] ?? null), $defaultSourceId);
 
         $typeName = $this->clean($row['lead_type'] ?? null)

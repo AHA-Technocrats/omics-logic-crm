@@ -2,10 +2,7 @@
 
 namespace AHATechnocrats\Admin\Http\Controllers;
 
-use AHATechnocrats\Contact\Repositories\OrganizationRepository;
-use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\Lead\Repositories\LeadRepository;
-use AHATechnocrats\User\Repositories\UserRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,10 +12,7 @@ use Illuminate\View\View;
 class MassAssignController extends Controller
 {
     public function __construct(
-        protected OrganizationRepository $organizationRepository,
-        protected PersonRepository $personRepository,
-        protected LeadRepository $leadRepository,
-        protected UserRepository $userRepository
+        protected LeadRepository $leadRepository
     ) {}
 
     /**
@@ -30,39 +24,47 @@ class MassAssignController extends Controller
     }
 
     /**
-     * Get organizations that are unassigned or belong to an admin.
+     * Get open leads that are unassigned or belong to an admin.
      */
     public function getEntities(Request $request): JsonResponse
     {
-        // For simplicity, we assume "Admin" means users with role ID 1,
-        // or just unassigned. We can also let the UI pass filters.
+        $adminUserIds = DB::table('users')
+            ->join('roles', 'users.role_id', '=', 'roles.id')
+            ->where('roles.permission_type', 'all')
+            ->pluck('users.id');
 
-        $query = DB::table('organizations')
-            ->leftJoin('users as account_owners', 'organizations.account_owner_id', '=', 'account_owners.id')
+        $query = DB::table('leads')
+            ->leftJoin('users', 'leads.user_id', '=', 'users.id')
+            ->leftJoin('persons', 'leads.person_id', '=', 'persons.id')
             ->select(
-                'organizations.id',
-                'organizations.name',
-                'organizations.type',
-                'organizations.account_owner_id',
-                'account_owners.name as account_owner_name'
+                'leads.id',
+                'leads.title as name',
+                'leads.user_id',
+                'users.name as owner_name',
+                'persons.name as person_name'
             )
-            ->whereNull('organizations.account_owner_id')
-            ->orWhereIn('organizations.account_owner_id', function ($q) {
-                $q->select('users.id')
-                    ->from('users')
-                    ->join('roles', 'users.role_id', '=', 'roles.id')
-                    ->where('roles.permission_type', 'all');
+            ->whereNull('leads.closed_at')
+            ->where(function ($q) use ($adminUserIds) {
+                $q->whereNull('leads.user_id');
+
+                if ($adminUserIds->isNotEmpty()) {
+                    $q->orWhereIn('leads.user_id', $adminUserIds);
+                }
             });
 
-        // Search functionality
-        if ($request->has('search') && $request->search != '') {
-            $query->where('organizations.name', 'like', '%'.$request->search.'%');
+        if ($request->filled('search')) {
+            $search = $request->string('search')->toString();
+
+            $query->where(function ($q) use ($search) {
+                $q->where('leads.title', 'like', '%'.$search.'%')
+                    ->orWhere('persons.name', 'like', '%'.$search.'%');
+            });
         }
 
-        $organizations = $query->orderBy('organizations.name')->get();
+        $leads = $query->orderBy('leads.title')->get();
 
         return response()->json([
-            'data' => $organizations,
+            'data' => $leads,
         ]);
     }
 
@@ -85,103 +87,66 @@ class MassAssignController extends Controller
     }
 
     /**
-     * Assign selected organizations to selected users.
+     * Assign selected leads to selected users.
      */
     public function assign(Request $request): JsonResponse
     {
         $assignments = $request->input('assignments');
 
-        $orgToUserMapping = [];
+        $leadToUserMapping = [];
 
         if ($assignments) {
-            // Process explicit manual assignments
             foreach ($assignments as $assignment) {
-                if (empty($assignment['user_id']) || empty($assignment['org_ids'])) {
+                if (empty($assignment['user_id']) || empty($assignment['lead_ids'])) {
                     continue;
                 }
-                foreach ($assignment['org_ids'] as $orgId) {
-                    $orgToUserMapping[$orgId] = $assignment['user_id'];
+
+                foreach ($assignment['lead_ids'] as $leadId) {
+                    $leadToUserMapping[(int) $leadId] = (int) $assignment['user_id'];
                 }
             }
         } else {
-            // Process round-robin distribution
             $request->validate([
-                'organization_ids' => 'required|array',
+                'lead_ids' => 'required|array',
                 'user_ids' => 'required|array|min:1',
             ]);
 
-            $organizationIds = $request->input('organization_ids');
+            $leadIds = $request->input('lead_ids');
             $userIds = $request->input('user_ids');
 
             $totalUsers = count($userIds);
             $userIndex = 0;
 
-            if (count($organizationIds) > 0 && $totalUsers > 0) {
-                foreach ($organizationIds as $orgId) {
-                    $orgToUserMapping[$orgId] = $userIds[$userIndex];
+            if (count($leadIds) > 0 && $totalUsers > 0) {
+                foreach ($leadIds as $leadId) {
+                    $leadToUserMapping[(int) $leadId] = (int) $userIds[$userIndex];
                     $userIndex = ($userIndex + 1) % $totalUsers;
                 }
             }
         }
 
-        if (empty($orgToUserMapping)) {
-            return response()->json(['message' => 'No organizations or users selected.'], 400);
+        if (empty($leadToUserMapping)) {
+            return response()->json(['message' => trans('admin::app.mass_assign.no-selection')], 400);
         }
 
         DB::beginTransaction();
 
         try {
-            foreach ($orgToUserMapping as $orgId => $assignToUserId) {
-                Event::dispatch('contacts.organization.update.before', $orgId);
+            foreach ($leadToUserMapping as $leadId => $assignToUserId) {
+                Event::dispatch('lead.update.before', $leadId);
 
-                $this->organizationRepository->update([
-                    'account_owner_id' => $assignToUserId,
-                ], $orgId);
+                $this->leadRepository->update([
+                    'entity_type' => 'leads',
+                    'user_id' => $assignToUserId,
+                ], $leadId, ['user_id']);
 
-                Event::dispatch('contacts.organization.update.after', $this->organizationRepository->find($orgId));
-
-                // Auto-assign related persons
-                $persons = $this->personRepository->findWhere(['organization_id' => $orgId]);
-                foreach ($persons as $person) {
-                    Event::dispatch('contacts.person.update.before', $person->id);
-
-                    $personData = [
-                        'user_id' => $assignToUserId,
-                        'organization_id' => $person->organization_id,
-                    ];
-
-                    if ($person->emails) {
-                        // Pass existing emails to prevent unique_id corruption
-                        $personData['emails'] = is_string($person->emails) ? json_decode($person->emails, true) : (is_object($person->emails) ? $person->emails->toArray() : $person->emails);
-                    }
-
-                    if ($person->contact_numbers) {
-                        $personData['contact_numbers'] = is_string($person->contact_numbers) ? json_decode($person->contact_numbers, true) : (is_object($person->contact_numbers) ? $person->contact_numbers->toArray() : $person->contact_numbers);
-                    }
-
-                    $this->personRepository->update($personData, $person->id);
-                    Event::dispatch('contacts.person.update.after', $person);
-                }
-
-                // Auto-assign related open leads
-                $leads = $this->leadRepository->findWhereIn('person_id', $persons->pluck('id')->toArray());
-                foreach ($leads as $lead) {
-                    // Only assign if it's not won/lost (assuming status 1 means open, or check if closed_at is null)
-                    if (is_null($lead->closed_at)) {
-                        Event::dispatch('lead.update.before', $lead->id);
-                        $this->leadRepository->update([
-                            'entity_type' => 'leads',
-                            'user_id' => $assignToUserId,
-                        ], $lead->id);
-                        Event::dispatch('lead.update.after', $this->leadRepository->find($lead->id));
-                    }
-                }
+                Event::dispatch('lead.update.after', $this->leadRepository->find($leadId));
             }
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Mass assignment completed successfully.',
+                'message' => trans('admin::app.mass_assign.success'),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

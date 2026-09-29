@@ -203,7 +203,7 @@ class OrganizationMergeReviewService
 
     protected function absorbOrganizationData(Organization $survivor, Organization $duplicate): void
     {
-        foreach (['country_code', 'website', 'notes', 'account_owner_id', 'user_id', 'type'] as $field) {
+        foreach (['country_code', 'website', 'notes', 'user_id', 'type'] as $field) {
             if (empty($survivor->{$field}) && ! empty($duplicate->{$field})) {
                 $survivor->{$field} = $duplicate->{$field};
             }
@@ -253,8 +253,8 @@ class OrganizationMergeReviewService
                 ->where('organization_id', $organization->id)
                 ->whereNull('merged_into_id')
                 ->count(),
-            'owner' => $organization->account_owner_id
-                ? (User::query()->find($organization->account_owner_id)?->name ?? '—')
+            'owner' => $organization->user_id
+                ? (User::query()->find($organization->user_id)?->name ?? '—')
                 : '—',
             'added' => $organization->created_at?->format('M Y') ?? '—',
         ];

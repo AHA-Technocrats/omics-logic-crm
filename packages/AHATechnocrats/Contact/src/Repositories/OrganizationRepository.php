@@ -6,9 +6,7 @@ use AHATechnocrats\Attribute\Repositories\AttributeRepository;
 use AHATechnocrats\Attribute\Repositories\AttributeValueRepository;
 use AHATechnocrats\Contact\Contracts\Organization;
 use AHATechnocrats\Core\Eloquent\Repository;
-use AHATechnocrats\OmicsLogic\Services\LeadPersonSyncService;
 use AHATechnocrats\OmicsLogic\Services\OrganizationNormalizer;
-use AHATechnocrats\OmicsLogic\Services\OwnerProfileImageService;
 use Illuminate\Container\Container;
 use Illuminate\Support\Facades\DB;
 
@@ -48,9 +46,7 @@ class OrganizationRepository extends Repository
             $data['user_id'] = $data['user_id'] ?: null;
         }
 
-        if (isset($data['account_owner_id'])) {
-            $data['account_owner_id'] = $data['account_owner_id'] ?: null;
-        }
+        unset($data['account_owner_id']);
 
         $organization = parent::create($data);
 
@@ -63,12 +59,6 @@ class OrganizationRepository extends Repository
         $this->attributeValueRepository->save(array_merge($data, [
             'entity_id' => $organization->id,
         ]));
-
-        if (array_key_exists('account_owner_id', $data)) {
-            app(LeadPersonSyncService::class)->syncOwnerFromOrganization($organization);
-        }
-
-        $this->syncAccountOwnerProfileImage($data);
 
         return $organization;
     }
@@ -86,9 +76,7 @@ class OrganizationRepository extends Repository
             $data['user_id'] = $data['user_id'] ?: null;
         }
 
-        if (isset($data['account_owner_id'])) {
-            $data['account_owner_id'] = $data['account_owner_id'] ?: null;
-        }
+        unset($data['account_owner_id']);
 
         $organization = parent::update($data, $id);
 
@@ -97,10 +85,6 @@ class OrganizationRepository extends Repository
                 ->where('organization_id', $id)
                 ->whereNull('merged_into_id')
                 ->update(['country_code' => $data['country_code']]);
-        }
-
-        if (array_key_exists('account_owner_id', $data)) {
-            app(LeadPersonSyncService::class)->syncOwnerFromOrganization($organization->fresh());
         }
 
         /**
@@ -130,23 +114,7 @@ class OrganizationRepository extends Repository
             ]));
         }
 
-        $this->syncAccountOwnerProfileImage($data);
-
         return $organization;
-    }
-
-    protected function syncAccountOwnerProfileImage(array $data): void
-    {
-        $ownerId = (int) ($data['account_owner_id'] ?? 0);
-
-        app(OwnerProfileImageService::class)->syncFromRequest(
-            'account_owner_image',
-            $ownerId,
-            request()->isMethod('put')
-                && ! request()->has('account_owner_image')
-                && ! request()->file('account_owner_image'),
-            ['organizations.edit'],
-        );
     }
 
     /**

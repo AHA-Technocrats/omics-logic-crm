@@ -8,14 +8,10 @@ use AHATechnocrats\User\Models\User;
 class OrganizationAssigneeResolver
 {
     /**
-     * Resolve the CRM user who should own a lead/person for this organization.
+     * Fallback owner for a lead/person: legacy org sales owner, else first admin.
      */
     public function resolve(?Organization $organization): ?int
     {
-        if ($organization?->account_owner_id) {
-            return (int) $organization->account_owner_id;
-        }
-
         if ($organization?->user_id) {
             return (int) $organization->user_id;
         }

@@ -79,7 +79,7 @@ class OrganizationController extends Controller
     public function show(int $id): View|RedirectResponse
     {
         $organization = $this->organizationRepository
-            ->with(['persons.primaryProduct', 'accountOwner'])
+            ->with(['persons.primaryProduct'])
             ->findOrFail($id);
 
         if ($redirect = $this->authorizeOrganizationAccess($organization)) {
@@ -116,7 +116,6 @@ class OrganizationController extends Controller
     public function edit(int $id): View|RedirectResponse
     {
         $organization = $this->organizationRepository
-            ->with(['accountOwner'])
             ->findOrFail($id);
 
         if ($redirect = $this->authorizeOrganizationAccess($organization)) {
@@ -256,8 +255,13 @@ class OrganizationController extends Controller
      */
     protected function authorizeOrganizationAccess($organization): ?RedirectResponse
     {
+        $personOwnerIds = $organization->persons()
+            ->whereNull('merged_into_id')
+            ->pluck('user_id')
+            ->all();
+
         return $this->authorizeAnyOwner(
-            [$organization->account_owner_id, $organization->user_id],
+            array_merge([$organization->user_id], $personOwnerIds),
             'admin.contacts.organizations.index'
         );
     }

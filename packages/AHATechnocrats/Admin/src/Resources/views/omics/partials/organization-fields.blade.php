@@ -3,21 +3,14 @@
     $namePrefix = $namePrefix ?? null;
     $isNested = $isNested ?? false;
     $fieldName = fn (string $field) => $namePrefix ? "{$namePrefix}[{$field}]" : $field;
-    $owners = app(\AHATechnocrats\User\Repositories\UserRepository::class)->all(['id', 'name', 'image']);
     $countries = config('omicslogic.countries', []);
     $types = \AHATechnocrats\OmicsLogic\Enums\OrganizationType::cases();
     $selectedType = old($fieldName('type'), $record?->type);
     $normalizedSelectedType = \AHATechnocrats\OmicsLogic\Enums\OrganizationType::tryFrom(strtolower((string) $selectedType))?->value
         ?? strtolower((string) $selectedType);
     $selectedCountry = old($fieldName('country_code'), $record?->country_code);
-    $selectedOwner = old($fieldName('account_owner_id'), $record?->account_owner_id);
     $selectedWebsite = old($fieldName('website'), $record?->website);
     $selectedNotes = old($fieldName('notes'), $record?->notes);
-    $selectedOwnerUser = $record?->accountOwner
-        ?? $owners->firstWhere('id', (int) $selectedOwner);
-    $ownerProfileImages = $selectedOwnerUser?->image
-        ? [['id' => 'image', 'url' => $selectedOwnerUser->image_url]]
-        : [];
 @endphp
 
 <div class="mt-4 border-t border-gray-200 pt-4 dark:border-gray-800">
@@ -61,26 +54,6 @@
                 </x-admin::form.control-group.control>
             </x-admin::form.control-group>
         @endunless
-
-        <x-admin::form.control-group>
-            <x-admin::form.control-group.label>
-                @lang('omicslogic::app.fields.account-owner')
-            </x-admin::form.control-group.label>
-            <x-admin::form.control-group.control
-                type="select"
-                name="{{ $fieldName('account_owner_id') }}"
-                :value="$selectedOwner"
-                :v-model="$isNested ? 'person.organization.account_owner_id' : null"
-                ::disabled="$isNested ? 'person.id || person.organization?.id' : null"
-            >
-                <option value="">@lang('omicslogic::app.fields.unassigned')</option>
-                @foreach ($owners as $owner)
-                    <option value="{{ $owner->id }}" @selected((string) $selectedOwner === (string) $owner->id)>{{ $owner->name }}</option>
-                @endforeach
-            </x-admin::form.control-group.control>
-        </x-admin::form.control-group>
-
-
 
         <x-admin::form.control-group>
             <x-admin::form.control-group.label>

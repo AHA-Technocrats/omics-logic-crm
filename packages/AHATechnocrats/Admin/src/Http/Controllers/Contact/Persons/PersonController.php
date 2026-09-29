@@ -82,7 +82,7 @@ class PersonController extends Controller
     {
         $person = $this->personRepository
             ->with([
-                'organization.accountOwner',
+                'organization',
                 'user',
             ])
             ->findOrFail($id);
@@ -100,7 +100,7 @@ class PersonController extends Controller
     public function edit(int $id): View|RedirectResponse
     {
         $person = $this->personRepository
-            ->with(['organization.accountOwner', 'user', 'primarySource', 'primaryProduct'])
+            ->with(['organization', 'user', 'primarySource', 'primaryProduct'])
             ->findOrFail($id);
 
         if ($redirect = $this->authorizeOwner($person->user_id, 'admin.contacts.persons.index')) {

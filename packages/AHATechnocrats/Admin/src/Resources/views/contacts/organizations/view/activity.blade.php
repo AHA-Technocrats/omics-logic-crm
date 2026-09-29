@@ -1,5 +1,5 @@
 @php
-    $ownerName = $organization->accountOwner?->name ?? __('omicslogic::app.fields.unassigned');
+    $ownerName = __('omicslogic::app.fields.unassigned');
     $timeline = [
         [
             'icon' => 'icon-quote',

@@ -33,12 +33,6 @@
                     <span class="text-sm text-gray-600 dark:text-gray-300">{{ $country }}</span>
                 @endif
 
-                @if ($organization->accountOwner)
-                    <span class="text-sm text-gray-600 dark:text-gray-300">
-                        @lang('omicslogic::app.fields.account-owner'): {{ $organization->accountOwner->name }}
-                    </span>
-                @endif
-
                 @if ($organization->website)
                     <a href="{{ $organization->website }}" target="_blank" class="text-sm text-brandColor hover:underline">{{ $organization->website }}</a>
                 @endif

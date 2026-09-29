@@ -17,7 +17,6 @@ class Organization extends Model implements OrganizationContract
         'user_id',
         'type',
         'country_code',
-        'account_owner_id',
         'normalized_name',
         'website',
         'notes',
@@ -42,13 +41,5 @@ class Organization extends Model implements OrganizationContract
     public function user()
     {
         return $this->belongsTo(UserProxy::modelClass());
-    }
-
-    /**
-     * Account owner for institutional sales.
-     */
-    public function accountOwner()
-    {
-        return $this->belongsTo(UserProxy::modelClass(), 'account_owner_id');
     }
 }

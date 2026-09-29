@@ -7,7 +7,6 @@ use AHATechnocrats\OmicsLogic\Enums\OrganizationType;
 use AHATechnocrats\OmicsLogic\Services\CountryLabelResolver;
 use AHATechnocrats\OmicsLogic\Support\OrganizationMetricIcon;
 use AHATechnocrats\OmicsLogic\Support\OrganizationTypeIcon;
-use AHATechnocrats\OmicsLogic\Support\UserProfileAvatar;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,14 +21,11 @@ class OrganizationDataGrid extends DataGrid
     public function prepareQueryBuilder(): Builder
     {
         $queryBuilder = DB::table('organizations')
-            ->leftJoin('users as account_owners', 'organizations.account_owner_id', '=', 'account_owners.id')
             ->select(
                 'organizations.id',
                 'organizations.name',
                 'organizations.type',
                 'organizations.country_code',
-                'account_owners.name as account_owner_name',
-                'account_owners.image as account_owner_image',
             )
             ->selectRaw('(SELECT COUNT(*) FROM persons WHERE persons.organization_id = organizations.id) as contacts_count')
             ->selectRaw("(SELECT COUNT(DISTINCT persons.id) FROM persons INNER JOIN leads ON leads.person_id = persons.id INNER JOIN lead_pipeline_stages ON lead_pipeline_stages.id = leads.lead_pipeline_stage_id WHERE persons.organization_id = organizations.id AND lead_pipeline_stages.code IN ('follow-up', 'prospect', 'negotiation')) as engaged_count")
@@ -37,15 +33,20 @@ class OrganizationDataGrid extends DataGrid
 
         if ($userIds = bouncer()->getAuthorizedUserIds()) {
             $queryBuilder->where(function ($query) use ($userIds) {
-                $query->whereIn('organizations.account_owner_id', $userIds)
-                    ->orWhereIn('organizations.user_id', $userIds);
+                $query->whereIn('organizations.user_id', $userIds)
+                    ->orWhereExists(function ($exists) use ($userIds) {
+                        $exists->select(DB::raw(1))
+                            ->from('persons')
+                            ->whereColumn('persons.organization_id', 'organizations.id')
+                            ->whereNull('persons.merged_into_id')
+                            ->whereIn('persons.user_id', $userIds);
+                    });
             });
         }
 
         $this->addFilter('id', 'organizations.id');
         $this->addFilter('name', 'organizations.name');
         $this->addFilter('country_code', 'organizations.country_code');
-        $this->addFilter('account_owner_name', 'account_owners.name');
 
         return $queryBuilder;
     }
@@ -97,15 +98,6 @@ class OrganizationDataGrid extends DataGrid
             'type' => 'integer',
             'sortable' => true,
             'closure' => fn ($row) => $this->customersCell((int) ($row->customers_count ?? 0)),
-        ]);
-
-        $this->addColumn([
-            'index' => 'account_owner_name',
-            'label' => trans('omicslogic::app.datagrid.owner'),
-            'type' => 'string',
-            'sortable' => true,
-            'searchable' => true,
-            'closure' => fn ($row) => $this->ownerCell($row),
         ]);
     }
 
@@ -237,47 +229,5 @@ class OrganizationDataGrid extends DataGrid
             .OrganizationMetricIcon::award()
             .'<span>'.$count.'</span>'
             .'</span>';
-    }
-
-    protected function ownerCell(object $row): string
-    {
-        if (empty($row->account_owner_name)) {
-            return $this->unassignedOwnerBadge((int) $row->id);
-        }
-
-        $content = '<div style="display:flex;align-items:center;gap:8px;">'
-            .UserProfileAvatar::html($row->account_owner_name, $row->account_owner_image ?? null)
-            .'<span class="text-gray-800 dark:text-white">'.e($row->account_owner_name).'</span>'
-            .'</div>';
-
-        if (! bouncer()->hasPermission('organizations.edit')) {
-            return $content;
-        }
-
-        $url = e(route('admin.contacts.organizations.edit', (int) $row->id));
-
-        return '<a href="'.$url.'" style="display:inline-flex;text-decoration:none;color:inherit;cursor:pointer;">'
-            .$content
-            .'</a>';
-    }
-
-    protected function unassignedOwnerBadge(int $organizationId): string
-    {
-        $label = e(trans('omicslogic::app.fields.unassigned'));
-
-        $badge = '<span style="display:inline-flex;align-items:center;gap:6px;background-color:#ffedd5;color:#92400e;border-radius:9999px;padding:4px 12px;font-size:12px;font-weight:600;">'
-            .'<i class="fa fa-user-plus" style="font-size:12px;"></i>'
-            .$label
-            .'</span>';
-
-        if (! bouncer()->hasPermission('organizations.edit')) {
-            return $badge;
-        }
-
-        $url = e(route('admin.contacts.organizations.edit', $organizationId));
-
-        return '<a href="'.$url.'" style="display:inline-flex;text-decoration:none;color:inherit;cursor:pointer;">'
-            .$badge
-            .'</a>';
     }
 }

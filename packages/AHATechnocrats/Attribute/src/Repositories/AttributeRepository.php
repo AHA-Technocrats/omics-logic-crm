@@ -157,7 +157,19 @@ class AttributeRepository extends Repository
         }
 
         if (Str::contains($lookup['repository'], 'OrganizationRepository')) {
-            return $this->getOwnerScopedLookupOptions($lookup, $query, $columns, ['account_owner_id', 'user_id']);
+            return $this->getOwnerScopedLookupOptions($lookup, $query, $columns, [], function ($queryBuilder) {
+                if ($userIds = bouncer()->getAuthorizedUserIds()) {
+                    return $queryBuilder->where(function ($scope) use ($userIds) {
+                        $scope->whereIn('user_id', $userIds)
+                            ->orWhereHas('persons', function ($persons) use ($userIds) {
+                                $persons->whereIn('user_id', $userIds)
+                                    ->whereNull('merged_into_id');
+                            });
+                    });
+                }
+
+                return $queryBuilder;
+            });
         }
 
         if (Str::contains($lookup['repository'], 'StageRepository')) {
@@ -218,11 +230,13 @@ class AttributeRepository extends Repository
         }
 
         if ($userIds = bouncer()->getAuthorizedUserIds()) {
-            $queryBuilder->where(function ($scope) use ($userIds, $ownerColumns) {
-                foreach ($ownerColumns as $ownerColumn) {
-                    $scope->orWhereIn($ownerColumn, $userIds);
-                }
-            });
+            if (! empty($ownerColumns)) {
+                $queryBuilder->where(function ($scope) use ($userIds, $ownerColumns) {
+                    foreach ($ownerColumns as $ownerColumn) {
+                        $scope->orWhereIn($ownerColumn, $userIds);
+                    }
+                });
+            }
         }
 
         return $queryBuilder->limit(25)->get($columns);

@@ -338,7 +338,7 @@ class LeadRepository extends Repository
 
     /**
      * Assign every new lead to an owner: explicit value, linked contact,
-     * organization account owner, or the super admin — never leave unassigned.
+     * legacy org sales owner, or the super admin — never leave unassigned.
      */
     protected function resolveLeadOwnerId(array $data): ?int
     {
@@ -358,13 +358,6 @@ class LeadRepository extends Repository
             ? Organization::query()->find($person->organization_id)
             : null;
 
-        $ownerId = app(OrganizationAssigneeResolver::class)->resolve($organization);
-
-        if ($organization && empty($organization->account_owner_id) && $ownerId) {
-            $organization->account_owner_id = $ownerId;
-            $organization->save();
-        }
-
-        return $ownerId;
+        return app(OrganizationAssigneeResolver::class)->resolve($organization);
     }
 }

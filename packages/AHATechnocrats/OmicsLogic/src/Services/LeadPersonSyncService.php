@@ -2,7 +2,6 @@
 
 namespace AHATechnocrats\OmicsLogic\Services;
 
-use AHATechnocrats\Contact\Models\Organization;
 use AHATechnocrats\Contact\Models\Person;
 use AHATechnocrats\Contact\Repositories\PersonRepository;
 use AHATechnocrats\Lead\Models\Lead;
@@ -68,57 +67,6 @@ class LeadPersonSyncService
                 'entity_type' => 'persons',
                 'user_id' => $lead->user_id,
             ], $person->id, ['user_id']);
-        } finally {
-            self::$syncingOwner = false;
-        }
-    }
-
-    /**
-     * Cascade an organization's owner to all its persons and their leads.
-     *
-     * When an organization is assigned to an owner, every person under that
-     * organization (and every lead linked to those persons) inherits the same
-     * owner, keeping the whole account aligned under one sales rep.
-     */
-    public function syncOwnerFromOrganization(Organization $organization): void
-    {
-        if (self::$syncingOwner || ! $organization->id) {
-            return;
-        }
-
-        $ownerId = $organization->account_owner_id;
-
-        if (empty($ownerId)) {
-            return;
-        }
-
-        self::$syncingOwner = true;
-
-        try {
-            $personIds = Person::query()
-                ->where('organization_id', $organization->id)
-                ->whereNull('merged_into_id')
-                ->pluck('id');
-
-            if ($personIds->isEmpty()) {
-                return;
-            }
-
-            Person::query()
-                ->whereIn('id', $personIds)
-                ->where(function ($query) use ($ownerId) {
-                    $query->whereNull('user_id')
-                        ->orWhere('user_id', '!=', $ownerId);
-                })
-                ->update(['user_id' => $ownerId]);
-
-            Lead::query()
-                ->whereIn('person_id', $personIds)
-                ->where(function ($query) use ($ownerId) {
-                    $query->whereNull('user_id')
-                        ->orWhere('user_id', '!=', $ownerId);
-                })
-                ->update(['user_id' => $ownerId]);
         } finally {
             self::$syncingOwner = false;
         }

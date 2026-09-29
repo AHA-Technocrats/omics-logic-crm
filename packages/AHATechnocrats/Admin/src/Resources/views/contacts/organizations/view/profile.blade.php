@@ -41,11 +41,6 @@
             <dd class="text-right font-semibold dark:text-white">{{ $topProgram ?? '—' }}</dd>
         </div>
 
-        <div class="flex items-center justify-between gap-4 px-4 py-3 text-sm">
-            <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.account-owner')</dt>
-            <dd class="font-semibold dark:text-white">{{ $organization->accountOwner?->name ?? __('omicslogic::app.fields.unassigned') }}</dd>
-        </div>
-
         @if ($organization->website)
             <div class="flex items-center justify-between gap-4 px-4 py-3 text-sm">
                 <dt class="text-gray-600 dark:text-gray-300">@lang('omicslogic::app.fields.website')</dt>
