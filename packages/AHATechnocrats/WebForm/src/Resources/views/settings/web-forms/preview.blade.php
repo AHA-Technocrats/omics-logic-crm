@@ -67,7 +67,7 @@
             }
 
             .webform-title {
-                margin: 0 0 8px;
+                margin: 0;
                 font-size: 26px;
                 line-height: 1.25;
                 font-weight: 700;
@@ -76,63 +76,101 @@
             }
 
             .webform-description {
-                margin: 0;
+                margin: 0 0 18px;
+                padding: 0;
                 font-size: 14px;
                 line-height: 1.6;
-                color: rgba(255, 255, 255, 0.85);
+                color: #475569;
             }
 
-            .webform-badges {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px 22px;
-                margin-top: 16px;
-                font-size: 12.5px;
-                font-weight: 500;
-                color: rgba(255, 255, 255, 0.92);
+            .webform-description-divider {
+                margin: 0 0 20px;
+                border: 0;
+                border-top: 1px solid #e2e8f0;
             }
 
-            .webform-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                white-space: nowrap;
+            .webform-description > :first-child {
+                margin-top: 0;
             }
 
-            .webform-note {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin: 20px 24px 4px;
-                padding: 12px 14px;
-                border-radius: 10px;
-                background: #eef2ff;
-                font-size: 13px;
-                line-height: 1.5;
-                color: #3730a3;
-            }
-
-            .webform-note strong {
-                font-weight: 600;
-            }
-
-            .webform-body {
-                padding: 20px 24px 26px;
+            .webform-description > :last-child {
+                margin-bottom: 0;
             }
 
             .webform-description p {
                 margin: 0 0 0.75em;
             }
 
-            .webform-description p:last-child {
+            .webform-description ul,
+            .webform-description ol {
+                margin: 0 0 0.75em;
+                padding: 0 0 0 1.25em;
+            }
+
+            .webform-description li {
+                margin: 0 0 0.35em;
+            }
+
+            .webform-description li:last-child {
                 margin-bottom: 0;
             }
 
-            .webform-description ul,
-            .webform-description ol {
-                margin: 0 0 0.75em 1.25em;
-                padding: 0;
+            .webform-description h2,
+            .webform-description h3,
+            .webform-description h4 {
+                margin: 0.9em 0 0.4em;
+                font-weight: 700;
+                line-height: 1.3;
+                color: #1e293b;
+            }
+
+            .webform-description h2 { font-size: 1.15em; }
+            .webform-description h3 { font-size: 1.05em; }
+            .webform-description h4 { font-size: 1em; }
+
+            .webform-description strong,
+            .webform-description b {
+                font-weight: 700;
+            }
+
+            .webform-description em,
+            .webform-description i {
+                font-style: italic;
+            }
+
+            .webform-description a {
+                color: #0ea5e9;
+                text-decoration: underline;
+            }
+
+            .webform-description blockquote {
+                margin: 0 0 0.75em;
+                padding-left: 0.85em;
+                border-left: 3px solid #cbd5e1;
+                color: #64748b;
+            }
+
+            .webform-body {
+                padding: 20px 24px 26px;
+            }
+
+            .dark .webform-description {
+                color: #94a3b8;
+            }
+
+            .dark .webform-description-divider {
+                border-top-color: #334155;
+            }
+
+            .dark .webform-description h2,
+            .dark .webform-description h3,
+            .dark .webform-description h4 {
+                color: #e2e8f0;
+            }
+
+            .dark .webform-description blockquote {
+                border-left-color: #475569;
+                color: #94a3b8;
             }
 
             .webform-hp-trap {
@@ -232,11 +270,6 @@
                 border-color: transparent;
             }
 
-            .dark .webform-note {
-                background: #1e1b4b;
-                color: #c7d2fe;
-            }
-
             .dark .webform-privacy {
                 background: #0f172a;
                 color: #94a3b8;
@@ -277,24 +310,21 @@
                             <h1 class="webform-title">
                                 {{ $webForm->title }}
                             </h1>
-
-                            @if ($webForm->description)
-                                <div class="webform-description">{!! $webForm->description !!}</div>
-                            @endif
-
-                            <div class="webform-badges">
-                                <span class="webform-badge">&#10003; 500+ Projects</span>
-                                <span class="webform-badge">&#9889; Quick Response</span>
-                                <span class="webform-badge">&#128274; 100% Confidential</span>
-                            </div>
                         </div>
 
-                        <p class="webform-note">
-                            <span>&#9201;</span>
-                            <span><strong>Takes just 3 minutes</strong> &bull; A specialist will contact you within 24-48 hours</span>
-                        </p>
-
                         <div class="webform-body">
+                            @if ($webForm->description)
+                                <div class="webform-description">
+                                    @php
+                                        $description = (string) $webForm->description;
+                                        $hasHtml = (bool) preg_match('/<[a-z][\s\S]*>/i', $description);
+                                    @endphp
+                                    {!! $hasHtml ? $description : nl2br(e($description)) !!}
+                                </div>
+
+                                <hr class="webform-description-divider" />
+                            @endif
+
                         {!! view_render_event('web_forms.web_forms.form_controls.before', ['webForm' => $webForm]) !!}
 
                         <x-web_form::form
