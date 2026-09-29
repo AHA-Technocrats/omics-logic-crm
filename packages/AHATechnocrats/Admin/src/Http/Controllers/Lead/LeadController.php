@@ -467,10 +467,11 @@ class LeadController extends Controller
             'closed_at',
             'lost_reason',
             'lead_pipeline_stage_id',
+            'lead_value',
             'entity_type',
         ]);
 
-        $lead = $this->leadRepository->update($payload, $id, ['lead_pipeline_stage_id']);
+        $lead = $this->leadRepository->update($payload, $id, ['lead_pipeline_stage_id', 'lead_value']);
 
         Event::dispatch('lead.update.after', $lead);
 

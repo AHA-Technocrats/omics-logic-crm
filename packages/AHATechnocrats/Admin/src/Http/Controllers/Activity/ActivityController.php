@@ -170,7 +170,11 @@ class ActivityController extends Controller
 
         session()->flash('success', trans('admin::app.activities.update-success'));
 
-        return redirect()->route('admin.web_forms.index');
+        $lead = $activity->leads()->first();
+
+        return $lead
+            ? redirect()->route('admin.leads.view', $lead->id)
+            : redirect()->route('admin.leads.index');
     }
 
     /**

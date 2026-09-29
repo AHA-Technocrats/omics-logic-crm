@@ -68,10 +68,10 @@ Breadcrumbs::for('mail.route.view', function (BreadcrumbTrail $trail, $route, $e
     $trail->push($email->subject ?? '', route('admin.mail.view', ['route' => $route, 'id' => $email->id]));
 });
 
-// Dashboard > Activities (legacy redirect)
+// Dashboard > Activities
 Breadcrumbs::for('activities', function (BreadcrumbTrail $trail) {
     $trail->parent('dashboard');
-    $trail->push(trans('web_form::app.menu.title'), route('admin.web_forms.index'));
+    $trail->push(trans('admin::app.layouts.leads'), route('admin.leads.index'));
 });
 
 // Dashboard > activities > Edit Activity

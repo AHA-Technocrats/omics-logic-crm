@@ -159,8 +159,8 @@
             data() {
                 const initialValue = this.value;
 
-                const selectedItem = initialValue?.id
-                    ? { id: initialValue.id, name: initialValue.name ?? '' }
+                const selectedItem = (initialValue?.id || initialValue?.name)
+                    ? { id: initialValue.id ?? '', name: initialValue.name ?? '' }
                     : { id: '', name: '' };
 
                 return {
@@ -218,9 +218,9 @@
 
             methods: {
                 normalizeSelectedItem(value) {
-                    if (value?.id) {
+                    if (value?.id || value?.name) {
                         return {
-                            id: value.id,
+                            id: value.id ?? '',
                             name: value.name ?? '',
                         };
                     }
@@ -310,7 +310,7 @@
 
                     if (
                         lookup &&
-                        ! lookup.contains(event.target)
+                        ! lookup.contains(e.target)
                     ) {
                         this.showPopup = false;
                     }

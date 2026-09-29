@@ -434,7 +434,7 @@
 
                                 this.isSearching[userType] = false;
                             })
-                            .catch (function (error) {
+                            .catch (() => {
                                 this.isSearching[userType] = false;
                             });
                     },

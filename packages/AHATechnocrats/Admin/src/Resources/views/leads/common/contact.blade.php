@@ -87,7 +87,7 @@
             <x-admin::attributes.edit.lookup />
 
             <v-lookup-component
-                :key="person.organization?.id"
+                :key="person.organization?.id || 'org-lookup'"
                 :attribute='@json($organizationAttribute)'
                 :value="person.organization"
                 :is-disabled="person?.id ? true : false"

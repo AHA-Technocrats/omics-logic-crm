@@ -26,7 +26,7 @@
                             <!-- User Id -->
                             <x-admin::form.control-group.control
                                 type="hidden"
-                                ::name="'participants.' + userType + '[' + index + ']'"
+                                ::name="'participants[' + userType + '][' + index + ']'"
                                 ::value="user.id"
                             />
 
@@ -76,7 +76,7 @@
 
             <!-- Search Dropdown -->
             <div
-                class="absolute z-10 w-full rounded bg-white shadow-[0px_10px_20px_0px_#0000001F] dark:bg-gray-900"
+                class="absolute bottom-full z-[10004] mb-1 max-h-60 w-full overflow-y-auto rounded bg-white shadow-[0px_10px_20px_0px_#0000001F] dark:bg-gray-900"
                 v-if="searchTerm.length >= 2"
             >
                 <ul class="flex flex-col gap-1 p-2">
