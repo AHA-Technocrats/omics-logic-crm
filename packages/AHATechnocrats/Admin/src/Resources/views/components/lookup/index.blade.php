@@ -60,12 +60,13 @@
                 <div class="relative flex items-center">
                     <input
                         type="text"
-                        v-model.lazy="searchTerm"
+                        v-model="searchTerm"
                         v-debounce="500"
                         class="w-full rounded border border-gray-300 px-2.5 py-2 text-sm font-normal text-gray-800 transition-all hover:border-gray-400 focus:border-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-gray-400 dark:focus:border-gray-400"
                         :placeholder="placeholder ?? '@lang('admin::app.components.lookup.search')'"
                         ref="searchInput"
-                        @keyup="search"
+                        @change="search"
+                        @keydown.enter.prevent="addNewItem"
                     />
 
                     <!-- Search Icon (absolute positioned) -->
@@ -98,13 +99,15 @@
                     </template>
 
                     <li
-                        v-if="canAddNew"
-                        @click="selectItem({ id: '', name: searchTerm })"
+                        v-if="canAddNew && searchTerm.trim()"
+                        @click="addNewItem"
                         class="cursor-pointer border-t border-gray-800 px-4 py-4 text-brandColor hover:bg-brandColor hover:text-white dark:border-gray-300 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-white"
                     >
                         <i class="icon-add text-md ltr:mr-2 rtl:ml-2"></i>
 
-                        @lang('admin::app.components.lookup.add-as-new')
+                        @lang('admin::app.components.lookup.add-as-new'):
+
+                        <span class="font-semibold">@{{ searchTerm.trim() }}</span>
                     </li>
                 </ul>
             </div>
@@ -213,9 +216,6 @@
                     },
                 },
 
-                searchTerm(newVal, oldVal) {
-                    this.search();
-                },
             },
 
             computed: {
@@ -243,9 +243,9 @@
 
             methods: {
                 syncSelectedItem(value) {
-                    if (value?.id) {
+                    if (value?.id || value?.name) {
                         this.selectedItem = {
-                            id: value.id,
+                            id: value.id ?? '',
                             name: value.name ?? '',
                         };
 
@@ -290,7 +290,26 @@
                 },
 
                 /**
-                 * Triggered on keyup — loads defaults when empty, searches when typed.
+                 * Accept the current search text as a new lookup item.
+                 *
+                 * @return {void}
+                 */
+                addNewItem() {
+                    if (! this.canAddNew) {
+                        return;
+                    }
+
+                    const name = this.searchTerm.trim();
+
+                    if (! name) {
+                        return;
+                    }
+
+                    this.selectItem({ id: '', name });
+                },
+
+                /**
+                 * Loads defaults when empty and searches when the debounced input settles.
                  *
                  * @return {void}
                  */

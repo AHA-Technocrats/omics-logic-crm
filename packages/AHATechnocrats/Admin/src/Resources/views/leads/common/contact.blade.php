@@ -9,6 +9,7 @@
         type="text/x-template"
         id="v-contact-component-template"
     >
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         <!-- Person Search Lookup -->
         <x-admin::form.control-group>
             <x-admin::form.control-group.label class="required">
@@ -68,41 +69,7 @@
                 :is-disabled="person?.id ? true : false"
             ></v-phone-component>
         </x-admin::form.control-group>
-
-        <!-- Person Organization -->
-        <x-admin::form.control-group>
-            <x-admin::form.control-group.label>
-                @lang('admin::app.leads.common.contact.organization')
-            </x-admin::form.control-group.label>
-
-            @php
-                $organizationAttribute = app('AHATechnocrats\Attribute\Repositories\AttributeRepository')->findOneWhere([
-                    'entity_type' => 'persons',
-                    'code' => 'organization_id'
-                ]);
-
-                $organizationAttribute->code = 'person[' . $organizationAttribute->code . ']';
-            @endphp
-
-            <x-admin::attributes.edit.lookup />
-
-            <v-lookup-component
-                :key="person.organization?.id || 'org-lookup'"
-                :attribute='@json($organizationAttribute)'
-                :value="person.organization"
-                :is-disabled="person?.id ? true : false"
-                can-add-new="true"
-                @lookup-added="handleOrganizationAdded"
-                @lookup-removed="handleOrganizationRemoved"
-            ></v-lookup-component>
-
-            <x-admin::form.control-group.control
-                type="hidden"
-                name="person[organization_name]"
-                v-model="organizationName"
-                v-if="organizationName"
-            />
-        </x-admin::form.control-group>
+        </div>
     </script>
 
     <script type="module">
@@ -120,8 +87,6 @@
                     person: this.data ? this.data : {
                         'name': ''
                     },
-
-                    organizationName: this.data?.organization?.name || null,
 
                     persons: [],
                 }
@@ -148,24 +113,6 @@
             methods: {
                 addPerson (person) {
                     this.person = person || {};
-                    this.organizationName = this.person.organization?.name || null;
-                    this.$emit('on-selected', this.person);
-                },
-
-                handleOrganizationAdded (organization) {
-                    this.organizationName = organization.id ? null : organization.name;
-                    if (! this.person.organization) {
-                        this.person.organization = {};
-                    }
-                    this.person.organization = organization;
-                    this.$emit('on-selected', this.person);
-                },
-
-                handleOrganizationRemoved () {
-                    this.organizationName = null;
-                    if (this.person.organization) {
-                        this.person.organization = {};
-                    }
                     this.$emit('on-selected', this.person);
                 }
             }

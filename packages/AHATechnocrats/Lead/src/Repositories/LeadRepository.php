@@ -124,6 +124,7 @@ class LeadRepository extends Repository
          * If a person is provided, create or update the person and set the `person_id`.
          */
         if (isset($data['person'])) {
+            $data['person'] = $this->applyLeadDefaultsToPerson($data['person'], $data);
             $person = $this->persistPerson($data['person']);
 
             $data['person_id'] = $person->id;
@@ -189,6 +190,7 @@ class LeadRepository extends Repository
          * For example, in the lead Kanban section, when switching stages, only the stage will be updated.
          */
         if (isset($data['person'])) {
+            $data['person'] = $this->applyLeadDefaultsToPerson($data['person'], $data);
             $person = $this->persistPerson($data['person']);
 
             $data['person_id'] = $person->id;
@@ -197,10 +199,21 @@ class LeadRepository extends Repository
         if (isset($data['lead_pipeline_stage_id'])) {
             $stage = $this->stageRepository->find($data['lead_pipeline_stage_id']);
 
-            if (in_array($stage->code, ['won', 'lost'])) {
+            if ($stage && in_array($stage->code, ['won', 'lost'])) {
                 $data['closed_at'] = $data['closed_at'] ?? Carbon::now();
             } else {
                 $data['closed_at'] = null;
+            }
+
+            if ($stage && $stage->code === 'won') {
+                $existingLead = $this->find($id);
+                if ($existingLead) {
+                    $userEnteredValue = isset($data['lead_value']) && is_numeric($data['lead_value']) && (float) $data['lead_value'] > 0
+                        ? (float) $data['lead_value']
+                        : null;
+
+                    $data['lead_value'] = $existingLead->resolveWonValue($userEnteredValue);
+                }
             }
         }
 
@@ -334,6 +347,33 @@ class LeadRepository extends Repository
         }
 
         return $this->personRepository->create($personPayload);
+    }
+
+    /**
+     * Use the lead form's source, first campaign, and owner for the linked
+     * person so users do not have to enter the same values twice.
+     */
+    protected function applyLeadDefaultsToPerson(array $personData, array $leadData): array
+    {
+        if (empty($personData['primary_source_id']) && ! empty($leadData['lead_source_id'])) {
+            $personData['primary_source_id'] = $leadData['lead_source_id'];
+        }
+
+        if (empty($personData['user_id']) && ! empty($leadData['user_id'])) {
+            $personData['user_id'] = $leadData['user_id'];
+        }
+
+        if (empty($personData['primary_product_id'])) {
+            foreach ($leadData['products'] ?? [] as $product) {
+                if (! empty($product['product_id'])) {
+                    $personData['primary_product_id'] = $product['product_id'];
+
+                    break;
+                }
+            }
+        }
+
+        return $personData;
     }
 
     /**

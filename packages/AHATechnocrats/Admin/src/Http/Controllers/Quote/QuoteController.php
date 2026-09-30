@@ -102,7 +102,16 @@ class QuoteController extends Controller
         if ($leadId) {
             $lead = $this->leadRepository->find($leadId);
 
-            $lead->quotes()->attach($quote->id);
+            if ($lead) {
+                $lead->quotes()->attach($quote->id);
+
+                if ($lead->stage?->code === 'won' && (float) $quote->grand_total > 0) {
+                    $this->leadRepository->update([
+                        'entity_type' => 'leads',
+                        'lead_value' => $quote->grand_total,
+                    ], $lead->id, ['lead_value']);
+                }
+            }
         }
 
         Event::dispatch('quote.create.after', $quote);
@@ -163,7 +172,16 @@ class QuoteController extends Controller
         if ($leadId) {
             $lead = $this->leadRepository->find($leadId);
 
-            $lead->quotes()->attach($quote->id);
+            if ($lead) {
+                $lead->quotes()->attach($quote->id);
+
+                if ($lead->stage?->code === 'won' && (float) $quote->grand_total > 0) {
+                    $this->leadRepository->update([
+                        'entity_type' => 'leads',
+                        'lead_value' => $quote->grand_total,
+                    ], $lead->id, ['lead_value']);
+                }
+            }
         }
 
         Event::dispatch('quote.update.after', $quote);

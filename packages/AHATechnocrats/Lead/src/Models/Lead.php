@@ -170,4 +170,36 @@ class Lead extends Model implements LeadContract
 
         return $rottenDate->diffInDays(Carbon::now(), false);
     }
+
+    /**
+     * Resolve the Won/Closing value for the lead based on accepted Quotes, Campaigns, or user input/fallback.
+     */
+    public function resolveWonValue(?float $userEnteredValue = null): float
+    {
+        if ($userEnteredValue !== null && $userEnteredValue > 0) {
+            return (float) $userEnteredValue;
+        }
+
+        // 1. Check latest associated Quote with grand_total > 0
+        $latestQuote = $this->quotes()->latest('quotes.id')->first();
+        if ($latestQuote && (float) $latestQuote->grand_total > 0) {
+            return (float) $latestQuote->grand_total;
+        }
+
+        // 2. Check total amount of attached campaigns (lead_products)
+        $campaignTotal = (float) $this->products()->sum('amount');
+        if ($campaignTotal > 0) {
+            return $campaignTotal;
+        }
+
+        return (float) ($this->lead_value ?? 0);
+    }
+
+    /**
+     * Get the auto-derived won value attribute.
+     */
+    public function getDerivedWonValueAttribute(): float
+    {
+        return $this->resolveWonValue();
+    }
 }

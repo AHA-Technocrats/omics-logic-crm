@@ -8,7 +8,7 @@
         <div class="flex flex-col gap-4">
             {!! view_render_event('admin.leads.create.products.form_controls.table.before') !!}
 
-            <div class="block w-full">
+            <div class="block w-full overflow-x-auto">
                 <!-- Table -->
                 <x-admin::table>
                     {!! view_render_event('admin.leads.create.products.form_controls.table.head.before') !!}
@@ -89,6 +89,7 @@
                         ::src="src"
                         ::name="`${inputName}[name]`"
                         :preload="true"
+                        ::value="{id: product.product_id, name: product.name}"
                         :placeholder="trans('admin::app.leads.common.campaigns.campaign-name')"
                         @on-selected="(product) => addProduct(product)"
                     />

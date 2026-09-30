@@ -114,7 +114,7 @@
                                     <x-admin::form.control-group.control
                                         type="price"
                                         name="lead_value"
-                                        :value="$lead->lead_value"
+                                        :value="$lead->resolveWonValue()"
                                         v-model="nextStage.lead_value"
                                     />
                                 </x-admin::form.control-group>
@@ -201,6 +201,10 @@
                     }
 
                     this.nextStage = stage;
+
+                    if (stage.code === 'won' && ! this.nextStage.lead_value) {
+                        this.nextStage.lead_value = @json($lead->resolveWonValue());
+                    }
 
                     this.$refs.stageUpdateModal.open();
                 },

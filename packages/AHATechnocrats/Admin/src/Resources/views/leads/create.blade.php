@@ -161,21 +161,41 @@
                             @include('admin::leads.common.contact')
 
                             @include('admin::omics.partials.person-fields', [
-                                'showHeading' => true,
+                                'showHeading' => false,
                                 'showContactFields' => true,
-                                'showCrmFields' => true,
+                                'showCrmFields' => false,
                                 'namePrefix' => 'person',
-                                'isNested' => true,
-                            ])
-
-                            @include('admin::omics.partials.organization-fields', [
-                                'namePrefix' => 'person[organization]',
                                 'isNested' => true,
                             ])
                         </div>
                     </div>
 
                     {!! view_render_event('admin.leads.create.contact_person.after') !!}
+
+                    <!-- Organization Details -->
+                    <div
+                        class="flex flex-col gap-4"
+                        id="organization-details"
+                    >
+                        <div class="flex flex-col gap-1">
+                            <p class="text-base font-semibold dark:text-white">
+                                @lang('admin::app.leads.create.organization-details')
+                            </p>
+
+                            <p class="text-gray-600 dark:text-white">
+                                @lang('admin::app.leads.create.organization-info')
+                            </p>
+                        </div>
+
+                        <div class="w-1/2 max-md:w-full">
+                            @include('admin::omics.partials.organization-fields', [
+                                'showHeading' => false,
+                                'showOrganizationLookup' => true,
+                                'namePrefix' => 'person[organization]',
+                                'isNested' => true,
+                            ])
+                        </div>
+                    </div>
 
                     <!-- Product Section -->
                     {!! view_render_event('admin.leads.create.products.form_controls.before') !!}
@@ -219,11 +239,16 @@
                             organization: {}
                         },
 
+                        organizationName: null,
+
                         tabs: [
                             { id: 'lead-details', label: "@lang('admin::app.leads.create.details')" },
                             { id: 'contact-person', label: "@lang('admin::app.leads.create.contact-person')" },
+                            { id: 'organization-details', label: "@lang('admin::app.leads.create.organization-details')" },
                             { id: 'products', label: "@lang('admin::app.leads.create.campaigns')" }
                         ],
+
+                        products: @json(old('products', [])),
                     };
                 },
 
@@ -231,6 +256,25 @@
                     personSelected(person) {
                         this.person = person || {};
                         if (! this.person.organization) {
+                            this.person.organization = {};
+                        }
+                        this.organizationName = this.person.organization?.name || null;
+                    },
+
+                    handleOrganizationAdded(organization) {
+                        this.organizationName = organization.id ? null : organization.name;
+                        if (! this.person.organization) {
+                            this.person.organization = {};
+                        }
+                        this.person.organization = {
+                            ...this.person.organization,
+                            ...organization
+                        };
+                    },
+
+                    handleOrganizationRemoved() {
+                        this.organizationName = null;
+                        if (this.person.organization) {
                             this.person.organization = {};
                         }
                     },

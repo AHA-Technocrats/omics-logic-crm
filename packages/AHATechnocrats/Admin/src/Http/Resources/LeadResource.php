@@ -20,6 +20,8 @@ class LeadResource extends JsonResource
             'title' => $this->title,
             'lead_value' => $this->lead_value,
             'formatted_lead_value' => core()->formatBasePrice($this->lead_value),
+            'derived_won_value' => method_exists($this->resource, 'resolveWonValue') ? $this->resolveWonValue() : (float) ($this->lead_value ?? 0),
+            'formatted_derived_won_value' => core()->formatBasePrice(method_exists($this->resource, 'resolveWonValue') ? $this->resolveWonValue() : ($this->lead_value ?? 0)),
             'status' => $this->status,
             'expected_close_date' => $this->expected_close_date,
             'rotten_days' => $this->rotten_days,

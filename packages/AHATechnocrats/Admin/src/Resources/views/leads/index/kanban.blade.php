@@ -323,7 +323,7 @@
                                     <x-admin::form.control-group.control
                                         type="price"
                                         name="lead_value"
-                                        ::value="finalized.lead.lead_value"
+                                        ::value="finalized.lead.derived_won_value ?? finalized.lead.lead_value"
                                     />
                                 </x-admin::form.control-group>
                             </template>

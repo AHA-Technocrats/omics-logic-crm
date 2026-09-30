@@ -28,21 +28,23 @@ async function generateLead(adminPage) {
 
     /**
      * Add a new person via the lookup component.
-     * The person lookup uses v-model.lazy + v-debounce="500" on its search input.
-     * Playwright's fill() doesn't fire 'change', so we dispatch it manually
-     * and wait for the debounce timer to update searchTerm.
      */
+    await adminPage.getByRole('tab', { name: 'Contact Person' }).click();
+
     const contactSection = adminPage.locator('#contact-person');
+
+    await expect(contactSection.locator('select[name="person[primary_source_id]"]')).toHaveCount(0);
+    await expect(contactSection.locator('select[name="person[primary_product_id]"]')).toHaveCount(0);
+    await expect(contactSection.locator('select[name="person[user_id]"]')).toHaveCount(0);
 
     await contactSection.getByText('Click to Add', { exact: true }).first().click();
 
     const personSearch = contactSection.locator('.absolute input[type="text"]').first();
     await personSearch.waitFor({ state: 'visible' });
     await personSearch.fill(leadTitle);
-    await personSearch.dispatchEvent('change');
-    await adminPage.waitForTimeout(600);
 
-    await contactSection.getByText('Add as New').first().click();
+    await contactSection.getByText(`Add as New: ${leadTitle}`).click();
+    await expect(contactSection.getByTitle(leadTitle)).toBeVisible();
 
     await adminPage.fill('input[name="person[emails][0][value]"]', leadEmail);
     await adminPage.fill('input[name="person[contact_numbers][0][value]"]', leadPhoneNumber);
@@ -67,6 +69,8 @@ async function generateLead(adminPage) {
      * Remove the auto-added empty product row to avoid validation errors.
      * (Products are optional; the empty row has a required product_id rule.)
      */
+    await adminPage.getByRole('tab', { name: 'Campaigns' }).click();
+
     while (await adminPage.locator('#products .icon-delete').count() > 0) {
         await adminPage.locator('#products .icon-delete').first().click();
     }
@@ -130,6 +134,8 @@ test.describe("lead management", () => {
 
     // Remove auto-added empty product rows on the edit page
     // (the edit page's v-product-list always adds an empty row).
+    await page1.getByRole('tab', { name: 'Campaigns' }).click();
+
     while (await page1.locator('#products .icon-delete').count() > 0) {
         await page1.locator('#products .icon-delete').first().click();
     }

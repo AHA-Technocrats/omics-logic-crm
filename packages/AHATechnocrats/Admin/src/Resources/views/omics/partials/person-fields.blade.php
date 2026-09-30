@@ -23,6 +23,9 @@
     $selectedInquiry = old($fieldName('inquiry_details'), $record?->inquiry_details);
     $showHeading = $showHeading ?? true;
     $showCrmFields = $showCrmFields ?? true;
+    $showCampaignField = $showCampaignField ?? true;
+    $showSourceField = $showSourceField ?? true;
+    $showOwnerField = $showOwnerField ?? true;
     $showContactFields = $showContactFields ?? true;
     $showInquiryField = $showInquiryField ?? true;
 @endphp
@@ -37,7 +40,7 @@
 @endif
 
     @if ($showContactFields)
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             <x-admin::form.control-group>
                 <x-admin::form.control-group.label>
                     @lang('omicslogic::app.fields.country')
@@ -75,7 +78,7 @@
             </x-admin::form.control-group>
 
             @if ($showInquiryField)
-            <x-admin::form.control-group class="md:col-span-2">
+            <x-admin::form.control-group class="md:col-span-2 xl:col-span-1">
                 <x-admin::form.control-group.label>
                     @lang('omicslogic::app.fields.inquiry-details')
                 </x-admin::form.control-group.label>
@@ -93,62 +96,68 @@
 
     @if ($showCrmFields)
         <div @class([
-            'mt-4 grid grid-cols-1 gap-4 md:grid-cols-2',
+            'mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3',
             'border-t border-gray-200 pt-4 dark:border-gray-800' => $showContactFields,
         ])>
-            <x-admin::form.control-group>
-                <x-admin::form.control-group.label>
-                    @lang('omicslogic::app.fields.campaign')
-                </x-admin::form.control-group.label>
-                <x-admin::form.control-group.control
-                    type="select"
-                    :name="$fieldName('primary_product_id')"
-                    :value="$selectedProduct"
-                    :v-model="$isNested ? 'person.primary_product_id' : null"
-                    ::disabled="$isNested ? 'person.id ? true : false' : null"
-                >
-                    <option value="">@lang('omicslogic::app.fields.any')</option>
-                    @foreach ($campaigns as $campaign)
-                        <option value="{{ $campaign->id }}" @selected((string) $selectedProduct === (string) $campaign->id)>{{ $campaign->name }}</option>
-                    @endforeach
-                </x-admin::form.control-group.control>
-            </x-admin::form.control-group>
+            @if ($showCampaignField)
+                <x-admin::form.control-group>
+                    <x-admin::form.control-group.label>
+                        @lang('omicslogic::app.fields.campaign')
+                    </x-admin::form.control-group.label>
+                    <x-admin::form.control-group.control
+                        type="select"
+                        :name="$fieldName('primary_product_id')"
+                        :value="$selectedProduct"
+                        :v-model="$isNested ? 'person.primary_product_id' : null"
+                        ::disabled="$isNested ? 'person.id ? true : false' : null"
+                    >
+                        <option value="">@lang('omicslogic::app.fields.any')</option>
+                        @foreach ($campaigns as $campaign)
+                            <option value="{{ $campaign->id }}" @selected((string) $selectedProduct === (string) $campaign->id)>{{ $campaign->name }}</option>
+                        @endforeach
+                    </x-admin::form.control-group.control>
+                </x-admin::form.control-group>
+            @endif
 
-            <x-admin::form.control-group>
-                <x-admin::form.control-group.label>
-                    @lang('omicslogic::app.fields.source')
-                </x-admin::form.control-group.label>
-                <x-admin::form.control-group.control
-                    type="select"
-                    :name="$fieldName('primary_source_id')"
-                    :value="$selectedSource"
-                    :v-model="$isNested ? 'person.primary_source_id' : null"
-                    ::disabled="$isNested ? 'person.id ? true : false' : null"
-                >
-                    <option value="">@lang('omicslogic::app.fields.any')</option>
-                    @foreach ($sources as $source)
-                        <option value="{{ $source->id }}" @selected((string) $selectedSource === (string) $source->id)>{{ $source->name }}</option>
-                    @endforeach
-                </x-admin::form.control-group.control>
-            </x-admin::form.control-group>
+            @if ($showSourceField)
+                <x-admin::form.control-group>
+                    <x-admin::form.control-group.label>
+                        @lang('omicslogic::app.fields.source')
+                    </x-admin::form.control-group.label>
+                    <x-admin::form.control-group.control
+                        type="select"
+                        :name="$fieldName('primary_source_id')"
+                        :value="$selectedSource"
+                        :v-model="$isNested ? 'person.primary_source_id' : null"
+                        ::disabled="$isNested ? 'person.id ? true : false' : null"
+                    >
+                        <option value="">@lang('omicslogic::app.fields.any')</option>
+                        @foreach ($sources as $source)
+                            <option value="{{ $source->id }}" @selected((string) $selectedSource === (string) $source->id)>{{ $source->name }}</option>
+                        @endforeach
+                    </x-admin::form.control-group.control>
+                </x-admin::form.control-group>
+            @endif
 
-            <x-admin::form.control-group>
-                <x-admin::form.control-group.label>
-                    @lang('omicslogic::app.fields.owner')
-                </x-admin::form.control-group.label>
-                <x-admin::form.control-group.control
-                    type="select"
-                    :name="$fieldName('user_id')"
-                    :value="$selectedOwner"
-                    :v-model="$isNested ? 'person.user_id' : null"
-                    ::disabled="$isNested ? 'person.id ? true : false' : null"
-                >
-                    <option value="">@lang('omicslogic::app.fields.unassigned')</option>
-                    @foreach ($owners as $owner)
-                        <option value="{{ $owner->id }}" @selected((string) $selectedOwner === (string) $owner->id)>{{ $owner->name }}</option>
-                    @endforeach
-                </x-admin::form.control-group.control>
-            </x-admin::form.control-group>
+            @if ($showOwnerField)
+                <x-admin::form.control-group>
+                    <x-admin::form.control-group.label>
+                        @lang('omicslogic::app.fields.owner')
+                    </x-admin::form.control-group.label>
+                    <x-admin::form.control-group.control
+                        type="select"
+                        :name="$fieldName('user_id')"
+                        :value="$selectedOwner"
+                        :v-model="$isNested ? 'person.user_id' : null"
+                        ::disabled="$isNested ? 'person.id ? true : false' : null"
+                    >
+                        <option value="">@lang('omicslogic::app.fields.unassigned')</option>
+                        @foreach ($owners as $owner)
+                            <option value="{{ $owner->id }}" @selected((string) $selectedOwner === (string) $owner->id)>{{ $owner->name }}</option>
+                        @endforeach
+                    </x-admin::form.control-group.control>
+                </x-admin::form.control-group>
+            @endif
 
 
         </div>
